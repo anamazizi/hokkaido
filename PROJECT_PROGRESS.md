@@ -1,5 +1,22 @@
 # PROJECT PROGRESS LOG
 
+## 16 September 2026 (21:15 UTC)
+### Eliminate Document Manipulation & Load Leaflet CSS via Layout
+- **Status**: ✅ BERHASIL (Build Exit Code 0)
+- **Perubahan Dilakukan**:
+  1. **CSS Load via Layout**: Menambahkan tag `<link>` stylesheet Leaflet CDN di `<head>` di `app/layout.tsx` secara deklaratif.
+  2. **Clean Document References**: Menghapus semua manipulasi `document.createElement` dan `document.head.appendChild` dari `components/Map.tsx`.
+  3. **Client-Side Mount Check**: Menambahkan state `isMounted` dan render fallback component sehingga komponen hanya di-render di client-side.
+  4. **Icon Configuration Safety**: Konfigurasi ikon Leaflet tetap dijalankan di dalam `useEffect` setelah mount.
+
+### Pematuhan .clinerules
+- ✅ Zero Document Manipulation: Tidak ada rujukan `document` di luar lifecycle React.
+- ✅ Build Gate: `npm run build` Exit Code 0 tanpa error.
+- ✅ Zero-Mock: Fungsi peta tetap berfungsi penuh dengan fallback loading UI.
+
+### Langkah Seterusnya
+- Push perubahan ke GitHub untuk trigger deployment Vercel.
+
 ## 16 September 2026 (21:00 UTC)
 ### Leaflet SSR Root Cause Fix
 - **Status**: ✅ BERHASIL (Build Exit Code 0)

@@ -1,6 +1,33 @@
 PROJECT PROGRESS LOG
 =====================
 Date: 16 September 2026
+Time: 21:15 UTC
+
+TASK: Eliminate Document Manipulation & Load Leaflet CSS via Layout
+STATUS: ✅ BERHASIL
+
+PERUBAHAN:
+1. Tambah <link> Leaflet CSS di app/layout.tsx head.
+2. Hapus document manipulation dari Map.tsx.
+3. Tambah isMounted state dan fallback loading.
+4. Icon config tetap di client-side.
+
+BUILD GATE: npm run build Exit Code 0 (tiada ralat)
+
+CLINERULES COMPLIANCE:
+- Zero document manipulation di luar lifecycle.
+- Zero-Mock: Fungsi peta tetap utuh dengan loading fallback.
+
+NOTES:
+✅ Leaflet CSS loaded via layout.
+✅ No document references in Map.tsx.
+✅ Build successful.
+
+NEXT STEP:
+Push ke GitHub dan trigger deployment Vercel.
+
+=====================
+Date: 16 September 2026
 Time: 21:00 UTC
 
 TASK: Leaflet SSR Root Cause Fix (Dynamic Module Import)

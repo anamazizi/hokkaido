@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet'
 
 interface MapProps {
@@ -21,7 +21,11 @@ function ClickHandler({ onMapClick }: { onMapClick: (lat: number, lng: number) =
 }
 
 export default function Map({ storeLat, storeLng, selectedLat, selectedLng, onMapClick }: MapProps) {
+  const [isMounted, setIsMounted] = useState(false)
+
   useEffect(() => {
+    setIsMounted(true)
+    
     if (typeof window === 'undefined') return;
 
     import('leaflet').then((L) => {
@@ -32,16 +36,15 @@ export default function Map({ storeLat, storeLng, selectedLat, selectedLng, onMa
         shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
       });
     });
-
-    // Ensure Leaflet CSS is loaded
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-    document.head.appendChild(link);
-    return () => {
-      document.head.removeChild(link);
-    };
   }, [])
+
+  if (!isMounted) {
+    return (
+      <div className="h-full w-full bg-amber-50 rounded-xl flex items-center justify-center text-slate-400">
+        Memuatkan peta...
+      </div>
+    )
+  }
 
   return (
     <MapContainer

@@ -1,0 +1,54 @@
+# ==============================================================================
+# RULEBOOK RASMI PEMBANGUNAN PROJEK (.clinerules)
+# Disiplin Pelaksanaan, Anti-Regresi, Perlindungan Data & Zero-Mock
+# ==============================================================================
+
+⚠️ PERATURAN MUTLAK 3 FAIL TONGGAK (SOURCE OF TRUTH PROTECTION)
+DILARANG MEMADAM, MENAMAKAN SEMULA (RENAME), ATAU MEMINDAHKAN 3 FAIL INI:
+1. `MASTER_PROMPT.md` (Spesifikasi seni bina asal & blueprint projek)
+2. `.clinerules` (Buku peraturan disiplin & pagar keselamatan ini)
+3. `PROJECT_PROGRESS.md` / `PROJECT_PROGRESS.txt` (Log kemajuan semasa & Source of Truth)
+Ketiga-tiga fail ini wajib kekal utuh di direktori utama (root folder) sepanjang masa.
+
+--------------------------------------------------------------------------------
+
+1. PEMBAHAGIAN PERANAN & ALIRAN KERJA (WORKFLOW DISCIPLINE)
+- Gemini / NotebookLM: Bertindak sebagai Senior Architect & Prompt Engineer. Gemini merangka seni bina dan menyediakan prompt arahan berstruktur.
+- Cline (VS Code): Bertindak sebagai Hands-on Executioner. Membaca fail tempatan, menyiasat skema pangkalan data sebenar, menyunting kod secara berhati-hati, dan mengesahkan kompilasi.
+- User / Lead Tester: Menguji fungsi sebenar di pelayar (localhost), melaksanakan arahan Git commit/push, dan menguruskan dokumen rujukan.
+
+--------------------------------------------------------------------------------
+
+2. LARANGAN KERAS KOD OLOK-OLOK (ZERO MOCK / NO PLACEHOLDERS)
+- DILARANG SEKERAS-KERASNYA menggantikan sebarang fungsi, modal, atau komponen dengan teks olok-olok (seperti "Component under development", butang palsu, modal kosong, atau memadam fungsi semata-mata untuk meluluskan kompilasi).
+- Jika berlaku ralat TypeScript/linter, baiki definisi jenis (interfaces/types) atau selaraskan rantaian data sebenar. DILARANG memadam logik perniagaan atau fungsi yang telah siap.
+
+--------------------------------------------------------------------------------
+
+3. PENYELARASAN LALUAN RASMI APLIKASI (STRICT ROUTES ONLY)
+- Laluan URL (routes) yang telah dipersetujui dalam MASTER_PROMPT.md adalah muktamad.
+- DILARANG mencipta laluan rawak atau bertindih (contoh: jika modul peniaga ditetapkan di `/jualan`, jangan sesekali wujudkan `/seller` atau `/sellers`).
+- DILARANG mencampurkan komponen navigasi (contoh: navigasi Admin hanya untuk Admin, navigasi Seller hanya untuk Seller).
+
+--------------------------------------------------------------------------------
+
+4. KESELAMATAN DATA & LOGIK PERNIAGAAN TERAS (BACKEND INTEGRITY)
+- Database As Source of Truth: Jangan bergantung pada localStorage untuk data kritikal. Gunakan pangkalan data sebenar (Supabase/PostgreSQL).
+- Server-Side Validation: Jangan sesekali percaya kiraan harga atau pengesahan dari pelayar (browser). Semua kiraan kewangan dan stok wajib disahkan di server / RPC transaction (`FOR UPDATE`).
+- No Destructive Accounting (Soft Delete): Utamakan pendekatan `is_archived = true` berbanding pemadaman kekal (hard delete) bagi memelihara rekod transaksi dan jejak audit (Audit Trail).
+- Strict URL Encoding: Sebarang integrasi pautan luar (seperti WhatsApp Order Link) WAJIB mengekalkan pembungkus ketat `encodeURIComponent(rawMessage)` untuk melindungi aksara Unicode dan emoji.
+- Prinsip KISS (Keep It Simple, Stupid): Elakkan rekaan yang terlalu rumit (overengineering) pada fasa awal. Utamakan kestabilan fungsi asas (contoh: dropdown tetap sebelum membina CRUD modal kategori yang kompleks).
+
+--------------------------------------------------------------------------------
+
+5. PANDUAN ANTARAMUKA (UI CONTRAST & ACCESSIBILITY)
+- Semua borang (form), medan input, jadual, dan kad interaktif WAJIB menggunakan kelas kontras tinggi:
+  `text-slate-900 bg-white placeholder:text-gray-400 border-gray-300`
+- Pastikan reka bentuk responsif (mobile-first) dan tiada butang terhalang oleh Bottom Navigation Bar (gunakan `pb-24` jika perlu).
+
+--------------------------------------------------------------------------------
+
+6. PENGESAHAN BINAAN & REKOD KEMAJUAN (BUILD GATE)
+Sebelum melaporkan sebarang tugasan selesai:
+1. WAJIB jalankan `npm run build` di terminal VS Code dan pastikan Exit Code 0 (0 ralat TypeScript/JavaScript).
+2. Kemas kini fail fizikal `PROJECT_PROGRESS.txt` / `PROJECT_PROGRESS.md` dengan catatan peratus siap (%), tarikh/waktu, dan log perubahan (patch log).

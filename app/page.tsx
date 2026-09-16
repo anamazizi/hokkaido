@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import dynamic from 'next/dynamic'
 import { ShoppingCart, Phone, MessageCircle, HelpCircle } from 'lucide-react'
 import useOrderForm from '@/lib/useOrderForm'
 import { supabase } from '@/lib/supabase'
@@ -8,8 +9,12 @@ import { getProductDetails, formatCurrency, sanitizePhone } from '@/lib/utils'
 import CustomerForm from '@/components/CustomerForm'
 import ProductSelection from '@/components/ProductSelection'
 import DeliveryMethod from '@/components/DeliveryMethod'
-import MapDisplay from '@/components/MapDisplay'
 import OrderSummary from '@/components/OrderSummary'
+
+const MapDisplay = dynamic(() => import('@/components/MapDisplay'), {
+  ssr: false,
+  loading: () => <div className="h-64 bg-amber-50 rounded-xl animate-pulse flex items-center justify-center text-slate-400">Memuatkan peta...</div>
+})
 
 export default function Home() {
   const {
@@ -171,6 +176,7 @@ export default function Home() {
             src="/images/hokkaido-banner.jpg" 
             alt="Hokkaido Inti Jebok Banner" 
             className="w-full h-64 md:h-80 rounded-2xl shadow-sm object-cover border border-amber-200"
+            loading="lazy"
             onError={(e) => { e.currentTarget.style.display = 'none' }}
           />
         </div>
@@ -182,6 +188,7 @@ export default function Home() {
               src="/images/hokkaido-cream.jpg" 
               alt="Hokkaido Cream Texture" 
               className="w-full h-64 object-cover"
+loading="lazy"
               onError={(e) => { e.currentTarget.style.display = 'none' }}
             />
           </div>
@@ -190,6 +197,7 @@ export default function Home() {
               src="/images/hokkaido-sets.jpg" 
               alt="Hokkaido Sets" 
               className="w-full h-64 object-cover"
+loading="lazy"
               onError={(e) => { e.currentTarget.style.display = 'none' }}
             />
           </div>

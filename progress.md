@@ -297,3 +297,30 @@ return Math.floor(rawFee * 10) / 10
 - Push ke GitHub dengan commit message: `feat: add delivery address field and direct whatsapp redirect without popup`.
 
 **Kesan:** Pelanggan kini boleh memberikan alamat lengkap untuk penghantaran COD, dan sistem akan terus mengalihkan ke aplikasi WhatsApp tanpa sebarang pop-up yang mengganggu.
+### 2026-09-16T18:30 (UTC+8)
+
+**PENJENAMAAN SEMULA KE HOKKAIDO INTI JEBOK & INTEGRASI GAMBAR PRODUK**
+
+✅ **Penjenamaan & Tajuk Produk Baru:**
+- Nama rasmi produk ditukar kepada "Hokkaido Inti Jebok".
+- Tagline: "- Kek Muffin Inti Custard -".
+- Slogan sokongan: "Gebu di luar, creamy di dalam. Inti kastard penuh melimpah!".
+- Tajuk laman di layout dan template WhatsApp dikemas kini.
+
+✅ **Penyelarasan Pilihan Produk (Pricing & Packages):**
+- Set 12 pcs: RM 18.00 (Set Family Box).
+- Set 25 pcs: RM 30.00 (Set Mega Craving).
+- Set Solo (3 pcs - RM 4.50) dikekalkan.
+
+✅ **Paparan Gambar Produk (Storefront UI):**
+- Komponen `<img>` dengan kontras tinggi mengikut `.clinerules`.
+- Banner Hero: `/images/hokkaido-banner.jpg`.
+- Kad Pilihan Set: `/images/hokkaido-sets.jpg`.
+- Visual Tekstur & Inti Kastard: `/images/hokkaido-cream.jpg`.
+- Susun atur responsif (mobile-friendly) dengan teks label berkontras tinggi (`text-slate-900`).
+
+✅ **Pengesahan Build & Deployment:**
+- `npm run build` exit code 0 tanpa ralat TypeScript.
+- Push ke GitHub dengan commit message: `feat: rebrand to Hokkaido Inti Jebok and add product showcase images`.
+
+**Kesan:** Storefront kini memaparkan penjenamaan baharu dengan gambar produk yang menarik, menepati citarasa promosi Bamdam dan disiplin `.clinerules`.

@@ -9,9 +9,9 @@ interface ProductSelectionProps {
 }
 
 const productOptions = [
-  { value: 'solo_sweet', label: 'Set Solo Sweet (3 biji)', price: 4.5 },
-  { value: 'family_box', label: 'Set Family Box (12 biji)', price: 18.0 },
-  { value: 'mega_craving', label: 'Set Mega Craving (25 biji)', price: 30.0 },
+  { value: 'solo_sweet', label: 'Hokkaido Inti Jebok - Set Solo Sweet (3 biji)', price: 4.5 },
+  { value: 'family_box', label: 'Hokkaido Inti Jebok - Set Family Box (12 biji)', price: 18.0 },
+  { value: 'mega_craving', label: 'Hokkaido Inti Jebok - Set Mega Craving (25 biji)', price: 30.0 },
 ]
 
 export default function ProductSelection({ productType, setProductType, quantity, setQuantity }: ProductSelectionProps) {

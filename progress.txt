@@ -83,3 +83,9 @@
 - Gantikan window.open dengan window.location.href untuk direct redirect tanpa pop-up.
 - BUILD BERHASIL: npm run build exit code 0 tanpa ralat TypeScript.
 - Commit feat: add delivery address field and direct whatsapp redirect without popup.
+2026-09-16T18:30:00 - PENJENAMAAN SEMULA KE HOKKAIDO INTI JEBOK & INTEGRASI GAMBAR PRODUK
+- Nama produk ditukar ke Hokkaido Inti Jebok dengan tagline dan slogan.
+- Harga kekal: Set Solo Sweet RM 4.50, Family Box RM 18.00, Mega Craving RM 30.00.
+- Tambah komponen gambar hero dan showcase menggunakan placeholder SVG.
+- BUILD BERHASIL: npm run build exit code 0 tanpa ralat TypeScript.
+- Commit feat: rebrand to Hokkaido Inti Jebok and add product showcase images.

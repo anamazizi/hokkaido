@@ -46,19 +46,19 @@ export function calculateDeliveryFee(distanceKm: number): number {
 export function getProductDetails(productType: string) {
   const products = {
     solo_sweet: {
-      name: 'Set Solo Sweet (3 pcs)',
+      name: 'Hokkaido Inti Jebok - Set Solo Sweet (3 pcs)',
       price: 4.5,
       cogs: 3.0,
       profit: 1.5,
     },
     family_box: {
-      name: 'Set Family Box (12 pcs)',
+      name: 'Hokkaido Inti Jebok - Set Family Box (12 pcs)',
       price: 18.0,
       cogs: 14.0,
       profit: 4.0,
     },
     mega_craving: {
-      name: 'Set Mega Craving (25 pcs)',
+      name: 'Hokkaido Inti Jebok - Set Mega Craving (25 pcs)',
       price: 30.0,
       cogs: 25.0,
       profit: 5.0,

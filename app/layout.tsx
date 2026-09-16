@@ -5,8 +5,8 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Hokkaido Cheese Tart Order System',
-  description: 'Hyper-local COD & Pickup order management for Hokkaido Cheese Tart',
+  title: 'Hokkaido Inti Jebok Order System',
+  description: 'Hyper-local COD & Pickup order management for Hokkaido Inti Jebok - Kek Muffin Inti Custard -',
 }
 
 export default function RootLayout({

@@ -111,41 +111,7 @@ export default function Home() {
       const subtotal = itemTotal
       const grandTotal = totalPrice
       
-      const message = `🍽️ *ORDER SAJIAN SEMATANG*
-
-🧾 *Order ID:*
-${orderId}
-
-👤 *Nama:*
-${name}
-
-📞 *Telefon:*
-${phoneFormatted}
-
-📍 *Alamat:*
-${deliveryAddress}
-${googleMapsUrl ? `
-🌐 *Google Maps:*
-${googleMapsUrl}
-` : ''}
-
---------------------
-
-🛒 *PESANAN*
-
-${quantity}x ${product.name} - ${formatCurrency(itemTotal)}
-
---------------------
-
-Subtotal: ${formatCurrency(subtotal)}
-Delivery: ${formatCurrency(deliveryFee)}
-
-💰 *JUMLAH: ${formatCurrency(grandTotal)}*
-
-🚚 *Kaedah:*
-${deliveryMethodText}
-
-Terima kasih.`
+      const message = `🍽️ *ORDER HOKKAIDO INTI JEBOK*\n\n🧾 *Order ID:*\n${orderId}\n\n👤 *Nama:*\n${name}\n\n📞 *Telefon:*\n${phoneFormatted}\n\n📍 *Alamat:*\n${deliveryAddress}\n${googleMapsUrl ? `\n🌐 *Google Maps:*\n${googleMapsUrl}\n` : ''}\n\n--------------------\n\n🛒 *PESANAN*\n\n${quantity}x ${product.name} - ${formatCurrency(itemTotal)}\n\n--------------------\n\nSubtotal: ${formatCurrency(subtotal)}\nDelivery: ${formatCurrency(deliveryFee)}\n\n💰 *JUMLAH: ${formatCurrency(grandTotal)}*\n\n🚚 *Kaedah:*\n${deliveryMethodText}\n\nTerima kasih.`
       
       const encoded = encodeURIComponent(message)
       const phoneNumber = '+601110890100'
@@ -167,11 +133,73 @@ Terima kasih.`
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="text-center mb-10">
-        <h1 className="text-4xl font-bold text-gray-900 mb-3">Tempah Hokkaido Cheese Tart</h1>
-        <p className="text-lg text-gray-600 max-w-2xl mx-auto">Borang pesanan mudah untuk penghantaran tunai (COD) atau ambil sendiri.</p>
+        <h1 className="text-4xl font-bold text-gray-900 mb-3">Tempah Hokkaido Inti Jebok</h1>
+        <p className="text-lg text-gray-600 max-w-2xl mx-auto">- Kek Muffin Inti Custard -</p>
+        <p className="text-lg text-gray-500 max-w-2xl mx-auto mt-2">Gebu di luar, creamy di dalam. Inti kastard penuh melimpah!</p>
+      </div>
+      <div className="mb-10 rounded-xl overflow-hidden shadow-lg border border-gray-300">
+        <div className="relative h-64 md:h-80 bg-gradient-to-r from-amber-100 to-yellow-200 flex items-center justify-center">
+          <div className="text-center p-6">
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-2">Hokkaido Inti Jebok</h2>
+            <p className="text-lg text-slate-700">- Kek Muffin Inti Custard -</p>
+            <p className="text-slate-600 mt-4">Gebu di luar, creamy di dalam. Inti kastard penuh melimpah!</p>
+          </div>
+          {/* Fallback image placeholder */}
+          <img 
+            src="/images/hokkaido-banner.jpg" 
+            alt="Hokkaido Inti Jebok Banner" 
+            className="absolute inset-0 w-full h-full object-cover opacity-20"
+            onError={(e) => { e.currentTarget.style.display = 'none' }}
+          />
+        </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded-xl shadow-lg border border-gray-300 mb-10">
+      {/* Product Showcase */}
+      <div className="grid md:grid-cols-3 gap-6 mb-10">
+        <div className="bg-white rounded-xl border border-gray-300 p-4 shadow-sm">
+          <div className="aspect-square mb-4 rounded-lg overflow-hidden bg-gradient-to-br from-amber-50 to-yellow-100 flex items-center justify-center">
+            <img 
+              src="/images/hokkaido-sets.jpg" 
+              alt="Hokkaido Sets" 
+              className="w-full h-full object-cover"
+              onError={(e) => { e.currentTarget.style.display = 'none' }}
+            />
+            <div className="text-slate-700 text-center p-4">
+              <div className="text-2xl font-bold">Set Family Box</div>
+              <div className="text-lg">12 pcs • RM 18.00</div>
+            </div>
+          </div>
+          <h3 className="font-bold text-lg text-slate-900">Set Kombo Keluarga</h3>
+          <p className="text-slate-600 text-sm">Perfect untuk family gathering, majlis kecil.</p>
+        </div>
+        <div className="bg-white rounded-xl border border-gray-300 p-4 shadow-sm">
+          <div className="aspect-square mb-4 rounded-lg overflow-hidden bg-gradient-to-br from-amber-50 to-yellow-100 flex items-center justify-center">
+            <img 
+              src="/images/hokkaido-cream.jpg" 
+              alt="Hokkaido Cream" 
+              className="w-full h-full object-cover"
+              onError={(e) => { e.currentTarget.style.display = 'none' }}
+            />
+            <div className="text-slate-700 text-center p-4">
+              <div className="text-2xl font-bold">Set Mega Craving</div>
+              <div className="text-lg">25 pcs • RM 30.00</div>
+            </div>
+          </div>
+          <h3 className="font-bold text-lg text-slate-900">Set Mega Craving</h3>
+          <p className="text-slate-600 text-sm">Untuk event besar, jamuan rakan sekerja.</p>
+        </div>
+        <div className="bg-white rounded-xl border border-gray-300 p-4 shadow-sm">
+          <div className="aspect-square mb-4 rounded-lg overflow-hidden bg-gradient-to-br from-amber-50 to-yellow-100 flex items-center justify-center">
+            <div className="text-slate-700 text-center p-4">
+              <div className="text-2xl font-bold">Set Solo Sweet</div>
+              <div className="text-lg">3 pcs • RM 4.50</div>
+            </div>
+          </div>
+          <h3 className="font-bold text-lg text-slate-900">Set Solo Sweet</h3>
+          <p className="text-slate-600 text-sm">Cuba rasa, nikmati sendiri atau berkongsi dengan seorang.</p>
+        </div>
+      </div>
+<form onSubmit={handleSubmit} className="bg-white p-6 rounded-xl shadow-lg border border-gray-300 mb-10">
         <h2 className="text-2xl font-bold mb-6 flex items-center">
           <ShoppingCart className="mr-3 h-7 w-7 text-blue-600" />
           Maklumat Pesanan

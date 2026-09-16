@@ -1,6 +1,6 @@
 self.__MIDDLEWARE_MATCHERS = [
   {
-    "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?(?:\\/((?!api|_next\\/static|_next\\/image|favicon.ico).*))(\\.json|\\.rsc|\\.segments\\/.+\\.segment\\.rsc)?[\\/#\\?]?$",
-    "originalSource": "/((?!api|_next/static|_next/image|favicon.ico).*)"
+    "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/urus(?:\\/((?:[^\\/#\\?]+?)(?:\\/(?:[^\\/#\\?]+?))*))?(\\.json|\\.rsc|\\.segments\\/.+\\.segment\\.rsc)?[\\/#\\?]?$",
+    "originalSource": "/urus/:path*"
   }
 ];self.__MIDDLEWARE_MATCHERS_CB && self.__MIDDLEWARE_MATCHERS_CB()

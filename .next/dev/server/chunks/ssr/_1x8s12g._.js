@@ -185,10 +185,35 @@ __turbopack_context__.s([
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$supabase$2f$supabase$2d$js$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/node_modules/@supabase/supabase-js/dist/index.mjs [app-ssr] (ecmascript) <locals>");
 ;
-const supabaseUrl = ("TURBOPACK compile-time value", "https://thfklgjldtdohuugjins.supabase.co");
-const supabaseAnonKey = ("TURBOPACK compile-time value", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoZmtsZ2psZHRkb2h1dWdqaW5zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1Mjk4NjAsImV4cCI6MjEwNTEwNTg2MH0.4TELKXDZbbpGYZfEBSZ5Bz_LkGPg_uL8j_h96YVrl8o");
-if ("TURBOPACK compile-time falsy", 0) //TURBOPACK unreachable
-;
+// Safe fallback values for build-time (must be valid URL and non-empty string)
+const FALLBACK_SUPABASE_URL = 'https://thfklgjldtdohuugjins.supabase.co';
+const FALLBACK_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoZmtsZ2psZHRkb2h1dWdqaW5zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1Mjk4NjAsImV4cCI6MjA1MTAwNTg2MH0.4TELKXDZbbpGYZfEBSZ5Bz_LkGPg_uL8j_h96YVrl8o';
+function isValidHttpUrl(str) {
+    try {
+        const url = new URL(str);
+        return url.protocol === 'http:' || url.protocol === 'https:';
+    } catch (_) {
+        return false;
+    }
+}
+function getSupabaseUrl() {
+    const envUrl = ("TURBOPACK compile-time value", "https://thfklgjldtdohuugjins.supabase.co");
+    if (!envUrl || !isValidHttpUrl(envUrl)) {
+        console.warn('NEXT_PUBLIC_SUPABASE_URL is missing or invalid. Using fallback URL for build-time.');
+        return FALLBACK_SUPABASE_URL;
+    }
+    return envUrl;
+}
+function getSupabaseAnonKey() {
+    const envKey = ("TURBOPACK compile-time value", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoZmtsZ2psZHRkb2h1dWdqaW5zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1Mjk4NjAsImV4cCI6MjEwNTEwNTg2MH0.4TELKXDZbbpGYZfEBSZ5Bz_LkGPg_uL8j_h96YVrl8o");
+    if (!envKey || typeof envKey !== 'string' || envKey.trim().length === 0) {
+        console.warn('NEXT_PUBLIC_SUPABASE_ANON_KEY is missing or invalid. Using fallback key for build-time.');
+        return FALLBACK_SUPABASE_ANON_KEY;
+    }
+    return envKey;
+}
+const supabaseUrl = getSupabaseUrl();
+const supabaseAnonKey = getSupabaseAnonKey();
 const supabase = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$supabase$2f$supabase$2d$js$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["createClient"])(supabaseUrl, supabaseAnonKey);
 }),
 ];

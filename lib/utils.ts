@@ -25,7 +25,7 @@ function toRad(degrees: number): number {
 /**
  * Calculate delivery fee based on distance.
  * Base fee RM 3.00 for 0–2 km, then RM 1.50 per additional km.
- * Amount is floored (Math.floor) to nearest 10 sen (1 decimal place).
+ * Amount is rounded to nearest whole Ringgit (no sen).
  */
 export function calculateDeliveryFee(distanceKm: number): number {
   const baseFee = 3.0
@@ -33,11 +33,11 @@ export function calculateDeliveryFee(distanceKm: number): number {
   const perKmRate = 1.50
 
   if (distanceKm <= baseDistance) {
-    return baseFee
+    return Math.round(baseFee)
   }
   const rawFee = baseFee + (distanceKm - baseDistance) * perKmRate
-  // Floor to nearest 0.10 (10 sen)
-  return Math.floor(rawFee * 10) / 10
+  // Round to nearest whole Ringgit (no sen)
+  return Math.round(rawFee)
 }
 
 /**

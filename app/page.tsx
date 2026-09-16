@@ -1,6 +1,7 @@
 'use client'
 
-import { ShoppingCart, Phone } from 'lucide-react'
+import { useState } from 'react'
+import { ShoppingCart, Phone, MessageCircle, HelpCircle } from 'lucide-react'
 import useOrderForm from '@/lib/useOrderForm'
 import { supabase } from '@/lib/supabase'
 import { getProductDetails, formatCurrency, sanitizePhone } from '@/lib/utils'
@@ -9,6 +10,7 @@ import ProductSelection from '@/components/ProductSelection'
 import DeliveryMethod from '@/components/DeliveryMethod'
 import MapDisplay from '@/components/MapDisplay'
 import OrderSummary from '@/components/OrderSummary'
+import { useState } from 'react'
 
 export default function Home() {
   const {
@@ -24,7 +26,49 @@ export default function Home() {
     saveCustomerDataToLocalStorage,
     handleMapClick,
   } = useOrderForm()
+// State for inquiry form
+  const [inquiryName, setInquiryName] = useState('')
+  const [inquiryQuestion, setInquiryQuestion] = useState('')
+  const [isInquirySubmitting, setIsInquirySubmitting] = useState(false)
 
+  // State for inquiry form
+  const [inquiryName, setInquiryName] = useState('')
+  const [inquiryQuestion, setInquiryQuestion] = useState('')
+  const [isInquirySubmitting, setIsInquirySubmitting] = useState(false)
+
+  const handleInquirySubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!inquiryName.trim() || !inquiryQuestion.trim()) {
+      alert('Sila isi nama dan pertanyaan anda.')
+      return
+    }
+    setIsInquirySubmitting(true)
+    
+    const message = `Hai Hokkaido Inti Jebok,%0A%0ANama: ${inquiryName.trim()}%0APertanyaan: ${inquiryQuestion.trim()}`
+    const phoneNumber = '+601110890100'
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`
+    
+    if (typeof window !== 'undefined') {
+      window.location.href = whatsappUrl
+    }
+  }
+
+const handleInquirySubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!inquiryName.trim() || !inquiryQuestion.trim()) {
+      alert('Sila isi nama dan pertanyaan anda.')
+      return
+    }
+    setIsInquirySubmitting(true)
+    
+    const message = `Hai Hokkaido Inti Jebok,%0A%0ANama: ${inquiryName.trim()}%0APertanyaan: ${inquiryQuestion.trim()}`
+    const phoneNumber = '+601110890100'
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`
+    
+    if (typeof window !== 'undefined') {
+      window.location.href = whatsappUrl
+    }
+  }
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     // Validation
@@ -110,7 +154,10 @@ export default function Home() {
       const itemTotal = product.price * quantity
       const subtotal = itemTotal
       const grandTotal = totalPrice
+// TEMP FIX: Comment out problematic lines
+      // const googleMapsPart = googleMapsUrl ? `\\n🌐 *Google Maps:*\\n${googleMapsUrl}\\n` : ''
       
+      const googleMapsPart = googleMapsUrl ? `\n🌐 *Google Maps:*\n${googleMapsUrl}\n` : ''
       const message = `🍽️ *ORDER HOKKAIDO INTI JEBOK*\n\n🧾 *Order ID:*\n${orderId}\n\n👤 *Nama:*\n${name}\n\n📞 *Telefon:*\n${phoneFormatted}\n\n📍 *Alamat:*\n${deliveryAddress}\n${googleMapsUrl ? `\n🌐 *Google Maps:*\n${googleMapsUrl}\n` : ''}\n\n--------------------\n\n🛒 *PESANAN*\n\n${quantity}x ${product.name} - ${formatCurrency(itemTotal)}\n\n--------------------\n\nSubtotal: ${formatCurrency(subtotal)}\nDelivery: ${formatCurrency(deliveryFee)}\n\n💰 *JUMLAH: ${formatCurrency(grandTotal)}*\n\n🚚 *Kaedah:*\n${deliveryMethodText}\n\nTerima kasih.`
       
       const encoded = encodeURIComponent(message)
@@ -131,155 +178,173 @@ export default function Home() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="text-center mb-10">
-        <h1 className="text-4xl font-bold text-gray-900 mb-3">Tempah Hokkaido Inti Jebok</h1>
-        <p className="text-lg text-gray-600 max-w-2xl mx-auto">- Kek Muffin Inti Custard -</p>
-        <p className="text-lg text-gray-500 max-w-2xl mx-auto mt-2">Gebu di luar, creamy di dalam. Inti kastard penuh melimpah!</p>
-      </div>
-      <div className="mb-10 rounded-xl overflow-hidden shadow-lg border border-gray-300">
-        <div className="relative h-64 md:h-80 bg-gradient-to-r from-amber-100 to-yellow-200 flex items-center justify-center">
-          <div className="text-center p-6">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-2">Hokkaido Inti Jebok</h2>
-            <p className="text-lg text-slate-700">- Kek Muffin Inti Custard -</p>
-            <p className="text-slate-600 mt-4">Gebu di luar, creamy di dalam. Inti kastard penuh melimpah!</p>
-          </div>
-          {/* Fallback image placeholder */}
+    <div className="bg-gradient-to-b from-amber-50 via-orange-50/30 to-white min-h-screen text-slate-900">
+      <div className="bg-gradient-to-b from-amber-50 via-orange-50/30 to-white min-h-screen text-slate-900">
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
+        {/* Header with clean images */}
+        <div className="mb-10">
+          <h1 className="text-4xl font-bold text-gray-900 text-center mb-3">Hokkaido Inti Jebok</h1>
+          <p className="text-lg text-gray-600 text-center mb-2">- Kek Muffin Inti Custard -</p>
+          <p className="text-lg text-gray-500 text-center">Gebu di luar, creamy di dalam. Inti kastard penuh melimpah!</p>
+        </div>
+
+        {/* Main Banner Image */}
+        <div className="mb-10">
           <img 
             src="/images/hokkaido-banner.jpg" 
             alt="Hokkaido Inti Jebok Banner" 
-            className="absolute inset-0 w-full h-full object-cover opacity-20"
+            className="w-full h-64 md:h-80 rounded-2xl shadow-sm object-cover border border-amber-200"
             onError={(e) => { e.currentTarget.style.display = 'none' }}
           />
         </div>
-      </div>
 
-      {/* Product Showcase */}
-      <div className="grid md:grid-cols-3 gap-6 mb-10">
-        <div className="bg-white rounded-xl border border-gray-300 p-4 shadow-sm">
-          <div className="aspect-square mb-4 rounded-lg overflow-hidden bg-gradient-to-br from-amber-50 to-yellow-100 flex items-center justify-center">
+        {/* Product Images Gallery */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+          <div className="rounded-2xl overflow-hidden shadow-sm border border-amber-200">
+            <img 
+              src="/images/hokkaido-cream.jpg" 
+              alt="Hokkaido Cream Texture" 
+              className="w-full h-64 object-cover"
+              onError={(e) => { e.currentTarget.style.display = 'none' }}
+            />
+          </div>
+          <div className="rounded-2xl overflow-hidden shadow-sm border border-amber-200">
             <img 
               src="/images/hokkaido-sets.jpg" 
               alt="Hokkaido Sets" 
-              className="w-full h-full object-cover"
+              className="w-full h-64 object-cover"
               onError={(e) => { e.currentTarget.style.display = 'none' }}
             />
-            <div className="text-slate-700 text-center p-4">
-              <div className="text-2xl font-bold">Set Family Box</div>
-              <div className="text-lg">12 pcs • RM 18.00</div>
-            </div>
           </div>
-          <h3 className="font-bold text-lg text-slate-900">Set Kombo Keluarga</h3>
-          <p className="text-slate-600 text-sm">Perfect untuk family gathering, majlis kecil.</p>
         </div>
-        <div className="bg-white rounded-xl border border-gray-300 p-4 shadow-sm">
-          <div className="aspect-square mb-4 rounded-lg overflow-hidden bg-gradient-to-br from-amber-50 to-yellow-100 flex items-center justify-center">
-            <img 
-              src="/images/hokkaido-cream.jpg" 
-              alt="Hokkaido Cream" 
-              className="w-full h-full object-cover"
-              onError={(e) => { e.currentTarget.style.display = 'none' }}
-            />
-            <div className="text-slate-700 text-center p-4">
-              <div className="text-2xl font-bold">Set Mega Craving</div>
-              <div className="text-lg">25 pcs • RM 30.00</div>
-            </div>
-          </div>
-          <h3 className="font-bold text-lg text-slate-900">Set Mega Craving</h3>
-          <p className="text-slate-600 text-sm">Untuk event besar, jamuan rakan sekerja.</p>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-300 p-4 shadow-sm">
-          <div className="aspect-square mb-4 rounded-lg overflow-hidden bg-gradient-to-br from-amber-50 to-yellow-100 flex items-center justify-center">
-            <div className="text-slate-700 text-center p-4">
-              <div className="text-2xl font-bold">Set Solo Sweet</div>
-              <div className="text-lg">3 pcs • RM 4.50</div>
-            </div>
-          </div>
-          <h3 className="font-bold text-lg text-slate-900">Set Solo Sweet</h3>
-          <p className="text-slate-600 text-sm">Cuba rasa, nikmati sendiri atau berkongsi dengan seorang.</p>
-        </div>
-      </div>
-<form onSubmit={handleSubmit} className="bg-white p-6 rounded-xl shadow-lg border border-gray-300 mb-10">
-        <h2 className="text-2xl font-bold mb-6 flex items-center">
-          <ShoppingCart className="mr-3 h-7 w-7 text-blue-600" />
-          Maklumat Pesanan
-        </h2>
+{/* Order Form */}
+        <form onSubmit={handleSubmit} className="bg-white/90 backdrop-blur border border-amber-200/60 shadow-md rounded-2xl p-5 mb-6 text-slate-900">
+          <h2 className="text-2xl font-bold mb-6 flex items-center">
+            <ShoppingCart className="mr-3 h-7 w-7 text-amber-600" />
+            Maklumat Pesanan
+          </h2>
 
-        <CustomerForm name={name} setName={setName} phone={phone} setPhone={setPhone} address={address} setAddress={setAddress} deliveryType={deliveryType} />
-        {typeof window !== 'undefined' && localStorage.getItem('hokkaido_customer_data') && (
-          <div className="mb-4 text-right">
-            <button
-              type="button"
-              onClick={() => {
-                localStorage.removeItem('hokkaido_customer_data')
-                setName('')
-                setPhone('')
-                setDeliveryType('pickup')
-                setProductType('solo_sweet')
-                setQuantity(1)
-                setSelectedLat(null)
-                setSelectedLng(null)
-              }}
-              className="text-sm text-red-600 hover:text-red-800 underline"
-            >
-              Padam maklumat tersimpan
-            </button>
-          </div>
-        )}
-        <ProductSelection productType={productType} setProductType={setProductType} quantity={quantity} setQuantity={setQuantity} />
-        <DeliveryMethod deliveryType={deliveryType} setDeliveryType={setDeliveryType} />
-        
-        {deliveryType === 'delivery' && (
-          <MapDisplay
-            storeLat={4.1948617}
-            storeLng={100.6655929}
-            selectedLat={selectedLat}
-            selectedLng={selectedLng}
+          <CustomerForm name={name} setName={setName} phone={phone} setPhone={setPhone} address={address} setAddress={setAddress} deliveryType={deliveryType} />
+          {typeof window !== 'undefined' && localStorage.getItem('hokkaido_customer_data') && (
+            <div className="mb-4 text-right">
+              <button
+                type="button"
+                onClick={() => {
+                  localStorage.removeItem('hokkaido_customer_data')
+                  setName('')
+                  setPhone('')
+                  setDeliveryType('pickup')
+                  setProductType('solo_sweet')
+                  setQuantity(1)
+                  setSelectedLat(null)
+                  setSelectedLng(null)
+                }}
+                className="text-sm text-red-600 hover:text-red-800 underline"
+              >
+                Padam maklumat tersimpan
+              </button>
+            </div>
+          )}
+          <ProductSelection productType={productType} setProductType={setProductType} quantity={quantity} setQuantity={setQuantity} />
+          <DeliveryMethod deliveryType={deliveryType} setDeliveryType={setDeliveryType} />
+          
+          {deliveryType === 'delivery' && (
+            <MapDisplay
+              storeLat={4.1948617}
+              storeLng={100.6655929}
+              selectedLat={selectedLat}
+              selectedLng={selectedLng}
+              distance={distance}
+              deliveryFee={deliveryFee}
+              onMapClick={handleMapClick}
+            />
+          )}
+
+          <OrderSummary
+            productType={productType}
+            quantity={quantity}
+            deliveryType={deliveryType}
             distance={distance}
             deliveryFee={deliveryFee}
-            onMapClick={handleMapClick}
+            totalPrice={totalPrice}
           />
-        )}
 
-        <OrderSummary
-          productType={productType}
-          quantity={quantity}
-          deliveryType={deliveryType}
-          distance={distance}
-          deliveryFee={deliveryFee}
-          totalPrice={totalPrice}
-        />
-
-        <button
-          type="submit"
-          disabled={isSubmitting || (deliveryType === 'delivery' && (!selectedLat || !selectedLng || !address.trim()))}
-          className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-bold rounded-lg transition"
-        >
-          {isSubmitting ? 'Menghantar...' : 'Hantar Pesanan'}
-        </button>
-      </form>
+          <button
+            type="submit"
+            disabled={isSubmitting || (deliveryType === 'delivery' && (!selectedLat || !selectedLng || !address.trim()))}
+            className="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 disabled:bg-gray-400 text-white font-bold rounded-lg transition shadow-md"
+          >
+            {isSubmitting ? 'Menghantar...' : 'Hantar Pesanan'}
+          </button>
+        </form>
 
       {orderId && (
-        <div className="bg-green-50 p-6 rounded-xl border border-green-300 mb-10">
-          <h3 className="text-2xl font-bold mb-4 text-green-800">Pesanan Berjaya Dihantar!</h3>
-          <p className="mb-6">Pesanan anda telah direkod dengan ID: <strong>{orderId}</strong>.</p>
-          <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg">
-            <Phone className="mr-3 h-5 w-5" />
-            Hantar Notifikasi via WhatsApp
-          </a>
-        </div>
-      )}
+          <div className="bg-gradient-to-r from-green-50 to-emerald-50/50 p-6 rounded-2xl border border-green-300 mb-10 backdrop-blur-sm">
+            <h3 className="text-2xl font-bold mb-4 text-green-800">Pesanan Berjaya Dihantar!</h3>
+            <p className="mb-6">Pesanan anda telah direkod dengan ID: <strong>{orderId}</strong>.</p>
+            <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg shadow-md">
+              <Phone className="mr-3 h-5 w-5" />
+              Hantar Notifikasi via WhatsApp
+            </a>
+          </div>
+        )}
 
-      <div className="bg-gray-50 p-8 rounded-xl border border-gray-300">
-        <h2 className="text-2xl font-bold mb-4">Maklumat Penting</h2>
-        <ul className="list-disc pl-5 text-gray-700 space-y-2">
-          <li>Semua harga adalah dalam Ringgit Malaysia (RM).</li>
-          <li>Untuk penghantaran: Caj asas RM 3.00 untuk 0–3 km, setiap km seterusnya +RM 1.00.</li>
-          <li>Tiada pendaftaran akaun diperlukan – terus isi borang dan bayar tunai.</li>
-          <li>Pesanan akan diproses dalam masa 30 minit selepas notifikasi WhatsApp dihantar.</li>
-          <li>Hubungi +601110890100 jika ada sebarang pertanyaan.</li>
-        </ul>
-      </div>
+        {/* Inquiry Form */}
+        <div className="bg-white/90 backdrop-blur border border-blue-200/60 shadow-md rounded-2xl p-5 mb-6">
+          <div className="flex items-center mb-6">
+            <HelpCircle className="mr-3 h-7 w-7 text-blue-600" />
+            <div>
+              <h2 className="text-2xl font-bold text-slate-900">Tiada pendaftaran akaun diperlukan</h2>
+              <p className="text-slate-600">Hanya isi borang di atas dan hantar pesanan terus ke WhatsApp kami.</p>
+            </div>
+          </div>
+          
+          <div className="bg-blue-50/50 rounded-xl p-5 border border-blue-200/40">
+            <h3 className="text-xl font-semibold mb-4 flex items-center text-blue-800">
+              <MessageCircle className="mr-2 h-5 w-5" />
+              Tanya Kami di WhatsApp
+            </h3>
+            
+            <form onSubmit={handleInquirySubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Nama Anda</label>
+                <input
+                  type="text"
+                  required
+                  className="w-full p-3 border border-gray-300 rounded-lg text-slate-900 bg-white placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  placeholder="Nama anda"
+                  value={inquiryName}
+                  onChange={(e) => setInquiryName(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Pertanyaan Anda</label>
+                <textarea
+                  required
+                  className="w-full p-3 border border-gray-300 rounded-lg text-slate-900 bg-white placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  placeholder="Contoh: Berapa lama masa untuk delivery? Boleh order untuk esok?"
+                  rows={3}
+                  value={inquiryQuestion}
+                  onChange={(e) => setInquiryQuestion(e.target.value)}
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={isInquirySubmitting}
+                className="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 disabled:bg-gray-400 text-white font-bold rounded-lg transition shadow-md flex items-center justify-center"
+              >
+                <MessageCircle className="mr-3 h-5 w-5" />
+                {isInquirySubmitting ? 'Mengirim...' : 'Tanya Kami di WhatsApp'}
+              </button>
+            </form>
+            
+            <div className="mt-6 pt-4 border-t border-blue-200/40">
+              <p className="text-sm text-slate-600">
+                📞 <strong>Hubungi terus:</strong> +601110890100<br />
+                💬 <strong>Kami akan jawab:</strong> Dalam masa 15 minit (7am–10pm)
+              </p>
+            </div>
+          </div>
+        </div>
     </div>
-  )
 }

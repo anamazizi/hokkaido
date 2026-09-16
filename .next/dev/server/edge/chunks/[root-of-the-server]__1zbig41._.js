@@ -26,40 +26,46 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$supabase$2
 ;
 ;
 async function middleware(req) {
-    const res = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$esm$2f$server$2f$web$2f$spec$2d$extension$2f$response$2e$js__$5b$middleware$2d$edge$5d$__$28$ecmascript$29$__["NextResponse"].next();
-    const supabase = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$supabase$2f$ssr$2f$dist$2f$module$2f$createServerClient$2e$js__$5b$middleware$2d$edge$5d$__$28$ecmascript$29$__["createServerClient"])(("TURBOPACK compile-time value", "https://thfklgjldtdohuugjins.supabase.co"), ("TURBOPACK compile-time value", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoZmtsZ2psZHRkb2h1dWdqaW5zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1Mjk4NjAsImV4cCI6MjEwNTEwNTg2MH0.4TELKXDZbbpGYZfEBSZ5Bz_LkGPg_uL8j_h96YVrl8o"), {
-        cookies: {
-            getAll () {
-                return req.cookies.getAll();
-            },
-            setAll (cookiesToSet) {
-                cookiesToSet.forEach(({ name, value, options })=>{
-                    res.cookies.set(name, value, options);
-                });
+    try {
+        const res = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$esm$2f$server$2f$web$2f$spec$2d$extension$2f$response$2e$js__$5b$middleware$2d$edge$5d$__$28$ecmascript$29$__["NextResponse"].next();
+        const supabase = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$supabase$2f$ssr$2f$dist$2f$module$2f$createServerClient$2e$js__$5b$middleware$2d$edge$5d$__$28$ecmascript$29$__["createServerClient"])(("TURBOPACK compile-time value", "https://thfklgjldtdohuugjins.supabase.co"), ("TURBOPACK compile-time value", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoZmtsZ2psZHRkb2h1dWdqaW5zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1Mjk4NjAsImV4cCI6MjEwNTEwNTg2MH0.4TELKXDZbbpGYZfEBSZ5Bz_LkGPg_uL8j_h96YVrl8o"), {
+            cookies: {
+                getAll () {
+                    return req.cookies.getAll();
+                },
+                setAll (cookiesToSet) {
+                    cookiesToSet.forEach(({ name, value, options })=>{
+                        res.cookies.set(name, value, options);
+                    });
+                }
             }
+        });
+        const { data: { session } } = await supabase.auth.getSession();
+        const pathname = req.nextUrl.pathname;
+        // Protect /urus routes - redirect to login if no session
+        if (pathname.startsWith('/urus') && !session) {
+            // If already on login page, do nothing
+            if (pathname === '/urus/login') {
+                return res;
+            }
+            const redirectUrl = new URL('/urus/login', req.url);
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$esm$2f$server$2f$web$2f$spec$2d$extension$2f$response$2e$js__$5b$middleware$2d$edge$5d$__$28$ecmascript$29$__["NextResponse"].redirect(redirectUrl);
         }
-    });
-    const { data: { session } } = await supabase.auth.getSession();
-    const pathname = req.nextUrl.pathname;
-    // Protect /urus routes - redirect to login if no session
-    if (pathname.startsWith('/urus') && !session) {
-        // If already on login page, do nothing
-        if (pathname === '/urus/login') {
-            return res;
+        // If session exists and user tries to access login page, redirect to dashboard
+        if (session && pathname === '/urus/login') {
+            const redirectUrl = new URL('/urus', req.url);
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$esm$2f$server$2f$web$2f$spec$2d$extension$2f$response$2e$js__$5b$middleware$2d$edge$5d$__$28$ecmascript$29$__["NextResponse"].redirect(redirectUrl);
         }
-        const redirectUrl = new URL('/urus/login', req.url);
-        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$esm$2f$server$2f$web$2f$spec$2d$extension$2f$response$2e$js__$5b$middleware$2d$edge$5d$__$28$ecmascript$29$__["NextResponse"].redirect(redirectUrl);
+        return res;
+    } catch (error) {
+        // Graceful fallback to avoid 500 crash if any auth or middleware invocation fails
+        console.error('Middleware error:', error);
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$esm$2f$server$2f$web$2f$spec$2d$extension$2f$response$2e$js__$5b$middleware$2d$edge$5d$__$28$ecmascript$29$__["NextResponse"].next();
     }
-    // If session exists and user tries to access login page, redirect to dashboard
-    if (session && pathname === '/urus/login') {
-        const redirectUrl = new URL('/urus', req.url);
-        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$esm$2f$server$2f$web$2f$spec$2d$extension$2f$response$2e$js__$5b$middleware$2d$edge$5d$__$28$ecmascript$29$__["NextResponse"].redirect(redirectUrl);
-    }
-    return res;
 }
 const config = {
     matcher: [
-        '/((?!api|_next/static|_next/image|favicon.ico).*)'
+        '/urus/:path*'
     ]
 };
 }),

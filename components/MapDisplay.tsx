@@ -30,7 +30,7 @@ export default function MapDisplay({
         Pilih Lokasi Penghantaran
       </h3>
       <p className="text-gray-600 mb-4">
-        Klik pada peta untuk tetapkan lokasi anda. Jarak akan dikira automatik dari kedai kami.
+        Klik pada peta untuk tetapkan lokasi anda. Caj penghantaran akan dikira automatik berdasarkan jarak.
       </p>
       <div className="h-96 border border-gray-300 rounded-lg overflow-hidden">
         <Map
@@ -44,8 +44,7 @@ export default function MapDisplay({
       {selectedLat && selectedLng && (
         <div className="mt-4 p-3 bg-gray-50 rounded-lg">
           <div>Koordinat dipilih: {selectedLat.toFixed(6)}, {selectedLng.toFixed(6)}</div>
-          <div>Jarak dari kedai: {distance.toFixed(2)} km</div>
-          <div>Caj penghantaran: {formatCurrency(deliveryFee)}</div>
+          <div className="font-medium">Caj penghantaran: {formatCurrency(deliveryFee)}</div>
         </div>
       )}
     </div>

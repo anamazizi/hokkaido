@@ -10,7 +10,6 @@ import ProductSelection from '@/components/ProductSelection'
 import DeliveryMethod from '@/components/DeliveryMethod'
 import MapDisplay from '@/components/MapDisplay'
 import OrderSummary from '@/components/OrderSummary'
-import { useState } from 'react'
 
 export default function Home() {
   const {
@@ -31,29 +30,7 @@ export default function Home() {
   const [inquiryQuestion, setInquiryQuestion] = useState('')
   const [isInquirySubmitting, setIsInquirySubmitting] = useState(false)
 
-  // State for inquiry form
-  const [inquiryName, setInquiryName] = useState('')
-  const [inquiryQuestion, setInquiryQuestion] = useState('')
-  const [isInquirySubmitting, setIsInquirySubmitting] = useState(false)
-
   const handleInquirySubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!inquiryName.trim() || !inquiryQuestion.trim()) {
-      alert('Sila isi nama dan pertanyaan anda.')
-      return
-    }
-    setIsInquirySubmitting(true)
-    
-    const message = `Hai Hokkaido Inti Jebok,%0A%0ANama: ${inquiryName.trim()}%0APertanyaan: ${inquiryQuestion.trim()}`
-    const phoneNumber = '+601110890100'
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`
-    
-    if (typeof window !== 'undefined') {
-      window.location.href = whatsappUrl
-    }
-  }
-
-const handleInquirySubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!inquiryName.trim() || !inquiryQuestion.trim()) {
       alert('Sila isi nama dan pertanyaan anda.')
@@ -87,9 +64,11 @@ const handleInquirySubmit = (e: React.FormEvent) => {
       const product = getProductDetails(productType)
       const totalCogs = product.cogs * quantity
       const profit = totalPrice - totalCogs - deliveryFee
+      const storeAddress = 'Kiosk No 1, Stadium Majlis Perbandaran Manjung, 32040 Seri Manjung, Perak.'
+      const storeMapsUrl = 'https://www.google.com/maps?q=4.1948617,100.6655929'
       const deliveryAddress = deliveryType === 'delivery' 
         ? address.trim() || `Lat: ${selectedLat?.toFixed(6)}, Lng: ${selectedLng?.toFixed(6)}`
-        : 'Ambil sendiri di kedai'
+        : storeAddress
 // Jana UUID di peringkat klien untuk elakkan RLS SELECT violation
       const orderId = typeof window !== 'undefined' && window.crypto
         ? window.crypto.randomUUID()
@@ -149,13 +128,12 @@ const handleInquirySubmit = (e: React.FormEvent) => {
       const deliveryMethodText = deliveryType === 'delivery' ? 'Penghantaran COD' : 'Ambil Sendiri di Kedai'
       const googleMapsUrl = deliveryType === 'delivery' && selectedLat && selectedLng 
         ? `https://www.google.com/maps?q=${selectedLat},${selectedLng}`
-        : ''
+        : storeMapsUrl
       
       const itemTotal = product.price * quantity
       const subtotal = itemTotal
       const grandTotal = totalPrice
-// TEMP FIX: Comment out problematic lines
-      // const googleMapsPart = googleMapsUrl ? `\\n🌐 *Google Maps:*\\n${googleMapsUrl}\\n` : ''
+
       
       const googleMapsPart = googleMapsUrl ? `\n🌐 *Google Maps:*\n${googleMapsUrl}\n` : ''
       const message = `🍽️ *ORDER HOKKAIDO INTI JEBOK*\n\n🧾 *Order ID:*\n${orderId}\n\n👤 *Nama:*\n${name}\n\n📞 *Telefon:*\n${phoneFormatted}\n\n📍 *Alamat:*\n${deliveryAddress}\n${googleMapsUrl ? `\n🌐 *Google Maps:*\n${googleMapsUrl}\n` : ''}\n\n--------------------\n\n🛒 *PESANAN*\n\n${quantity}x ${product.name} - ${formatCurrency(itemTotal)}\n\n--------------------\n\nSubtotal: ${formatCurrency(subtotal)}\nDelivery: ${formatCurrency(deliveryFee)}\n\n💰 *JUMLAH: ${formatCurrency(grandTotal)}*\n\n🚚 *Kaedah:*\n${deliveryMethodText}\n\nTerima kasih.`
@@ -179,7 +157,6 @@ const handleInquirySubmit = (e: React.FormEvent) => {
 
   return (
     <div className="bg-gradient-to-b from-amber-50 via-orange-50/30 to-white min-h-screen text-slate-900">
-      <div className="bg-gradient-to-b from-amber-50 via-orange-50/30 to-white min-h-screen text-slate-900">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Header with clean images */}
         <div className="mb-10">
@@ -346,5 +323,7 @@ const handleInquirySubmit = (e: React.FormEvent) => {
             </div>
           </div>
         </div>
+      </div>
     </div>
+)
 }

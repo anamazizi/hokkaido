@@ -1,5 +1,21 @@
 # PROJECT PROGRESS LOG
 
+## 16 September 2026 (21:00 UTC)
+### Leaflet SSR Root Cause Fix
+- **Status**: ✅ BERHASIL (Build Exit Code 0)
+- **Perubahan Dilakukan**:
+  1. **Dynamic Import Leaflet**: Menghapus import statik `L from 'leaflet'` dan menggantikan dengan dynamic import di dalam `useEffect` di `components/Map.tsx`.
+  2. **SSR Safety**: Memastikan konfigurasi ikon Leaflet hanya dijalankan di client-side dengan pemeriksaan `typeof window === 'undefined'`.
+  3. **CSS Handling**: Menghapus import CSS statik dan menjaga pemuatan CSS via CDN link di useEffect.
+
+### Pematuhan .clinerules
+- ✅ Zero Window Reference: Tidak ada rujukan `window` atau `document` di luar lifecycle React.
+- ✅ Build Gate: `npm run build` Exit Code 0 tanpa error.
+- ✅ Zero-Mock: Fungsi peta tetap berfungsi penuh.
+
+### Langkah Seterusnya
+- Push perubahan ke GitHub untuk trigger deployment Vercel.
+
 ## 16 September 2026 (20:30 UTC)
 ### Production Deployment Fix for Vercel
 - **Status**: ✅ BERHASIL (Build Exit Code 0)

@@ -1,6 +1,37 @@
 PROJECT PROGRESS LOG
 =====================
 =====================
+Date: 17 September 2026
+Time: 03:39 UTC+8
+
+TASK: Pembaikan Deployment Vercel (Force Dynamic & Leaflet SSR)
+STATUS: ✅ BERHASIL
+
+PERUBAHAN:
+1. Force Dynamic pada Halaman Admin:
+   - Tambah `export const dynamic = 'force-dynamic'` di app/urus/page.tsx dan app/urus/login/page.tsx.
+2. Pengasingan Penuh Komponen Peta:
+   - Gantikan import statik react-leaflet dengan dynamic import di components/Map.tsx.
+   - Semua modul Leaflet dan react-leaflet kini dimuatkan secara dinamik di sisi klien sahaja.
+3. Pengesahan Fallback Supabase:
+   - Pastikan lib/supabase.ts sudah mempunyai nilai sandaran yang valid untuk environment variables semasa build.
+
+BUILD GATE: npm run build Exit Code 0 (tiada ralat)
+
+CLINERULES COMPLIANCE:
+- Zero-Mock: Tiada penghapusan logik perniagaan; hanya penyesuaian teknikal untuk SSR.
+- Strict Routes: Laluan `/urus` dan `/urus/login` kekal sama, hanya ditambah force-dynamic.
+- Build Gate: Build berjaya.
+
+NOTES:
+✅ Force dynamic added to admin pages.
+✅ Leaflet SSR issue resolved with dynamic imports.
+✅ Supabase fallback already safe.
+✅ Build successful.
+
+NEXT STEP:
+Push perubahan ke GitHub untuk trigger deployment Vercel.
+=====================
 Date: 16 September 2026
 Time: 23:46 UTC
 

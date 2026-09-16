@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet'
 
 interface MapProps {
   storeLat: number
@@ -11,39 +10,70 @@ interface MapProps {
   onMapClick: (lat: number, lng: number) => void
 }
 
-function ClickHandler({ onMapClick }: { onMapClick: (lat: number, lng: number) => void }) {
-  useMapEvents({
-    click(e) {
-      onMapClick(e.latlng.lat, e.latlng.lng)
-    },
-  })
-  return null
+// Dynamic imports will be stored here
+type LeafletModules = {
+  MapContainer: any
+  TileLayer: any
+  Marker: any
+  Popup: any
+  useMapEvents: any
+  L: any
 }
 
 export default function Map({ storeLat, storeLng, selectedLat, selectedLng, onMapClick }: MapProps) {
   const [isMounted, setIsMounted] = useState(false)
+  const [leafletModules, setLeafletModules] = useState<LeafletModules | null>(null)
 
   useEffect(() => {
     setIsMounted(true)
     
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined') return
 
-    import('leaflet').then((L) => {
-      delete (L.Icon.Default.prototype as { _getIconUrl?: string })._getIconUrl;
+    Promise.all([
+      import('leaflet'),
+      import('react-leaflet')
+    ]).then(([leaflet, reactLeaflet]) => {
+      const L = leaflet.default || leaflet
+      const { MapContainer, TileLayer, Marker, Popup, useMapEvents } = reactLeaflet
+      
+      // Configure Leaflet icon
+      delete (L.Icon.Default.prototype as { _getIconUrl?: string })._getIconUrl
       L.Icon.Default.mergeOptions({
         iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
         iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
         shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-      });
-    });
+      })
+      
+      setLeafletModules({
+        MapContainer,
+        TileLayer,
+        Marker,
+        Popup,
+        useMapEvents,
+        L
+      })
+    }).catch(error => {
+      console.error('Failed to load Leaflet modules:', error)
+    })
   }, [])
 
-  if (!isMounted) {
+  if (!isMounted || !leafletModules) {
     return (
       <div className="h-full w-full bg-amber-50 rounded-xl flex items-center justify-center text-slate-400">
         Memuatkan peta...
       </div>
     )
+  }
+
+  const { MapContainer, TileLayer, Marker, Popup, useMapEvents } = leafletModules
+
+  function ClickHandler({ onMapClick }: { onMapClick: (lat: number, lng: number) => void }) {
+    useMapEvents({
+      click(e: any) {
+        onMapClick(e.latlng.lat, e.latlng.lng)
+      },
+    })
+    return null
   }
 
   return (

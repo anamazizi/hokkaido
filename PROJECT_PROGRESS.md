@@ -1,5 +1,19 @@
 # PROJECT PROGRESS LOG
 
+## 17 September 2026 (03:39 UTC+8)
+### Pembaikan Deployment Vercel (Force Dynamic & Leaflet SSR)
+- **Status**: ✅ BERHASIL (Build Exit Code 0)
+- **Perubahan Dilakukan**:
+  1. **Force Dynamic pada Halaman Admin**: Menambah `export const dynamic = 'force-dynamic'` di `app/urus/page.tsx` dan `app/urus/login/page.tsx` untuk memastikan halaman ini tidak di-prerender secara statik oleh Vercel.
+  2. **Pengasingan Penuh Komponen Peta**: Menggantikan import statik `react-leaflet` dengan dynamic import di `components/Map.tsx`. Semua modul Leaflet dan react-leaflet kini dimuatkan secara dinamik di sisi klien sahaja (tiada import statik).
+  3. **Pengesahan Fallback Supabase**: Memastikan `lib/supabase.ts` sudah mempunyai nilai sandaran yang valid untuk environment variables semasa build.
+- **Pematuhan .clinerules**:
+  - ✅ Zero-Mock: Tiada penghapusan logik perniagaan; hanya penyesuaian teknikal untuk SSR.
+  - ✅ Strict Routes: Laluan `/urus` dan `/urus/login` kekal sama, hanya ditambah force-dynamic.
+  - ✅ Build Gate: `npm run build` Exit Code 0 (tiada ralat TypeScript).
+- **Langkah Seterusnya**:
+  - Push perubahan ke GitHub untuk trigger deployment Vercel.
+
 ## 16 September 2026 (23:46 UTC)
 ### Pembaikan Ralat Binaan Vercel (TypeScript Strict Mode)
 - **Status**: ✅ BERHASIL (Build Exit Code 0)

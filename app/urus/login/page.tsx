@@ -1,5 +1,7 @@
 'use client'
 
+export const dynamic = 'force-dynamic'
+
 import { LogIn } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useState } from 'react'

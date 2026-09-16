@@ -6,10 +6,11 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import type { User } from '@supabase/supabase-js'
-import { LogOut, Package, CheckCircle, Clock, Phone, DollarSign, FileText, BarChart3, Download, Truck } from 'lucide-react'
+import { LogOut, Package, CheckCircle, Clock, Phone, DollarSign, FileText, BarChart3, Download, Truck, XCircle } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import type { Order, OrderStatus } from '@/types/order'
 import type { AccountingLedgerEntry, JoinedLedgerEntry, FinancialMetrics } from '@/types/accounting'
+import type { UserProfile, OrderLog } from '@/types/rbac'
 
 const STATUS_LABELS: Record<OrderStatus, string> = { pending: 'Baru Masuk', accepted: 'Disahkan', preparing: 'Sedang Disediakan', ready_pickup: 'Sedia Diambil', delivering: 'Sedang Dihantar', completed: 'Selesai', cancelled: 'Dibatalkan' }
 const STATUS_COLORS: Record<OrderStatus, string> = { pending: 'bg-yellow-100 text-yellow-800', accepted: 'bg-blue-100 text-blue-800', preparing: 'bg-purple-100 text-purple-800', ready_pickup: 'bg-green-100 text-green-800', delivering: 'bg-indigo-100 text-indigo-800', completed: 'bg-gray-100 text-gray-800', cancelled: 'bg-red-100 text-red-800' }
@@ -33,6 +34,8 @@ export default function UrusDashboard() {
   const [activeTab, setActiveTab] = useState<DashboardTab>('all')
   const [user, setUser] = useState<User | null>(null)
   const [authChecking, setAuthChecking] = useState(true)
+const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
+const [orderLogsMap, setOrderLogsMap] = useState<Record<string, OrderLog[]>>({})
   const [ledgerEntries, setLedgerEntries] = useState<JoinedLedgerEntry[]>([])
   const [ledgerLoading, setLedgerLoading] = useState(true)
   const [financialMetrics, setFinancialMetrics] = useState<FinancialMetrics>({
@@ -62,16 +65,26 @@ export default function UrusDashboard() {
   useEffect(() => {
     if (!user) return // No user, don't fetch data
 
+    fetchUserProfile()
     fetchOrders()
     fetchLedger()
+    fetchAllOrderLogs()
     const ordersChannel = supabase.channel('orders_realtime').on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, fetchOrders).subscribe()
     const ledgerChannel = supabase.channel('ledger_realtime').on('postgres_changes', { event: '*', schema: 'public', table: 'accounting_ledger' }, fetchLedger).subscribe()
+    const logsChannel = supabase.channel('order_logs_realtime').on('postgres_changes', { event: '*', schema: 'public', table: 'order_logs' }, fetchAllOrderLogs).subscribe()
 
     return () => {
       supabase.removeChannel(ordersChannel)
       supabase.removeChannel(ledgerChannel)
+      supabase.removeChannel(logsChannel)
     }
   }, [user])
+// Client-side RBAC check: redirect 'user' role to home page
+  useEffect(() => {
+    if (userProfile && userProfile.role === 'user') {
+      router.replace('/')
+    }
+  }, [userProfile, router])
 
   const fetchOrders = async () => {
     try {
@@ -206,14 +219,134 @@ const exportCSV = async () => {
     await supabase.auth.signOut()
     window.location.href = '/urus/login'
   }
+const fetchUserProfile = async () => {
+    if (!user) return
+    try {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single()
+      if (error) throw error
+      setUserProfile(data)
+    } catch (error) {
+      console.error('Error fetching user profile:', error)
+    }
+  }
+
+const fetchAllOrderLogs = async () => {
+    if (!user) return
+    try {
+      const { data, error } = await supabase
+        .from('order_logs')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(100) // Limit to recent logs
+      if (error) throw error
+      
+      // Group logs by order_id
+      const map: Record<string, OrderLog[]> = {}
+      data?.forEach(log => {
+        if (!map[log.order_id]) map[log.order_id] = []
+        map[log.order_id].push(log)
+      })
+      setOrderLogsMap(map)
+    } catch (error) {
+      console.error('Error fetching order logs:', error)
+    
+      console.error('Error fetching user profile:', error)
+    }
+  }
+
+  const logOrderAction = async (orderId: string, actionType: string, notes?: string) => {
+    if (!user) return
+    try {
+      // Get user profile for logging
+      let userProfileData = userProfile
+      if (!userProfileData) {
+        const { data } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single()
+        userProfileData = data
+      }
+
+      if (!userProfileData) return
+
+      const { error } = await supabase
+        .from('order_logs')
+        .insert({
+          order_id: orderId,
+          actor_id: user.id,
+          actor_name: userProfileData.full_name,
+          actor_role: userProfileData.role,
+          action_type: actionType,
+          notes
+        })
+      if (error) throw error
+    } catch (error) {
+      console.error('Error logging order action:', error)
+    }
+  }
 
   const updateOrderStatus = async (orderId: string, newStatus: OrderStatus) => {
     try {
+      // Get current order status from state
+      const currentOrder = orders.find(o => o.id === orderId)
+      const oldStatus = currentOrder?.status || 'pending'
+      
       const { error } = await supabase.from('orders').update({ status: newStatus }).eq('id', orderId)
       if (error) throw error
+      
+      // Log the status change
+      await logOrderAction(
+        orderId,
+        'status_update',
+        `Status changed from ${oldStatus} to ${newStatus}`
+      )
     } catch (error) {
       console.error('Error updating order status:', error)
       alert('Ralat mengemas kini status pesanan.')
+    }
+  }
+
+  const cancelOrder = async (orderId: string) => {
+    if (!confirm('Adakah anda pasti mahu membatalkan pesanan ini?')) return
+    
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({ 
+          status: 'cancelled',
+          cancelled_at: new Date().toISOString()
+        })
+        .eq('id', orderId)
+      if (error) throw error
+      
+      // Log cancellation
+      await logOrderAction(
+        orderId,
+        'cancellation',
+        'Order cancelled by user'
+      )
+      
+      // Generate WhatsApp cancellation notification
+      const order = orders.find(o => o.id === orderId)
+      if (order) {
+        const phone = order.phone_number.replace(/[^0-9]/g, '')
+        const message = `Hai ${order.customer_name}, pesanan Hokkaido #${order.id} telah dibatalkan atas permintaan pihak pengurusan. Sila hubungi kami jika ada sebarang pertanyaan.`
+        const encoded = encodeURIComponent(message)
+        const whatsappLink = `https://wa.me/${phone}?text=${encoded}`
+        
+        // Optionally open WhatsApp link or just display it
+        if (confirm('Hantar notifikasi pembatalan kepada pelanggan melalui WhatsApp?')) {
+          window.open(whatsappLink, '_blank')
+        }
+      }
+    } catch (error) {
+      console.error('Error cancelling order:', error)
+      alert('Ralat membatalkan pesanan.')
     }
   }
 
@@ -405,7 +538,7 @@ const renderLedgerSection = () => (
         <div className="container mx-auto flex flex-col md:flex-row md:items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold">Dashboard Pengurusan Pesanan</h1>
-            <p className="text-gray-600">Selamat datang, {user?.email || 'Pengurus'}</p>
+            <p className="text-gray-600">Selamat datang, <strong>{userProfile?.full_name || user?.email || 'Pengurus'}</strong> <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${userProfile?.role === 'admin' ? 'bg-purple-100 text-purple-800' : userProfile?.role === 'staff' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}`}>{userProfile?.role ? userProfile.role.toUpperCase() : 'USER'}</span></p>
           </div>
           <button onClick={handleLogout} className="mt-4 md:mt-0 inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition">
             <LogOut className="h-4 w-4" /> Log Keluar
@@ -502,6 +635,23 @@ const renderLedgerSection = () => (
                   <div className="flex flex-wrap gap-2">
                     {next && <button onClick={() => updateOrderStatus(order.id, next!)} className="flex-1 min-w-[140px] py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg">Tandai {STATUS_LABELS[next!]}</button>}
                     {whatsappLink && <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 py-2 px-4 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg"><Phone className="h-4 w-4" /> WhatsApp</a>}
+                    {order.status !== 'completed' && order.status !== 'cancelled' && (
+                      <button onClick={() => cancelOrder(order.id)} className="inline-flex items-center justify-center gap-2 py-2 px-4 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg">
+                        <XCircle className="h-4 w-4" /> Batal Pesanan
+                      </button>
+                    )}
+{orderLogsMap[order.id]?.length > 0 && (
+                    <div className="mt-4 pt-4 border-t border-gray-200">
+                      <h4 className="text-sm font-medium text-gray-700 mb-2">Sejarah Tindakan:</h4>
+                      <div className="space-y-1">
+                        {orderLogsMap[order.id].slice(0, 3).map(log => (
+                          <div key={log.id} className="text-xs text-gray-600">
+                            <span className="font-medium">{log.action_type}</span> oleh {log.actor_name || 'system'} ({log.actor_role}) pada {new Date(log.created_at).toLocaleString('ms-MY')}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   </div>
                 </div>
               )

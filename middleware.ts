@@ -42,6 +42,32 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(redirectUrl)
     }
 
+    // RBAC: If session exists and user is accessing /urus (not login), check role
+    if (session && pathname.startsWith('/urus') && pathname !== '/urus/login') {
+      try {
+        // Fetch user profile from user_profiles table
+        const { data: profile, error } = await supabase
+          .from('user_profiles')
+          .select('role')
+          .eq('id', session.user.id)
+          .single()
+        
+        // If error or profile not found, treat as 'user' role (default)
+        const userRole = profile?.role || 'user'
+        
+        // If user has 'user' role, redirect to home page
+        if (userRole === 'user') {
+          const redirectUrl = new URL('/', req.url)
+          return NextResponse.redirect(redirectUrl)
+        }
+        
+        // Allow 'staff' and 'admin' roles to proceed
+      } catch (error) {
+        console.error('Error fetching user profile in middleware:', error)
+        // Graceful fallback: allow access (let client-side handle)
+      }
+    }
+
     return res
   } catch (error) {
     // Graceful fallback to avoid 500 crash if any auth or middleware invocation fails

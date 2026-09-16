@@ -1,6 +1,37 @@
 # PROJECT PROGRESS LOG
 
 ## 17 September 2026 (12:30 UTC+8)
+## 17 September 2026 (14:30 UTC+8)
+### Sistem RBAC 3-Tier, Audit Logs & Butang Batal Pesanan
+, **Status**: ✅ BERHASIL (Build Exit Code 0)
+- **Perubahan Dilakukan**:
+  1. **Skrip SQL Migrasi RBAC & Audit Logs (`supabase/migrations/rbac_and_audit_logs.sql`)**:
+     - Cipta jadual `user_profiles` dengan role ('user', 'staff', 'admin') dan trigger auto-insert untuk pengguna Google OAuth.
+     - Cipta jadual `order_logs` untuk jejak audit tindakan status pesanan dan pembatalan.
+     - Polisi RLS: hanya 'staff' dan 'admin' boleh akses `/urus` dan baca log.
+     - Trigger automatik log status change & cancellation.
+     - Auto-assign admin role untuk email 'anamazizi@gmail.com'.
+  2. **Middleware Role-Based Access Control (`middleware.ts`)**:
+     - Tambah semakan role: jika pengguna dengan role 'user' cuba akses `/urus`, lencong ke laman utama (`/`).
+  3. **Dashboard Urus dengan Role Badge & Audit Logs (`app/urus/page.tsx`)**:
+     - Fetch user profile dan paparkan badge role (admin/staff/user).
+     - Tambah butang merah "Batal Pesanan" untuk pesanan belum selesai/dibatalkan.
+     - Log automatik ke `order_logs` setiap perubahan status & pembatalan.
+     - Paparkan sejarah tindakan (audit logs) di bawah setiap kad pesanan.
+     - Tambah pautan WhatsApp notifikasi pembatalan kepada pelanggan.
+  4. **Types untuk RBAC (`types/rbac.ts`)**:
+     - Definisi jenis `UserProfile`, `OrderLog`, `UserRole`.
+- **Pematuhan .clinerules**:
+  - ✅ Zero-Mock: Semua fungsi logik perniagaan kekal utuh.
+  - ✅ Strict Routes: Laluan `/urus` dilindungi oleh middleware RBAC.
+  - ✅ Build Gate: `npm run build` Exit Code 0 (tiada ralat TypeScript).
+  - ✅ Database As Source of Truth: Gunakan jadual `user_profiles` dan `order_logs` di Supabase.
+  - ✅ Server-Side Validation: Log audit disimpan di server, bukan localStorage.
+- **Langkah Seterusnya**:
+  - Jalankan skrip SQL migrasi di Supabase SQL Editor.
+  - Uji fungsi RBAC dengan log masuk menggunakan pelbagai emel (user, staff, admin).
+
+
 ### Penguatkuasaan Client-Side Auth Guard & Hardcode OAuth Callback
 - **Status**: ✅ BERHASIL (Build Exit Code 0)
 - **Perubahan Dilakukan**:

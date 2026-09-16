@@ -56,6 +56,24 @@ async function middleware(req) {
             const redirectUrl = new URL('/urus', req.url);
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$esm$2f$server$2f$web$2f$spec$2d$extension$2f$response$2e$js__$5b$middleware$2d$edge$5d$__$28$ecmascript$29$__["NextResponse"].redirect(redirectUrl);
         }
+        // RBAC: If session exists and user is accessing /urus (not login), check role
+        if (session && pathname.startsWith('/urus') && pathname !== '/urus/login') {
+            try {
+                // Fetch user profile from user_profiles table
+                const { data: profile, error } = await supabase.from('user_profiles').select('role').eq('id', session.user.id).single();
+                // If error or profile not found, treat as 'user' role (default)
+                const userRole = profile?.role || 'user';
+                // If user has 'user' role, redirect to home page
+                if (userRole === 'user') {
+                    const redirectUrl = new URL('/', req.url);
+                    return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$esm$2f$server$2f$web$2f$spec$2d$extension$2f$response$2e$js__$5b$middleware$2d$edge$5d$__$28$ecmascript$29$__["NextResponse"].redirect(redirectUrl);
+                }
+            // Allow 'staff' and 'admin' roles to proceed
+            } catch (error) {
+                console.error('Error fetching user profile in middleware:', error);
+            // Graceful fallback: allow access (let client-side handle)
+            }
+        }
         return res;
     } catch (error) {
         // Graceful fallback to avoid 500 crash if any auth or middleware invocation fails

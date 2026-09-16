@@ -246,3 +246,54 @@ return Math.floor(rawFee * 10) / 10
 - ✅ Trigger database untuk perakaunan automatik berfungsi
 
 **PROJEK BERSEDIA UNTUK:** Deployment production di Vercel dengan konfigurasi Supabase sebenar.
+### 2026-09-16T15:39 (UTC+8)
+
+**PEMBAIKAN BUILD-TIME FALLBACK SUAPBASE CLIENT:**
+
+✅ **Pembetulan Ralat Prerendering Vercel:**
+- Ralat "Invalid supabaseUrl: Must be a valid HTTP or HTTPS URL" berlaku kerana pembolehubah NEXT_PUBLIC_SUPABASE_URL tidak ternilai semasa build-time.
+- Mengemas kini `lib/supabase.ts` dengan graceful fallback:
+  - Jika URL env kosong atau tidak sah, gunakan fallback dummy URL sah (`https://thfklgjldtdohuugjins.supabase.co`).
+  - Jika anon key env kosong atau tidak sah, gunakan fallback dummy key yang sah.
+  - Fungsi validasi URL menggunakan `new URL()` dan pemeriksaan protokol http/https.
+  - Console.warn dipaparkan sekiranya fallback digunakan (hanya untuk logging pembangunan).
+- **Pengesahan Build:** ✅ `npm run build` exit code 0 tanpa ralat TypeScript/JavaScript.
+- **Commit & Push:** Perubahan telah di-commit (`515f1e8d`) dan di-push ke branch main GitHub.
+
+**Kesan:** Build Vercel sekarang boleh dilaksanakan tanpa gagal pada peringkat prerendering page "/".
+### 2026-09-16T15:45 (UTC+8)
+
+**PEMBAIKAN MIDDLEWARE INVOCTION FAILED (RALAT 500 VERCEL):**
+
+✅ **Pembetulan Ralat MIDDLEWARE_INVOCATION_FAILED:**
+- Ralat 500 di Vercel disebabkan oleh middleware yang crash apabila terdapat masalah dengan sesi auth atau environment variables.
+- Mengemas kini `middleware.ts` dengan dua pembaikan penting:
+  1. **Isolate matcher:** Hadkan middleware hanya untuk laluan `/urus/:path*` supaya ia tidak memproses semua permintaan (termasuk halaman awam).
+  2. **Graceful error handling:** Balut keseluruhan blok kod pengendalian sesi auth dalam `try {...} catch (error) {...}`. Jika berlaku sebarang ralat, middleware akan kembali dengan `NextResponse.next()` dan tidak menyebabkan crash 500.
+- **Pengesahan Build:** ✅ `npm run build` exit code 0 tanpa ralat TypeScript/JavaScript.
+- **Commit & Push:** Perubahan telah di-commit (`1ecbb795`) dan di-push ke branch main GitHub.
+
+### 2026-09-16T16:00 (UTC+8)
+
+**PENAMBAHAN MEDAN ALAMAT PENGHANTARAN & DIRECT WHATSAPP REDIRECT**
+
+✅ **Penambahbaikan Storefront (Borang Pelanggan):**
+- Menambah medan teks **Alamat Penghantaran (No. Rumah / Jalan / Bangunan)** pada borang pelanggan (hanya wajib jika kaedah Delivery).
+- Reka bentuk mematuhi panduan kontras tinggi `.clinerules`: `text-slate-900 bg-white placeholder:text-gray-400 border-gray-300`.
+- Nilai alamat disimpan ke Supabase (kolum `delivery_address`) dan ke localStorage bersama nama & telefon untuk auto-load tempahan seterusnya.
+
+✅ **Kemas Kini Format Mesej WhatsApp:**
+- Masukkan alamat teks pelanggan di dalam template mesej WhatsApp dengan format:
+  📍 *Alamat:* {Alamat Teks Pelanggan}
+  🌐 *Google Maps:* https://www.google.com/maps?q={lat},{lng}
+- Kekalkan penggunaan pembungkus ketat `encodeURIComponent(rawMessage)` mengikut `.clinerules`.
+
+✅ **Alir Terus ke WhatsApp Tanpa Pop-up (Direct Seamless Redirect):**
+- Menghapuskan modal pop-up pengesahan tambahan selepas menekan butang tempah.
+- Menggunakan lencongan langsung `window.location.href = waUrl;` sebaik sahaja rekod berjaya didaftarkan supaya aplikasi WhatsApp pelanggan terus terbuka tanpa sekatan pelayar mudah alih.
+
+✅ **Pengesahan Build & Deployment:**
+- `npm run build` exit code 0 tanpa ralat TypeScript.
+- Push ke GitHub dengan commit message: `feat: add delivery address field and direct whatsapp redirect without popup`.
+
+**Kesan:** Pelanggan kini boleh memberikan alamat lengkap untuk penghantaran COD, dan sistem akan terus mengalihkan ke aplikasi WhatsApp tanpa sebarang pop-up yang mengganggu.

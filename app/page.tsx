@@ -13,6 +13,7 @@ import OrderSummary from '@/components/OrderSummary'
 export default function Home() {
   const {
     name, setName, phone, setPhone,
+    address, setAddress,
     deliveryType, setDeliveryType,
     productType, setProductType,
     quantity, setQuantity,
@@ -26,13 +27,24 @@ export default function Home() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    // Validation
+    if (deliveryType === 'delivery') {
+      if (!selectedLat || !selectedLng) {
+        alert('Sila pilih lokasi penghantaran di peta.')
+        return
+      }
+      if (!address.trim()) {
+        alert('Sila isi alamat penghantaran (No. Rumah / Jalan / Bangunan).')
+        return
+      }
+    }
     setIsSubmitting(true)
     try {
       const product = getProductDetails(productType)
       const totalCogs = product.cogs * quantity
       const profit = totalPrice - totalCogs - deliveryFee
       const deliveryAddress = deliveryType === 'delivery' 
-        ? `Lat: ${selectedLat?.toFixed(6)}, Lng: ${selectedLng?.toFixed(6)}`
+        ? address.trim() || `Lat: ${selectedLat?.toFixed(6)}, Lng: ${selectedLng?.toFixed(6)}`
         : 'Ambil sendiri di kedai'
 // Jana UUID di peringkat klien untuk elakkan RLS SELECT violation
       const orderId = typeof window !== 'undefined' && window.crypto
@@ -112,9 +124,10 @@ ${phoneFormatted}
 
 📍 *Alamat:*
 ${deliveryAddress}
-
-🗺️ *Google Maps:*
+${googleMapsUrl ? `
+🌐 *Google Maps:*
 ${googleMapsUrl}
+` : ''}
 
 --------------------
 
@@ -139,15 +152,10 @@ Terima kasih.`
       const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encoded}`
       setWhatsappLink(whatsappUrl)
       
-      // Automatically redirect to WhatsApp
-      setTimeout(() => {
-        if (typeof window !== 'undefined') {
-          window.open(whatsappUrl, '_blank')
-        }
-      },500)
-      setName('')
-      setPhone('')
-      setQuantity(1)
+      // Direct redirect to WhatsApp without popup
+      if (typeof window !== 'undefined') {
+        window.location.href = whatsappUrl
+      }
     } catch (error) {
       console.error('Error dalam handleSubmit:', error)
       alert(`Ralat menghantar pesanan: ${error instanceof Error ? error.message : 'Unknown error'}`)
@@ -169,7 +177,7 @@ Terima kasih.`
           Maklumat Pesanan
         </h2>
 
-        <CustomerForm name={name} setName={setName} phone={phone} setPhone={setPhone} />
+        <CustomerForm name={name} setName={setName} phone={phone} setPhone={setPhone} address={address} setAddress={setAddress} deliveryType={deliveryType} />
         {typeof window !== 'undefined' && localStorage.getItem('hokkaido_customer_data') && (
           <div className="mb-4 text-right">
             <button
@@ -216,7 +224,7 @@ Terima kasih.`
 
         <button
           type="submit"
-          disabled={isSubmitting || (deliveryType === 'delivery' && (!selectedLat || !selectedLng))}
+          disabled={isSubmitting || (deliveryType === 'delivery' && (!selectedLat || !selectedLng || !address.trim()))}
           className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-bold rounded-lg transition"
         >
           {isSubmitting ? 'Menghantar...' : 'Hantar Pesanan'}

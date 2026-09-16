@@ -7,6 +7,7 @@ const STORE_LNG = 100.6655929
 export default function useOrderForm() {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
+  const [address, setAddress] = useState('')
   const [deliveryType, setDeliveryType] = useState<'pickup' | 'delivery'>('pickup')
   const [productType, setProductType] = useState<'solo_sweet' | 'family_box' | 'mega_craving'>('solo_sweet')
   const [quantity, setQuantity] = useState(1)
@@ -43,6 +44,7 @@ export default function useOrderForm() {
         const data = JSON.parse(stored)
         if (data.name) setName(data.name)
         if (data.phone) setPhone(data.phone)
+        if (data.address) setAddress(data.address)
         if (data.deliveryType) setDeliveryType(data.deliveryType)
         if (data.productType) setProductType(data.productType)
         if (data.quantity) setQuantity(data.quantity)
@@ -64,6 +66,7 @@ export default function useOrderForm() {
     const data = {
       name,
       phone,
+      address,
       deliveryType,
       productType,
       quantity,
@@ -77,6 +80,8 @@ export default function useOrderForm() {
     setName,
     phone,
     setPhone,
+    address,
+    setAddress,
     deliveryType,
     setDeliveryType,
     productType,

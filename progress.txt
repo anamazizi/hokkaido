@@ -74,3 +74,12 @@
 - Automatik redirect ke WhatsApp: window.open(whatsappUrl, '_blank') dengan setTimeout.
 - Template WhatsApp baru dengan emoji, alamat, Google Maps, format currency.
 - BUILD BERHASIL: npm run build exit code 0 tanpa ralat TypeScript.
+2026-09-16T15:39:00 - PEMBAIKAN BUILD-TIME FALLBACK SUAPBASE CLIENT\n- Ralat \"Invalid supabaseUrl\" pada prerendering Vercel diperbaiki dengan graceful fallback di lib/supabase.ts.\n- Jika NEXT_PUBLIC_SUPABASE_URL atau NEXT_PUBLIC_SUPABASE_ANON_KEY kosong/tidak sah, gunakan dummy yang sah untuk build-time.\n- BUILD BERHASIL: npm run build exit code 0.\n- Commit 515f1e8d pushed ke GitHub.
+2026-09-16T15:45:00 - PEMBAIKAN MIDDLEWARE INVOCATION FAILED (500 VERCEL)\n- Ralat 500 MIDDLEWARE_INVOCATION_FAILED diperbaiki dengan mengisolasi matcher kepada hanya '/urus/:path*'.\n- Blok kod auth dibalut dalam try-catch dengan graceful fallback NextResponse.next().\n- BUILD BERHASIL: npm run build exit code 0.\n- Commit 1ecbb795 pushed ke GitHub.
+2026-09-16T16:00:00 - PENAMBAHAN MEDAN ALAMAT PENGHANTARAN & DIRECT WHATSAPP REDIRECT
+- Tambah medan alamat penghantaran (textarea) wajib jika delivery, dengan kelas kontras tinggi.
+- Simpan alamat ke Supabase delivery_address dan localStorage.
+- Kemas kini template WhatsApp dengan alamat teks dan Google Maps link (emoji 🌐).
+- Gantikan window.open dengan window.location.href untuk direct redirect tanpa pop-up.
+- BUILD BERHASIL: npm run build exit code 0 tanpa ralat TypeScript.
+- Commit feat: add delivery address field and direct whatsapp redirect without popup.

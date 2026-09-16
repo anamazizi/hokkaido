@@ -1,5 +1,30 @@
 # PROJECT PROGRESS LOG
 
+## 17 September 2026 (12:00 UTC+8)
+### Semakan & Pembaikan Keselamatan /urus serta Label UI
+- **Status**: ✅ BERHASIL (Build Exit Code 0)
+- **Perubahan Dilakukan**:
+  1. **Kunci Laluan /urus (Strict Route Guard / Middleware)**:
+     - Semak `middleware.ts` dan `app/urus/page.tsx`.
+     - Pastikan jika sesi Supabase Auth tiada (`!user` atau `!session`), pengguna dilencongkan serta-merta ke `/urus/login`.
+  2. **Kemas Kini Label Status "Sedang Dibakar" -> "Sedang Disediakan"**:
+     - Di `app/urus/page.tsx`, ubah teks tab penapis dan butang tindakan:
+       * Tukar "Sedang Bakar/Sedia" kepada "Sedang Disediakan".
+     - Selaraskan template WhatsApp bagi status Preparing agar mencerminkan produk ready-stock frozen:
+       "Hai {Nama}, pesanan Hokkaido #{OrderNo} anda sedang disediakan (Ready-stock Frozen - sedap dinikmati sejuk!). ❄️🧁"
+  3. **Pengesahan Pautan Redirect Google OAuth di /urus/login**:
+     - Pastikan butang "Log Masuk dengan Google" di `app/urus/login/page.tsx` memanggil `redirectTo: ${window.location.origin}/auth/callback`.
+  4. **Pengesahan Binaan & Tolak Kod**:
+     - Jalankan `npm run build` dan pastikan Exit Code 0.
+     - Tolak kod ke branch main.
+- **Pematuhan .clinerules**:
+  - ✅ Zero-Mock: Tiada penghapusan logik perniagaan atau fungsi yang telah siap.
+  - ✅ Strict Routes: Laluan `/urus` kekal sama dengan perlindungan middleware.
+  - ✅ Build Gate: `npm run build` Exit Code 0 (tiada ralat TypeScript/JavaScript).
+- **Langkah Seterusnya**:
+  - Monitor deployment Vercel dan uji fungsi di production.
+
+
 ## 17 September 2026 (03:39 UTC+8)
 ### Pembaikan Deployment Vercel (Force Dynamic & Leaflet SSR)
 - **Status**: ✅ BERHASIL (Build Exit Code 0)

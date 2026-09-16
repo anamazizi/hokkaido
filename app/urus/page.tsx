@@ -10,7 +10,7 @@ import { formatCurrency } from '@/lib/utils'
 import type { Order, OrderStatus } from '@/types/order'
 import type { AccountingLedgerEntry, JoinedLedgerEntry, FinancialMetrics } from '@/types/accounting'
 
-const STATUS_LABELS: Record<OrderStatus, string> = { pending: 'Baru Masuk', accepted: 'Disahkan', preparing: 'Sedang Bakar/Sedia', ready_pickup: 'Sedia Diambil', delivering: 'Sedang Dihantar', completed: 'Selesai', cancelled: 'Dibatalkan' }
+const STATUS_LABELS: Record<OrderStatus, string> = { pending: 'Baru Masuk', accepted: 'Disahkan', preparing: 'Sedang Disediakan', ready_pickup: 'Sedia Diambil', delivering: 'Sedang Dihantar', completed: 'Selesai', cancelled: 'Dibatalkan' }
 const STATUS_COLORS: Record<OrderStatus, string> = { pending: 'bg-yellow-100 text-yellow-800', accepted: 'bg-blue-100 text-blue-800', preparing: 'bg-purple-100 text-purple-800', ready_pickup: 'bg-green-100 text-green-800', delivering: 'bg-indigo-100 text-indigo-800', completed: 'bg-gray-100 text-gray-800', cancelled: 'bg-red-100 text-red-800' }
 
 type RawLedgerEntry = AccountingLedgerEntry & {
@@ -203,7 +203,7 @@ const exportCSV = async () => {
     const templates: Record<OrderStatus, string> = {
       pending: `Hai ${order.customer_name}, pesanan Hokkaido #${order.id} disahkan. Kami akan mula sediakan sebentar lagi.`,
       accepted: `Hai ${order.customer_name}, pesanan Hokkaido #${order.id} disahkan. Kami akan mula sediakan sebentar lagi.`,
-      preparing: `Hokkaido anda sedang disediakan 🧀`,
+      preparing: `Hai ${order.customer_name}, pesanan Hokkaido #${order.id} anda sedang disediakan (Ready-stock Frozen - sedap dinikmati sejuk!). ❄️🧁`,
       ready_pickup: `Hai ${order.customer_name}, pesanan Hokkaido #${order.id} sedia diambil di kedai.`,
       delivering: `Hai ${order.customer_name}, rider dalam perjalanan ke lokasi anda. Sila sediakan tunai COD: RM ${order.total_price}.`,
       completed: `Terima kasih ${order.customer_name}! Pesanan Hokkaido #${order.id} selesai. Semoga menikmati Hokkaido anda! 🧀`,

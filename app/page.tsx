@@ -43,12 +43,13 @@ export default function Home() {
     }
     setIsInquirySubmitting(true)
     
-    const message = `Hai Hokkaido Inti Jebok,%0A%0ANama: ${inquiryName.trim()}%0APertanyaan: ${inquiryQuestion.trim()}`
+    const message = `Hai Hokkaido Inti Jebok,\n\nNama: ${inquiryName.trim()}\nPertanyaan: ${inquiryQuestion.trim()}`
     const phoneNumber = '+601110890100'
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`
     
     if (typeof window !== 'undefined') {
       window.location.href = whatsappUrl
+      setTimeout(() => setIsInquirySubmitting(false), 1000)
     }
   }
   const handleSubmit = async (e: React.FormEvent) => {
@@ -175,7 +176,7 @@ export default function Home() {
           <img 
             src="/images/hokkaido-banner.jpg" 
             alt="Hokkaido Inti Jebok Banner" 
-            className="w-full h-64 md:h-80 rounded-2xl shadow-sm object-cover border border-amber-200"
+            className="w-full h-auto rounded-2xl shadow-sm block border border-amber-200"
             loading="lazy"
             onError={(e) => { e.currentTarget.style.display = 'none' }}
           />
@@ -187,7 +188,7 @@ export default function Home() {
             <img 
               src="/images/hokkaido-cream.jpg" 
               alt="Hokkaido Cream Texture" 
-              className="w-full h-64 object-cover"
+              className="w-full h-auto rounded-2xl shadow-sm block"
 loading="lazy"
               onError={(e) => { e.currentTarget.style.display = 'none' }}
             />
@@ -196,7 +197,7 @@ loading="lazy"
             <img 
               src="/images/hokkaido-sets.jpg" 
               alt="Hokkaido Sets" 
-              className="w-full h-64 object-cover"
+              className="w-full h-auto rounded-2xl shadow-sm block"
 loading="lazy"
               onError={(e) => { e.currentTarget.style.display = 'none' }}
             />
@@ -323,12 +324,7 @@ loading="lazy"
               </button>
             </form>
             
-            <div className="mt-6 pt-4 border-t border-blue-200/40">
-              <p className="text-sm text-slate-600">
-                📞 <strong>Hubungi terus:</strong> +601110890100<br />
-                💬 <strong>Kami akan jawab:</strong> Dalam masa 15 minit (7am–10pm)
-              </p>
-            </div>
+            
           </div>
         </div>
       </div>

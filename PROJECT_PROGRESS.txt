@@ -2,6 +2,87 @@ PROJECT PROGRESS LOG
 =====================
 =====================
 Date: 17 September 2026
+Time: 15:15 UTC+8
+
+TASK: Penguatkuasaan RBAC Ketat: Blok Role 'user' dari Dashboard /urus
+STATUS: ✅ BERHASIL
+
+PERUBAHAN:
+1. Middleware Server-Side Strict Enforcement (middleware.ts):
+   - Perbaiki RBAC dengan penguatkuasaan lebih ketat.
+   - Hanya benarkan peranan 'staff' dan 'admin' akses /urus.
+   - Jika error atau role 'user', redirect ke / tanpa kompromi.
+   - Tambah console warn untuk logging keselamatan.
+2. Client-Side RBAC Strict Guard (app/urus/page.tsx):
+   - Gabungkan authentication dan RBAC ke dalam satu useEffect.
+   - Fetch profile dan semak role SEBELUM fetch data lain.
+   - Redirect role 'user' ke / serta-merta tanpa ambil data pesanan.
+   - Tambah UI guard: loading state, access denied screens.
+3. Role Badge & UI Safety Nets:
+   - UI hanya render untuk 'staff' dan 'admin' sahaja.
+   - Fail-safe: jika userProfile null atau role bukan staff/admin, papar "Akses Ditolak".
+   - Role badge warna: admin (purple), staff (blue), user (gray).
+4. Build Verification & Git:
+   - npm run build Exit Code 0 (tiada ralat).
+   - Git commit dan push dengan mesej "security: strictly block role 'user' from /urus and redirect to home".
+
+BUILD GATE: npm run build Exit Code 0 (tiada ralat)
+
+CLINERULES COMPLIANCE:
+- Zero-Mock: Tiada penghapusan logik perniagaan.
+- Strict Routes: Laluan /urus dilindungi dengan ketat.
+- Build Gate: Build berjaya.
+- Database As Source of Truth: Gunakan jadual user_profiles.
+- Server-Side Validation: Middleware validasi sebelum client.
+
+NOTES:
+✅ Middleware strict enforcement.
+✅ Client-side RBAC consolidated.
+✅ UI safety nets added.
+✅ Build successful.
+✅ Changes ready for git commit/push.
+
+NEXT STEP:
+Uji dengan pelbagai pengguna (a6taps@gmail.com role 'user', admin@example.com role 'admin').
+
+=====================
+Date: 17 September 2026
+Time: 15:00 UTC+8
+
+TASK: Pembaikan Teknikal Vercel Build & Turbopack Panic
+STATUS: ✅ BERHASIL
+
+PERUBAHAN:
+1. Bersihkan Tracking Folder `.next` dari Git:
+   - Cipta `.gitignore` root dengan senarai standard Next.js (`.next`, `node_modules`, `.env*.local`).
+   - Jalankan `git rm -r --cached .next` untuk buang folder build dari git tracking tanpa padam fail fizikal.
+2. Matikan Turbopack untuk Production Build:
+   - Tambah env variable `NEXT_TURBOPACK=0` di skrip build `package.json`.
+   - Pastikan `next.config.js` bersih tanpa tetapan `experimental.turbopack` yang tidak dikenali.
+3. Pengesahan Binaan & Tolak Kod:
+   - Jalankan `npm run build` dengan webpack standard (Exit Code 0).
+   - Commit perubahan `.gitignore`, `package.json`, `next.config.js`.
+   - Push ke branch main: `git push origin main`.
+
+BUILD GATE: npm run build Exit Code 0 (tiada ralat)
+
+CLINERULES COMPLIANCE:
+- Zero-Mock: Tiada penghapusan logik perniagaan.
+- Strict Routes: Semua laluan kekal utuh.
+- Build Gate: Build berjaya.
+
+NOTES:
+✅ `.next` removed from git tracking.
+✅ `.gitignore` created with standard patterns.
+✅ Turbopack disabled via environment variable.
+✅ Build successful with webpack.
+✅ Changes committed and pushed.
+
+NEXT STEP:
+Monitor deployment Vercel untuk pastikan build berjaya tanpa panic.
+Jalankan skrip SQL migrasi RBAC di Supabase SQL Editor.
+
+=====================
 Date: 17 September 2026
 Time: 14:30 UTC+8
 

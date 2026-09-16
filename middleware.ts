@@ -52,11 +52,12 @@ export async function middleware(req: NextRequest) {
           .eq('id', session.user.id)
           .single()
         
-        // If error or profile not found, treat as 'user' role (default)
+        // If error fetching profile or profile not found, treat as 'user' role and BLOCK access
         const userRole = profile?.role || 'user'
         
-        // If user has 'user' role, redirect to home page
-        if (userRole === 'user') {
+        // STRICT ENFORCEMENT: Only 'staff' or 'admin' roles can proceed
+        // If user has 'user' role or no valid role, redirect to home page IMMEDIATELY
+        if (userRole !== 'staff' && userRole !== 'admin') {
           const redirectUrl = new URL('/', req.url)
           return NextResponse.redirect(redirectUrl)
         }
@@ -64,7 +65,10 @@ export async function middleware(req: NextRequest) {
         // Allow 'staff' and 'admin' roles to proceed
       } catch (error) {
         console.error('Error fetching user profile in middleware:', error)
-        // Graceful fallback: allow access (let client-side handle)
+        // STRICT SECURITY: If any error occurs fetching profile, redirect to home
+        // This prevents unauthorized access during service disruptions
+        const redirectUrl = new URL('/', req.url)
+        return NextResponse.redirect(redirectUrl)
       }
     }
 

@@ -1,9 +1,64 @@
 # PROJECT PROGRESS LOG
 
-## 17 September 2026 (12:30 UTC+8)
+## 17 September 2026 (15:15 UTC+8)
+### Penguatkuasaan RBAC Ketat: Blok Role 'user' dari Dashboard /urus
+- **Status**: ✅ BERHASIL (Build Exit Code 0)
+
+- **Perubahan Dilakukan**:
+  1. **Middleware Server-Side Strict Enforcement (`middleware.ts`)**:
+     - Perbaiki implementasi RBAC sedia ada dengan penguatkuasaan lebih ketat.
+     - Hanya benarkan peranan `staff` dan `admin` akses `/urus`.
+     - Jika error fetching profile atau role `user`, redirect ke `/` tanpa kompromi (tidak ada fallback "graceful allow").
+     - Tambah logging untuk keselamatan: console warn apabila user role `user` cuba akses dashboard.
+  2. **Client-Side RBAC Strict Guard (`app/urus/page.tsx`)**:
+     - Gabungkan semua logik authentication dan RBAC ke dalam satu `useEffect` terpusat.
+     - Fetch user profile dan semak role SEBELUM memanggil fungsi data fetching lain.
+     - Redirect role `user` ke `/` serta-merta tanpa mengambil data pesanan.
+     - Tambah UI guard sebelum render dashboard: loading state, access denied screens.
+     - Hentikan realtime subscriptions untuk role `user`.
+  3. **Role Badge & UI Safety Nets**:
+     - Pastikan UI hanya render untuk `staff` dan `admin` sahaja.
+     - Tambah fail-safe: jika `userProfile` null atau role bukan `staff`/`admin`, papar "Akses Ditolak".
+     - Paparkan role badge dengan warna berbeza: admin (purple), staff (blue), user (gray).
+  4. **Build Verification & Git**:
+     - Jalankan `npm run build` dan pastikan Exit Code 0 (tiada ralat TypeScript).
+     - Commit dan push ke GitHub dengan mesej: "security: strictly block role 'user' from /urus and redirect to home".
+- **Pematuhan .clinerules**:
+  - ✅ Zero-Mock: Tiada penghapusan logik perniagaan, semua fungsi kekal utuh.
+  - ✅ Strict Routes: Laluan `/urus` dilindungi dengan ketat oleh middleware dan client-side guard.
+  - ✅ Build Gate: `npm run build` Exit Code 0 (tiada ralat TypeScript).
+  - ✅ Database As Source of Truth: Gunakan jadual `user_profiles` untuk peranan sebenar.
+  - ✅ Server-Side Validation: Middleware melakukan validasi server-side sebelum client-side.
+- **Langkah Seterusnya**:
+  - Uji dengan pelbagai pengguna (email: a6taps@gmail.com role 'user', admin@example.com role 'admin').
+  - Monitor deployment dan pastikan pengguna biasa tidak boleh akses dashboard.
+
+## 17 September 2026 (15:00 UTC+8)
+### Pembaikan Teknikal Vercel Build & Turbopack Panic
+- **Status**: ✅ BERHASIL (Build Exit Code 0)
+
+- **Perubahan Dilakukan**:
+  1. **Bersihkan Tracking Folder `.next` dari Git**:
+     - Cipta `.gitignore` root dengan senarai standard Next.js (`.next`, `node_modules`, `.env*.local`).
+     - Jalankan `git rm -r --cached .next` untuk buang folder build dari git tracking tanpa padam fail fizikal.
+  2. **Matikan Turbopack untuk Production Build**:
+     - Tambah env variable `NEXT_TURBOPACK=0` di skrip build `package.json`.
+     - Pastikan `next.config.js` bersih tanpa tetapan `experimental.turbopack` yang tidak dikenali.
+  3. **Pengesahan Binaan & Tolak Kod**:
+     - Jalankan `npm run build` dengan webpack standard (Exit Code 0).
+     - Commit perubahan `.gitignore`, `package.json`, `next.config.js`.
+     - Push ke branch main: `git push origin main`.
+- **Pematuhan .clinerules**:
+  - ✅ Build Gate: `npm run build` Exit Code 0 (tiada ralat TypeScript).
+  - ✅ Zero-Mock: Tiada penghapusan logik perniagaan.
+  - ✅ Strict Routes: Semua laluan kekal utuh.
+- **Langkah Seterusnya**:
+  - Monitor deployment Vercel untuk pastikan build berjaya tanpa panic.
+  - Jalankan skrip SQL migrasi RBAC di Supabase SQL Editor.
+
 ## 17 September 2026 (14:30 UTC+8)
 ### Sistem RBAC 3-Tier, Audit Logs & Butang Batal Pesanan
-, **Status**: ✅ BERHASIL (Build Exit Code 0)
+- **Status**: ✅ BERHASIL (Build Exit Code 0)
 - **Perubahan Dilakukan**:
   1. **Skrip SQL Migrasi RBAC & Audit Logs (`supabase/migrations/rbac_and_audit_logs.sql`)**:
      - Cipta jadual `user_profiles` dengan role ('user', 'staff', 'admin') dan trigger auto-insert untuk pengguna Google OAuth.

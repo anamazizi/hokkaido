@@ -49,42 +49,71 @@ const [orderLogsMap, setOrderLogsMap] = useState<Record<string, OrderLog[]>>({})
   })
 
   const router = useRouter()
+  // STRICT AUTHENTICATION & RBAC ENFORCEMENT
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        router.replace('/urus/login')
-        return
+    const checkAuthAndRole = async () => {
+      try {
+        // Step 1: Get current user
+        const { data: { user } } = await supabase.auth.getUser()
+        
+        // Step 2: If no user, redirect to login
+        if (!user) {
+          router.replace('/urus/login')
+          return
+        }
+        
+        setUser(user)
+        
+        // Step142 3: Fetch user profile for RBAC check
+        const { data: profile, error } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single()
+        
+        // Step 4: STRICT ROLE VALIDATION
+        const userRole = profile?.role || 'user'
+        
+        // Step 5: Redirect 'user' role to home page IMMEDIATELY
+        if (userRole !== 'staff' && userRole !== 'admin') {
+          console.warn(`RBAC BLOCK: User ${user.email} with role '${userRole}' attempted to access /urus dashboard`)
+          router.replace('/')
+          return
+        }
+        
+        // Step 6: Only for 'staff' or 'admin' roles, set profile and proceed
+        if (profile) {
+          setUserProfile(profile)
+        }
+        
+        // Step 7: Fetch data only after successful role validation
+        fetchOrders()
+        fetchLedger()
+        fetchAllOrderLogs()
+        
+        // Step 8: Subscribe to realtime channels
+        const ordersChannel = supabase.channel('orders_realtime').on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, fetchOrders).subscribe()
+        const ledgerChannel = supabase.channel('ledger_realtime').on('postgres_changes', { event: '*', schema: 'public', table: 'accounting_ledger' }, fetchLedger).subscribe()
+        const logsChannel = supabase.channel('order_logs_realtime').on('postgres_changes', { event: '*', schema: 'public', table: 'order_logs' }, fetchAllOrderLogs).subscribe()
+
+        // Cleanup function
+        return () => {
+          supabase.removeChannel(ordersChannel)
+          supabase.removeChannel(ledgerChannel)
+          supabase.removeChannel(logsChannel)
+        }
+        
+      } catch (error) {
+        console.error('Authentication/RBAC error:', error)
+        // On any error, redirect to home for security
+        router.replace('/')
+      } finally {
+        setAuthChecking(false)
       }
-      setUser(user)
-      setAuthChecking(false)
     }
-    checkAuth()
+    
+    checkAuthAndRole()
   }, [router])
-
-  useEffect(() => {
-    if (!user) return // No user, don't fetch data
-
-    fetchUserProfile()
-    fetchOrders()
-    fetchLedger()
-    fetchAllOrderLogs()
-    const ordersChannel = supabase.channel('orders_realtime').on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, fetchOrders).subscribe()
-    const ledgerChannel = supabase.channel('ledger_realtime').on('postgres_changes', { event: '*', schema: 'public', table: 'accounting_ledger' }, fetchLedger).subscribe()
-    const logsChannel = supabase.channel('order_logs_realtime').on('postgres_changes', { event: '*', schema: 'public', table: 'order_logs' }, fetchAllOrderLogs).subscribe()
-
-    return () => {
-      supabase.removeChannel(ordersChannel)
-      supabase.removeChannel(ledgerChannel)
-      supabase.removeChannel(logsChannel)
-    }
-  }, [user])
-// Client-side RBAC check: redirect 'user' role to home page
-  useEffect(() => {
-    if (userProfile && userProfile.role === 'user') {
-      router.replace('/')
-    }
-  }, [userProfile, router])
 
   const fetchOrders = async () => {
     try {
@@ -219,20 +248,8 @@ const exportCSV = async () => {
     await supabase.auth.signOut()
     window.location.href = '/urus/login'
   }
-const fetchUserProfile = async () => {
-    if (!user) return
-    try {
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single()
-      if (error) throw error
-      setUserProfile(data)
-    } catch (error) {
-      console.error('Error fetching user profile:', error)
-    }
-  }
+// fetchUserProfile function has been integrated into the main authentication/RBAC flow
+// See the useEffect above for the consolidated implementation
 
 const fetchAllOrderLogs = async () => {
     if (!user) return
@@ -532,6 +549,62 @@ const renderLedgerSection = () => (
       </div>
     )
   }
+  // STRICT RBAC GUARD: Don't render dashboard if still checking auth or RBAC failed
+  if (authChecking) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600 mb-4"></div>
+          <p className="text-gray-600">Mengesahkan kebenaran akses...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // STRICT RBAC SAFETY NET: Don't render dashboard if userProfile validation failed
+  // This could happen if userProfile is null OR if somehow userRole is not staff/admin
+  if (!userProfile) {
+    // This should not happen due to earlier redirects, but as a safety net
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="bg-red-100 text-red-800 p-4 rounded-lg mb-4">
+            <h2 className="text-xl font-bold mb-2">Akses Ditolak</h2>
+            <p>Pengesahan kebenaran gagal. Sila hubungi pentadbir sistem.</p>
+          </div>
+          <button 
+            onClick={() => router.replace('/')}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition"
+          >
+            Kembali ke Laman Utama
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // Additional safety check: ensure role is staff or admin
+  if (userProfile.role !== 'staff' && userProfile.role !== 'admin') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="bg-red-100 text-red-800 p-4 rounded-lg mb-4">
+            <h2 className="text-xl font-bold mb-2">Akses Ditolak</h2>
+            <p>Anda tidak mempunyai kebenaran untuk mengakses dashboard ini.</p>
+            <p className="text-sm mt-2">Peranan anda: {userProfile.role}</p>
+          </div>
+          <button 
+            onClick={() => router.replace('/')}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition"
+          >
+            Kembali ke Laman Utama
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // Only render dashboard for verified 'staff' or 'admin' roles
   return (
     <div className="min-h-screen bg-gray-50 text-slate-900">
       <header className="bg-white border-b border-gray-300 px-4 py-4">

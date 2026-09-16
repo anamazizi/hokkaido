@@ -29,7 +29,7 @@ export default function Map({ storeLat, storeLng, selectedLat, selectedLng, onMa
     if (typeof window === 'undefined') return;
 
     import('leaflet').then((L) => {
-      delete (L.Icon.Default.prototype as any)._getIconUrl;
+      delete (L.Icon.Default.prototype as { _getIconUrl?: string })._getIconUrl;
       L.Icon.Default.mergeOptions({
         iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
         iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',

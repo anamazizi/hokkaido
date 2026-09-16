@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import type { User } from '@supabase/supabase-js'
 import { LogOut, Package, CheckCircle, Clock, Phone, DollarSign, FileText, BarChart3, Download, Truck } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import type { Order, OrderStatus } from '@/types/order'
@@ -10,13 +11,24 @@ import type { AccountingLedgerEntry, JoinedLedgerEntry, FinancialMetrics } from 
 const STATUS_LABELS: Record<OrderStatus, string> = { pending: 'Baru Masuk', accepted: 'Disahkan', preparing: 'Sedang Bakar/Sedia', ready_pickup: 'Sedia Diambil', delivering: 'Sedang Dihantar', completed: 'Selesai', cancelled: 'Dibatalkan' }
 const STATUS_COLORS: Record<OrderStatus, string> = { pending: 'bg-yellow-100 text-yellow-800', accepted: 'bg-blue-100 text-blue-800', preparing: 'bg-purple-100 text-purple-800', ready_pickup: 'bg-green-100 text-green-800', delivering: 'bg-indigo-100 text-indigo-800', completed: 'bg-gray-100 text-gray-800', cancelled: 'bg-red-100 text-red-800' }
 
+type RawLedgerEntry = AccountingLedgerEntry & {
+  order: {
+    customer_name: string
+    phone_number: string
+    delivery_type: 'delivery' | 'pickup'
+    product_type: 'solo_sweet' | 'family_box' | 'mega_craving'
+    quantity: number
+    status: string
+  } | null
+}
+
 type DashboardTab = 'all' | OrderStatus | 'finance' | 'ledger'
 
 export default function UrusDashboard() {
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<DashboardTab>('all')
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [ledgerEntries, setLedgerEntries] = useState<JoinedLedgerEntry[]>([])
   const [ledgerLoading, setLedgerLoading] = useState(true)
   const [financialMetrics, setFinancialMetrics] = useState<FinancialMetrics>({
@@ -60,7 +72,7 @@ const fetchLedger = async () => {
         .select('*, order:orders(customer_name, phone_number, delivery_type, product_type, quantity, status)')
         .order('transaction_date', { ascending: false })
       if (error) throw error
-      const joinedData: JoinedLedgerEntry[] = (data || []).map((entry: any) => ({
+      const joinedData: JoinedLedgerEntry[] = (data || []).map((entry: RawLedgerEntry) => ({
         ...entry,
         order: entry.order || {
           customer_name: 'Unknown',

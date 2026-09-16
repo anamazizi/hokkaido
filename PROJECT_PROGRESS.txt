@@ -2,6 +2,37 @@ PROJECT PROGRESS LOG
 =====================
 =====================
 Date: 16 September 2026
+Time: 23:46 UTC
+
+TASK: Pembaikan Ralat Binaan Vercel (TypeScript Strict Mode)
+STATUS: ✅ BERHASIL
+
+PERUBAHAN:
+1. Pembetulan Type `any` di app/urus/page.tsx:
+   - Ganti useState<any>(null) dengan useState<User | null>(null), import type User dari @supabase/supabase-js.
+   - Hapus any pada mapping ledger entry dengan type RawLedgerEntry yang ditakrifkan khas.
+2. Pembetulan Type Assertion di components/Map.tsx:
+   - Ganti as any dengan as { _getIconUrl?: string } untuk konfigurasi ikon Leaflet.
+3. Pembersihan Parsing Error:
+   - Betulkan baris import yang mengandungi literal backslash-n (\n) di app/urus/page.tsx.
+
+BUILD GATE: npm run build Exit Code 0 (tiada ralat)
+
+CLINERULES COMPLIANCE:
+- Zero-Mock: Tiada penghapusan logika perniagaan, hanya penambahbaikan type safety.
+- Strict TypeScript: Semua any telah digantikan dengan jenis yang tepat.
+- Build Gate: Build berjaya.
+
+NOTES:
+✅ Type any di app/urus/page.tsx dibetulkan.
+✅ Type assertion di Map.tsx dibetulkan.
+✅ Parsing error dibetulkan.
+✅ Build successful.
+
+NEXT STEP:
+Perubahan akan di-push ke GitHub untuk trigger deployment Vercel semula.
+=====================
+Date: 16 September 2026
 Time: 22:00 UTC
 
 TASK: Sokongan Multi-Item Cart & Penambahbaikan UI Produk

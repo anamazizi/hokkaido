@@ -89,3 +89,10 @@
 - Tambah komponen gambar hero dan showcase menggunakan placeholder SVG.
 - BUILD BERHASIL: npm run build exit code 0 tanpa ralat TypeScript.
 - Commit feat: rebrand to Hokkaido Inti Jebok and add product showcase images.
+[2026-09-16T19:30] ROMBAKAN UI STOREFRONT: 
+- Bundaran caj delivery ke Ringgit genap (Math.round). 
+- Sembunyikan paparan jarak di MapDisplay & OrderSummary. 
+- Tambah borang pertanyaan WhatsApp. 
+- Tema gradient amber (sebahagian). 
+- Ralat parsing masih dalam pembaikan. 
+- Commit: feat: revamp bakery UI theme, pure product images, rounded delivery fee, and inquiry form

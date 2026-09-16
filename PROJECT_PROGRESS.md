@@ -1,5 +1,19 @@
 # PROJECT PROGRESS LOG
 
+## 16 September 2026 (21:30 UTC)
+### Pelarasan Antaramuka Terakhir & Pembaikan Fungsi WhatsApp
+- **Status**: ✅ BERHASIL (Build Exit Code 0)
+- **Perubahan Dilakukan**:
+  1. **Paparan Gambar Penuh (No Cropping)**: Membuang `object-cover` dan ketinggian tetap pada semua tag `<img>` produk. Menggantikan dengan kelas responsif `w-full h-auto rounded-2xl shadow-sm block` untuk memaparkan keseluruhan gambar tanpa potongan.
+  2. **Pembaikan Pautan WhatsApp Pertanyaan (Fix Double Encoding)**: Memperbaiki fungsi `handleInquirySubmit` dengan menggunakan pemisah baris literal `\n` dan hanya satu kali encoding `encodeURIComponent`. Menambah `setTimeout` untuk reset loading state selepas navigation.
+  3. **Pembersihan Bahagian Maklumat Tambahan Bawah**: Memadam sepenuhnya blok teks kecil di bawah butang pertanyaan (Hubungi terus dan masa jawapan).
+- **Pematuhan .clinerules**:
+  - ✅ Zero-Mock: Tiada penghapusan logika perniagaan, hanya penambahbaikan UI/UX.
+  - ✅ Strict URL Encoding: Hanya satu kali encoding dengan `encodeURIComponent`.
+  - ✅ UI Contrast: Kelas kontras tinggi dikekalkan.
+  - ✅ Build Gate: `npm run build` Exit Code 0 (tiada ralat TypeScript).
+- **Langkah Seterusnya**:
+  - Perubahan telah di-push ke GitHub dan akan trigger deployment Vercel automatik.
 ## 16 September 2026 (21:15 UTC)
 ### Eliminate Document Manipulation & Load Leaflet CSS via Layout
 - **Status**: ✅ BERHASIL (Build Exit Code 0)

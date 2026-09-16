@@ -4,13 +4,18 @@ import { calculateDistance, calculateDeliveryFee, getProductDetails } from '@/li
 const STORE_LAT = 4.1948617
 const STORE_LNG = 100.6655929
 
+type ProductKey = 'solo_sweet' | 'family_box' | 'mega_craving'
+
 export default function useOrderForm() {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [address, setAddress] = useState('')
   const [deliveryType, setDeliveryType] = useState<'pickup' | 'delivery'>('pickup')
-  const [productType, setProductType] = useState<'solo_sweet' | 'family_box' | 'mega_craving'>('solo_sweet')
-  const [quantity, setQuantity] = useState(1)
+  const [quantities, setQuantities] = useState<Record<ProductKey, number>>({
+    solo_sweet: 0,
+    family_box: 0,
+    mega_craving: 0,
+  })
   const [selectedLat, setSelectedLat] = useState<number | null>(null)
   const [selectedLng, setSelectedLng] = useState<number | null>(null)
   const [distance, setDistance] = useState(0)
@@ -20,9 +25,21 @@ export default function useOrderForm() {
   const [orderId, setOrderId] = useState<string | null>(null)
   const [whatsappLink, setWhatsappLink] = useState('')
 
+  // Calculate subtotal from quantities
+  const calculateSubtotal = () => {
+    let subtotal = 0
+    Object.entries(quantities).forEach(([key, qty]) => {
+      if (qty > 0) {
+        const product = getProductDetails(key)
+        subtotal += product.price * qty
+      }
+    })
+    return subtotal
+  }
+
+  // Calculate total price based on subtotal and delivery fee
   useEffect(() => {
-    const product = getProductDetails(productType)
-    const subtotal = product.price * quantity
+    const subtotal = calculateSubtotal()
     let calculatedDistance = 0
     let calculatedDeliveryFee = 0
     
@@ -34,7 +51,8 @@ export default function useOrderForm() {
     setDistance(calculatedDistance)
     setDeliveryFee(calculatedDeliveryFee)
     setTotalPrice(subtotal + calculatedDeliveryFee)
-  }, [productType, quantity, deliveryType, selectedLat, selectedLng])
+  }, [quantities, deliveryType, selectedLat, selectedLng])
+
   // Load customer data from localStorage on mount
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -46,8 +64,7 @@ export default function useOrderForm() {
         if (data.phone) setPhone(data.phone)
         if (data.address) setAddress(data.address)
         if (data.deliveryType) setDeliveryType(data.deliveryType)
-        if (data.productType) setProductType(data.productType)
-        if (data.quantity) setQuantity(data.quantity)
+        if (data.quantities) setQuantities(data.quantities)
         if (data.selectedLat) setSelectedLat(data.selectedLat)
         if (data.selectedLng) setSelectedLng(data.selectedLng)
       } catch (e) {
@@ -68,13 +85,13 @@ export default function useOrderForm() {
       phone,
       address,
       deliveryType,
-      productType,
-      quantity,
+      quantities,
       selectedLat,
       selectedLng,
     }
     localStorage.setItem('hokkaido_customer_data', JSON.stringify(data))
   }
+
   return {
     name,
     setName,
@@ -84,10 +101,8 @@ export default function useOrderForm() {
     setAddress,
     deliveryType,
     setDeliveryType,
-    productType,
-    setProductType,
-    quantity,
-    setQuantity,
+    quantities,
+    setQuantities,
     selectedLat,
     setSelectedLat,
     selectedLng,

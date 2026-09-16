@@ -21,8 +21,7 @@ export default function Home() {
     name, setName, phone, setPhone,
     address, setAddress,
     deliveryType, setDeliveryType,
-    productType, setProductType,
-    quantity, setQuantity,
+    quantities, setQuantities,
     selectedLat, setSelectedLat, selectedLng, setSelectedLng, distance, deliveryFee, totalPrice,
     isSubmitting, setIsSubmitting,
     orderId, setOrderId,
@@ -65,10 +64,55 @@ export default function Home() {
         return
       }
     }
+    // Validate at least one product selected
+    const totalQuantity = Object.values(quantities).reduce((sum, qty) => sum + qty, 0)
+    if (totalQuantity === 0) {
+      alert('Sila pilih sekurang-kurangnya satu set produk.')
+      return
+    }
     setIsSubmitting(true)
     try {
-      const product = getProductDetails(productType)
-      const totalCogs = product.cogs * quantity
+      // Calculate product details for selected items
+      const productDetails = {
+        solo_sweet: getProductDetails('solo_sweet'),
+        family_box: getProductDetails('family_box'),
+        mega_craving: getProductDetails('mega_craving'),
+      }
+
+      let totalCogs = 0
+      let totalProfit = 0
+      const selectedItems: Array<{ 
+        key: string, 
+        name: string, 
+        quantity: number, 
+        price: number, 
+        cogs: number, 
+        profit: number 
+      }> = []
+
+      Object.entries(quantities).forEach(([key, qty]) => {
+        if (qty > 0) {
+          const product = productDetails[key as keyof typeof productDetails]
+          totalCogs += product.cogs * qty
+          totalProfit += product.profit * qty
+          selectedItems.push({ 
+            key, 
+            name: product.name, 
+            quantity: qty, 
+            price: product.price,
+            cogs: product.cogs,
+            profit: product.profit
+          })
+        }
+      })
+
+      // For backward compatibility with existing database schema,
+      // we still store a primary product type and quantity.
+      // We'll use the first selected item as primary.
+      const primaryProduct = selectedItems[0]
+      const productType = primaryProduct.key
+      const quantity = primaryProduct.quantity
+      const product = productDetails[productType as keyof typeof productDetails]
       const profit = totalPrice - totalCogs - deliveryFee
       const storeAddress = 'Kiosk No 1, Stadium Majlis Perbandaran Manjung, 32040 Seri Manjung, Perak.'
       const storeMapsUrl = 'https://www.google.com/maps?q=4.1948617,100.6655929'
@@ -136,13 +180,16 @@ export default function Home() {
         ? `https://www.google.com/maps?q=${selectedLat},${selectedLng}`
         : storeMapsUrl
       
-      const itemTotal = product.price * quantity
-      const subtotal = itemTotal
+      // Build order items list for WhatsApp message
+      const orderItemsText = selectedItems.map(item => 
+        `${item.quantity}x ${item.name} - ${formatCurrency(item.price * item.quantity)}`
+      ).join('\n')
+
+      const subtotal = totalPrice - deliveryFee
       const grandTotal = totalPrice
 
-      
       const googleMapsPart = googleMapsUrl ? `\n🌐 *Google Maps:*\n${googleMapsUrl}\n` : ''
-      const message = `🍽️ *ORDER HOKKAIDO INTI JEBOK*\n\n🧾 *Order ID:*\n${orderId}\n\n👤 *Nama:*\n${name}\n\n📞 *Telefon:*\n${phoneFormatted}\n\n📍 *Alamat:*\n${deliveryAddress}\n${googleMapsUrl ? `\n🌐 *Google Maps:*\n${googleMapsUrl}\n` : ''}\n\n--------------------\n\n🛒 *PESANAN*\n\n${quantity}x ${product.name} - ${formatCurrency(itemTotal)}\n\n--------------------\n\nSubtotal: ${formatCurrency(subtotal)}\nDelivery: ${formatCurrency(deliveryFee)}\n\n💰 *JUMLAH: ${formatCurrency(grandTotal)}*\n\n🚚 *Kaedah:*\n${deliveryMethodText}\n\nTerima kasih.`
+      const message = `🍽️ *ORDER HOKKAIDO INTI JEBOK*\n\n🧾 *Order ID:*\n${orderId}\n\n👤 *Nama:*\n${name}\n\n📞 *Telefon:*\n${phoneFormatted}\n\n📍 *Alamat:*\n${deliveryAddress}\n${googleMapsUrl ? `\n🌐 *Google Maps:*\n${googleMapsUrl}\n` : ''}\n\n--------------------\n\n🛒 *PESANAN*\n\n${orderItemsText}\n\n--------------------\n\nSubtotal: ${formatCurrency(subtotal)}\nDelivery: ${formatCurrency(deliveryFee)}\n\n💰 *JUMLAH: ${formatCurrency(grandTotal)}*\n\n🚚 *Kaedah:*\n${deliveryMethodText}\n\nTerima kasih.`
       
       const encoded = encodeURIComponent(message)
       const phoneNumber = '+601110890100'
@@ -183,20 +230,11 @@ export default function Home() {
         </div>
 
         {/* Product Images Gallery */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+        <div className="mb-10">
           <div className="rounded-2xl overflow-hidden shadow-sm border border-amber-200">
             <img 
               src="/images/hokkaido-cream.jpg" 
               alt="Hokkaido Cream Texture" 
-              className="w-full h-auto rounded-2xl shadow-sm block"
-loading="lazy"
-              onError={(e) => { e.currentTarget.style.display = 'none' }}
-            />
-          </div>
-          <div className="rounded-2xl overflow-hidden shadow-sm border border-amber-200">
-            <img 
-              src="/images/hokkaido-sets.jpg" 
-              alt="Hokkaido Sets" 
               className="w-full h-auto rounded-2xl shadow-sm block"
 loading="lazy"
               onError={(e) => { e.currentTarget.style.display = 'none' }}
@@ -220,8 +258,7 @@ loading="lazy"
                   setName('')
                   setPhone('')
                   setDeliveryType('pickup')
-                  setProductType('solo_sweet')
-                  setQuantity(1)
+                  setQuantities({ solo_sweet: 0, family_box: 0, mega_craving: 0 })
                   setSelectedLat(null)
                   setSelectedLng(null)
                 }}
@@ -231,7 +268,7 @@ loading="lazy"
               </button>
             </div>
           )}
-          <ProductSelection productType={productType} setProductType={setProductType} quantity={quantity} setQuantity={setQuantity} />
+          <ProductSelection quantities={quantities} setQuantities={setQuantities} />
           <DeliveryMethod deliveryType={deliveryType} setDeliveryType={setDeliveryType} />
           
           {deliveryType === 'delivery' && (
@@ -247,8 +284,8 @@ loading="lazy"
           )}
 
           <OrderSummary
-            productType={productType}
-            quantity={quantity}
+            quantities={quantities}
+            
             deliveryType={deliveryType}
             distance={distance}
             deliveryFee={deliveryFee}

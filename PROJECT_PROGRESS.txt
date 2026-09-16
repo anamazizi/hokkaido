@@ -2,6 +2,37 @@ PROJECT PROGRESS LOG
 =====================
 =====================
 Date: 16 September 2026
+Time: 22:00 UTC
+
+TASK: Sokongan Multi-Item Cart & Penambahbaikan UI Produk
+STATUS: ✅ BERHASIL
+
+PERUBAHAN:
+1. Padam Imej hokkaido-sets.jpg: Buang gambar set dari galeri, hanya kekalkan banner dan cream untuk paparan lebih kemas.
+2. Reka Bentuk Kad Pilihan Produk: Selaraskan susunan teks setiap kad dengan layout: Hokkaido Inti Jebok, nama set, harga.
+3. Sokongan Multi-Item Kuantiti Bebas: Ubah state dari single selection ke object quantities untuk setiap set. Setiap kad ada butang kaunter interaktif [-] [input] [+] dengan nilai default 0.
+4. Pengiraan Subtotal Automatik: Subtotal dikira berdasarkan jumlah kuantiti setiap set yang dipilih. Validation pastikan sekurang-kurangnya satu set dipilih sebelum hantar pesanan.
+5. Kemas Kini Ringkasan Pesanan & Mesej WhatsApp: Ringkasan pesanan papar senarai item yang dipilih sahaja. Mesej WhatsApp senaraikan semua item yang dipilih dengan format jelas.
+
+BUILD GATE: npm run build Exit Code 0 (tiada ralat)
+
+CLINERULES COMPLIANCE:
+- Zero-Mock: Tiada penghapusan logika perniagaan, hanya penambahbaikan UI/UX.
+- Strict URL Encoding: WhatsApp message dibungkus dengan encodeURIComponent sekali sahaja.
+- UI Contrast: Kelas kontras tinggi dikekalkan.
+- Build Gate: Build berjaya.
+
+NOTES:
+✅ Gambar hokkaido-sets.jpg dipadam, galeri lebih kemas.
+✅ Kad produk dengan layout teks baru dan butang kaunter.
+✅ Sokongan multi-item cart dengan kuantiti bebas setiap set.
+✅ Ringkasan pesanan dan mesej WhatsApp dikemas kini.
+✅ Build successful.
+
+NEXT STEP:
+Perubahan telah di-push ke GitHub dan akan trigger deployment Vercel automatik.
+=====================
+Date: 16 September 2026
 Time: 21:30 UTC
 
 TASK: Pelarasan Antaramuka Terakhir & Pembaikan Fungsi WhatsApp

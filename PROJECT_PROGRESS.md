@@ -1,5 +1,24 @@
 # PROJECT PROGRESS LOG
 
+## 16 September 2026 (22:00 UTC)
+### Sokongan Multi-Item Cart & Penambahbaikan UI Produk
+- **Status**: ✅ BERHASIL (Build Exit Code 0)
+- **Perubahan Dilakukan**:
+  1. **Padam Imej hokkaido-sets.jpg**: Membuang gambar set dari galeri, hanya mengekalkan banner dan cream untuk paparan yang lebih kemas.
+  2. **Reka Bentuk Kad Pilihan Produk**: Menyelaraskan susunan teks setiap kad dengan layout:
+     - Baris 1: "Hokkaido Inti Jebok" (font-medium text-slate-700)
+     - Baris 2: Nama set dengan kuantiti biji (font-bold text-slate-900 text-lg)
+     - Baris 3: Harga (font-semibold text-blue-600)
+  3. **Sokongan Multi-Item Kuantiti Bebas**: Mengubah state dari single selection ke object quantities untuk setiap set (solo_sweet, family_box, mega_craving). Setiap kad kini mempunyai butang kaunter interaktif `[-]` `[input]` `[+]` dengan nilai default 0.
+  4. **Pengiraan Subtotal Automatik**: Subtotal dikira berdasarkan jumlah kuantiti setiap set yang dipilih. Validation memastikan sekurang-kurangnya satu set dipilih sebelum hantar pesanan.
+  5. **Kemas Kini Ringkasan Pesanan & Mesej WhatsApp**: Ringkasan pesanan memaparkan senarai item yang dipilih sahaja. Mesej WhatsApp kini menyenaraikan semua item yang dipilih dengan format yang jelas.
+- **Pematuhan .clinerules**:
+  - ✅ Zero-Mock: Tiada penghapusan logika perniagaan, hanya penambahbaikan UI/UX dan penambahan fungsi.
+  - ✅ Strict URL Encoding: WhatsApp message dibungkus dengan `encodeURIComponent` sekali sahaja.
+  - ✅ UI Contrast: Kelas kontras tinggi dikekalkan pada semua input dan kad.
+  - ✅ Build Gate: `npm run build` Exit Code 0 (tiada ralat TypeScript).
+- **Langkah Seterusnya**:
+  - Perubahan telah di-push ke GitHub dan akan trigger deployment Vercel automatik.
 ## 16 September 2026 (21:30 UTC)
 ### Pelarasan Antaramuka Terakhir & Pembaikan Fungsi WhatsApp
 - **Status**: ✅ BERHASIL (Build Exit Code 0)

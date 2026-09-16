@@ -74,7 +74,7 @@ export default function ProductSelection({ quantities, setQuantities }: ProductS
             className={`p-4 border rounded-lg ${quantities[product.key] > 0 ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}`}
           >
             <div className="mb-2">
-              <div className="font-medium text-slate-700">{product.title}</div>
+              <div className="font-medium text-slate-700 text-sm">{product.title}</div>
               <div className="font-bold text-slate-900 text-lg">{product.name}</div>
               <div className="font-semibold text-blue-600">{formatCurrency(product.price)}</div>
             </div>

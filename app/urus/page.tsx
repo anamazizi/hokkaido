@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import type { User } from '@supabase/supabase-js'
 import { LogOut, Package, CheckCircle, Clock, Phone, DollarSign, FileText, BarChart3, Download, Truck } from 'lucide-react'
@@ -31,6 +32,7 @@ export default function UrusDashboard() {
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<DashboardTab>('all')
   const [user, setUser] = useState<User | null>(null)
+  const [authChecking, setAuthChecking] = useState(true)
   const [ledgerEntries, setLedgerEntries] = useState<JoinedLedgerEntry[]>([])
   const [ledgerLoading, setLedgerLoading] = useState(true)
   const [financialMetrics, setFinancialMetrics] = useState<FinancialMetrics>({
@@ -43,17 +45,33 @@ export default function UrusDashboard() {
     pendingExportCount: 0,
   })
 
+  const router = useRouter()
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => setUser(user))
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        router.replace('/urus/login')
+        return
+      }
+      setUser(user)
+      setAuthChecking(false)
+    }
+    checkAuth()
+  }, [router])
+
+  useEffect(() => {
+    if (!user) return // No user, don't fetch data
+
     fetchOrders()
     fetchLedger()
     const ordersChannel = supabase.channel('orders_realtime').on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, fetchOrders).subscribe()
     const ledgerChannel = supabase.channel('ledger_realtime').on('postgres_changes', { event: '*', schema: 'public', table: 'accounting_ledger' }, fetchLedger).subscribe()
+
     return () => {
       supabase.removeChannel(ordersChannel)
       supabase.removeChannel(ledgerChannel)
     }
-  }, [])
+  }, [user])
 
   const fetchOrders = async () => {
     try {
@@ -371,6 +389,16 @@ const renderLedgerSection = () => (
   const filteredOrders = activeTab === 'all' ? orders : orders.filter((o) => o.status === activeTab)
   const stats = { total: orders.length, pending: orders.filter((o) => o.status === 'pending').length, completed: orders.filter((o) => o.status === 'completed').length }
 
+  if (authChecking) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
+          <p className="mt-4 text-gray-600">Mengesahkan kelayakan...</p>
+        </div>
+      </div>
+    )
+  }
   return (
     <div className="min-h-screen bg-gray-50 text-slate-900">
       <header className="bg-white border-b border-gray-300 px-4 py-4">

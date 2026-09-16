@@ -1,5 +1,28 @@
 # PROJECT PROGRESS LOG
 
+## 17 September 2026 (12:30 UTC+8)
+### Penguatkuasaan Client-Side Auth Guard & Hardcode OAuth Callback
+- **Status**: ✅ BERHASIL (Build Exit Code 0)
+- **Perubahan Dilakukan**:
+  1. **Kunci Dashboard Client-Side (`/urus/page.tsx`)**:
+     - Tambah state `authChecking` dan `useRouter` untuk client-side auth validation.
+     - Jika tiada sesi pengguna (`!user`), lakukan redirect serta-merta ke `/urus/login` sebelum render.
+     - Paparkan loading spinner \"Mengesahkan kelayakan...\" semasa auth checking.
+  2. **Pengesahan OAuth Redirect Param (`/urus/login/page.tsx`)**:
+     - Tukar `redirectTo: ${window.location.origin}/auth/callback` kepada hardcoded production URL `https://hokkaido-eosin.vercel.app/auth/callback`.
+  3. **Semakan Simpanan Pesanan Pelanggan ke Supabase (`app/page.tsx`)**:
+     - Sahkan fungsi submit pesanan menyimpan data ke jadual `orders` dengan lajur yang sah tanpa melanggar polisi RLS anon.
+  4. **Pengesahan Binaan & Tolak Kod**:
+     - Jalankan `npm run build` dan pastikan Exit Code 0.
+     - Tolak kod ke branch main.
+- **Pematuhan .clinerules**:
+  - ✅ Zero-Mock: Tiada penghapusan logik perniagaan atau fungsi yang telah siap.
+  - ✅ Strict Routes: Laluan `/urus` kekal sama dengan perlindungan middleware dan client-side guard.
+  - ✅ Build Gate: `npm run build` Exit Code 0 (tiada ralat TypeScript/JavaScript).
+- **Langkah Seterusnya**:
+  - Monitor deployment Vercel dan uji fungsi authentication flow di production.
+
+
 ## 17 September 2026 (12:00 UTC+8)
 ### Semakan & Pembaikan Keselamatan /urus serta Label UI
 - **Status**: ✅ BERHASIL (Build Exit Code 0)

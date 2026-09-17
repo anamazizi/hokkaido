@@ -2,12 +2,44 @@
 
 export const dynamic = 'force-dynamic'
 
-import { LogIn } from 'lucide-react'
+import { LogIn, LogOut } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import type { User } from '@supabase/supabase-js'
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false)
+  const [currentUser, setCurrentUser] = useState<User | null>(null)
+  const [checkingSession, setCheckingSession] = useState(true)
+
+  // Auto-clear stale sessions on page load - sign out any lingering tokens immediately
+  useEffect(() => {
+    const clearStaleSessions = async () => {
+      try {
+        console.log('Login page: Auto-clearing any stale sessions...')
+        
+        // 1. Force sign out to clear any residual cookies/localStorage tokens
+        await supabase.auth.signOut()
+        
+        // 2. After sign out, check if any session still remains (e.g., valid admin session)
+        const { data: { session } } = await supabase.auth.getSession()
+        
+        if (session?.user) {
+          // Store current user info for display (likely a valid admin session that survived signOut)
+          setCurrentUser(session.user)
+          console.log('Login page: Active session detected for:', session.user.email)
+        } else {
+          console.log('Login page: No active session, signed out completely')
+        }
+      } catch (error) {
+        console.error('Error clearing stale sessions:', error)
+      } finally {
+        setCheckingSession(false)
+      }
+    }
+
+    clearStaleSessions()
+  }, [])
 
   const handleGoogleLogin = async () => {
     setLoading(true)
@@ -16,6 +48,12 @@ export default function LoginPage() {
         provider: 'google',
         options: {
           redirectTo: 'https://hokkaido-eosin.vercel.app/auth/callback',
+          queryParams: {
+            // Force Google to show account selection dialog
+            prompt: 'select_account',
+            // Request offline access for refresh tokens
+            access_type: 'offline',
+          },
         },
       })
       if (error) throw error
@@ -25,6 +63,34 @@ export default function LoginPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleLogoutCurrentSession = async () => {
+    setLoading(true)
+    try {
+      await supabase.auth.signOut()
+      setCurrentUser(null)
+      alert('Sesi aktif telah ditutup. Sila log masuk semula dengan emel yang betul.')
+    } catch (error) {
+      console.error('Logout error:', error)
+      alert('Ralat semasa log keluar.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Show loading while checking session
+  if (checkingSession) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-white px-4">
+        <div className="bg-white p-8 rounded-2xl shadow-xl border border-gray-300 max-w-md w-full">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600 mb-4"></div>
+            <p className="text-gray-600">Menyemak sesi sedia ada...</p>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -39,6 +105,32 @@ export default function LoginPage() {
             Akses dashboard pengurusan pesanan Hokkaido Cheese Tart
           </p>
         </div>
+
+        {/* Display current session info if exists */}
+        {currentUser && (
+          <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-medium text-yellow-800">Sesi Aktif Dikesan</h3>
+              <span className="text-xs px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full">
+                Sedang Log Masuk
+              </span>
+            </div>
+            <p className="text-sm text-yellow-700 mb-3">
+              Emel: <strong>{currentUser.email}</strong>
+            </p>
+            <button
+              onClick={handleLogoutCurrentSession}
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-2 py-2 px-4 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <LogOut className="h-4 w-4" />
+              {loading ? 'Memproses...' : 'Log Keluar Sesi Ini'}
+            </button>
+            <p className="text-xs text-yellow-600 mt-3">
+              Nota: Log keluar dahulu jika ingin menukar ke emel pengurus yang lain.
+            </p>
+          </div>
+        )}
 
         <div className="space-y-4">
           <button
@@ -64,7 +156,7 @@ export default function LoginPage() {
                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
               />
             </svg>
-            {loading ? 'Memproses...' : 'Log Masuk dengan Google'}
+            {loading ? 'Memproses...' : (currentUser ? 'Log Masuk dengan Emel Lain' : 'Log Masuk dengan Google')}
           </button>
 
           <div className="text-center text-sm text-gray-500 pt-4 border-t border-gray-200">

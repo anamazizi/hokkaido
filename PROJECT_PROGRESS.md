@@ -1,4 +1,30 @@
 # PROJECT PROGRESS LOG
+## 17 September 2026 (16:00 UTC+8)
+### Auto-Signout & Enforcement of Google Account Prompt on /urus/login
+- **Status**: ✅ BERHASIL (Build Exit Code 0)
+
+- **Perubahan Dilakukan**:
+  1. **Auto-Signout & Bersihkan Sesi Tersimpan**:
+     - Ubah `useEffect` awal untuk panggil `supabase.auth.signOut()` secara automatik setiap kali halaman `/urus/login` dimuatkan.
+     - Ini memastikan sebarang token pengguna biasa (role 'user') yang terperangkap dalam kuki/localStorage dibersihkan sebelum cubaan log masuk baharu.
+  2. **Paksa Google Paparkan Dialog Pemilihan Emel (Select Account)**:
+     - Parameter `queryParams` sudah sedia ada dalam fungsi `signInWithOAuth` dengan `prompt: 'select_account'` dan `access_type: 'offline'`.
+     - Tidak perlu perubahan tambahan.
+  3. **Sediakan Butang Alternatif / Maklumat Sesi**:
+     - Jika sesi dikesan aktif, paparkan maklumat emel dan butang "Log Keluar Sesi Ini" sebelum butang Google (sudah sedia ada).
+  4. **Pengesahan Binaan & Tolak Kod**:
+     - Jalankan `npm run build` dan pastikan Exit Code 0.
+     - Commit dan push ke GitHub dengan mesej: "fix: auto clear stale session on login page and enforce google account prompt".
+- **Pematuhan .clinerules**:
+  - ✅ Zero-Mock: Tiada penghapusan logik perniagaan, semua fungsi kekal utuh.
+  - ✅ Strict Routes: Laluan `/urus/login` kekal sebagai laluan log masuk pengurus.
+  - ✅ Build Gate: `npm run build` Exit Code 0 (tiada ralat TypeScript).
+  - ✅ Database As Source of Truth: Gunakan Supabase Auth untuk membersihkan token.
+  - ✅ Server-Side Validation: Middleware sudah melindungi akses ke dashboard.
+- **Langkah Seterusnya**:
+  - Uji dengan pengguna biasa (role 'user') dan pastikan mereka tidak boleh akses dashboard selepas log masuk semula.
+
+
 
 ## 17 September 2026 (15:15 UTC+8)
 ### Penguatkuasaan RBAC Ketat: Blok Role 'user' dari Dashboard /urus

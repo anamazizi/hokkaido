@@ -79,6 +79,30 @@ export default function LoginPage() {
     }
   }
 
+  const handleForceSessionReset = async () => {
+    setLoading(true)
+    try {
+      // Clear Supabase session
+      await supabase.auth.signOut()
+      
+      // Clear all browser storage
+      if (typeof window !== 'undefined') {
+        localStorage.clear()
+        sessionStorage.clear()
+      }
+      
+      // Clear state
+      setCurrentUser(null)
+      
+      alert('Sesi telah dibersihkan. Sila tekan Log Masuk semula.')
+    } catch (error) {
+      console.error('Error resetting session:', error)
+      alert('Ralat semasa membersihkan sesi.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   // Show loading while checking session
   if (checkingSession) {
     return (
@@ -131,6 +155,21 @@ export default function LoginPage() {
             </p>
           </div>
         )}
+
+        {/* Permanent session reset button - always visible */}
+        <div className="mb-6">
+          <button
+            onClick={handleForceSessionReset}
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-white border border-red-300 hover:border-red-400 text-red-700 hover:text-red-800 rounded-lg text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <LogOut className="h-4 w-4" />
+            {loading ? 'Memproses...' : 'Tukar Akaun / Padam Sesi Tersimpan'}
+          </button>
+          <p className="text-xs text-gray-500 text-center mt-2">
+            Klik butang ini jika Google tidak paparkan dialog pemilihan akaun di telefon.
+          </p>
+        </div>
 
         <div className="space-y-4">
           <button

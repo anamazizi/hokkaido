@@ -44,10 +44,13 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     setLoading(true)
     try {
+      // Get the current origin (works in browser)
+      const currentOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://hokkaido-eosin.vercel.app'
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: 'https://hokkaido-eosin.vercel.app/auth/callback',
+          redirectTo: `${currentOrigin}/auth/callback?next=/urus`,
           queryParams: {
             // Force Google to show account selection dialog
             prompt: 'select_account',

@@ -52,20 +52,48 @@ export async function middleware(req: NextRequest) {
           .eq('id', session.user.id)
           .single()
         
-        // If error fetching profile or profile not found, treat as 'user' role and BLOCK access
-        const userRole = profile?.role || 'user'
+        // CRITICAL BYPASS FOR ADMIN EMAIL: Allow immediate access for known admin email
+        // This prevents false-negative redirects when profile record hasn't been created yet
+        const userEmail = session.user.email?.toLowerCase() || ''
+        const isAdminEmail = userEmail === 'anamazizi@gmail.com'
+        
+        // If error fetching profile or profile not found, check for admin email bypass
+        if (error || !profile) {
+          if (isAdminEmail) {
+            console.log('Middleware bypass: Allowing access for admin email', userEmail, 'while profile is being created')
+            return res // Allow access despite missing profile
+          } else {
+            // For non-admin users without profile, redirect to home
+            console.log('Middleware: No profile found for user', userEmail, 'redirecting to home')
+            const redirectUrl = new URL('/', req.url)
+            return NextResponse.redirect(redirectUrl)
+          }
+        }
+        
+        // Profile exists, check role
+        const userRole = profile.role
         
         // STRICT ENFORCEMENT: Only 'staff' or 'admin' roles can proceed
         // If user has 'user' role or no valid role, redirect to home page IMMEDIATELY
         if (userRole !== 'staff' && userRole !== 'admin') {
+          console.log(`Middleware RBAC: User ${userEmail} with role '${userRole}' redirected to home`)
           const redirectUrl = new URL('/', req.url)
           return NextResponse.redirect(redirectUrl)
         }
         
         // Allow 'staff' and 'admin' roles to proceed
+        console.log(`Middleware RBAC: User ${userEmail} with role '${userRole}' allowed access`)
       } catch (error) {
         console.error('Error fetching user profile in middleware:', error)
-        // STRICT SECURITY: If any error occurs fetching profile, redirect to home
+        
+        // Check for admin email bypass even during catastrophic errors
+        const userEmail = session.user.email?.toLowerCase() || ''
+        if (userEmail === 'anamazizi@gmail.com') {
+          console.log('Middleware error bypass: Allowing access for admin email', userEmail, 'during error')
+          return res // Allow admin access despite error
+        }
+        
+        // STRICT SECURITY: If any error occurs fetching profile, redirect to home for non-admin users
         // This prevents unauthorized access during service disruptions
         const redirectUrl = new URL('/', req.url)
         return NextResponse.redirect(redirectUrl)

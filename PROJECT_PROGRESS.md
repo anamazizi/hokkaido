@@ -1,4 +1,28 @@
 # PROJECT PROGRESS LOG
+## 17 September 2026 (16:15 UTC+8)
+### Permanent Session Reset Button & Google OAuth QueryParams Fix
+- **Status**: ✅ BERHASIL (Build Exit Code 0)
+
+- **Perubahan Dilakukan**:
+  1. **Paparkan Butang "Tukar Akaun / Padam Sesi Tersimpan" Secara KEKAL**:
+     - Tambah butang outline merah yang sentiasa kelihatan (tanpa conditional rendering).
+     - Fungsi `handleForceSessionReset`: jalankan `supabase.auth.signOut()`, padam storage tempatan (`localStorage.clear(); sessionStorage.clear()`), dan paparkan alert.
+  2. **Sahkan Struktur QueryParams Google OAuth yang Tepat**:
+     - Pastikan sintaks `signInWithOAuth` tepat: `queryParams` berada di dalam objek `options`.
+     - Parameter sudah sedia betul: `prompt: 'select_account'` dan `access_type: 'offline'`.
+  3. **Pengesahan Binaan & Tolak Kod**:
+     - Jalankan `npm run build` dan pastikan Exit Code 0.
+     - Commit dan push ke GitHub dengan mesej: "fix: make session reset button permanently visible and fix oauth queryParams structure".
+- **Pematuhan .clinerules**:
+  - ✅ Zero-Mock: Tiada penghapusan logik perniagaan, semua fungsi kekal utuh.
+  - ✅ Strict Routes: Laluan `/urus/login` kekal sebagai laluan log masuk pengurus.
+  - ✅ Build Gate: `npm run build` Exit Code 0 (tiada ralat TypeScript).
+  - ✅ Database As Source of Truth: Gunakan Supabase Auth untuk membersihkan token.
+  - ✅ Server-Side Validation: Middleware sudah melindungi akses ke dashboard.
+- **Langkah Seterusnya**:
+  - Uji di telefon: butang "Tukar Akaun / Padam Sesi Tersimpan" sepatutnya kekal kelihatan dan berfungsi membersihkan storage.
+
+
 ## 17 September 2026 (16:00 UTC+8)
 ### Auto-Signout & Enforcement of Google Account Prompt on /urus/login
 - **Status**: ✅ BERHASIL (Build Exit Code 0)

@@ -14,19 +14,19 @@ const productOptions = [
   { 
     key: 'solo_sweet' as ProductKey, 
     brandName: 'Hokkaido Inti Jebok',
-    productName: 'Set Solo Sweet (3 pcs)',
+    productName: 'Set Solo Sweet',
     price: 5.0 
   },
   { 
     key: 'family_box' as ProductKey, 
     brandName: 'Hokkaido Inti Jebok',
-    productName: 'Set Family Box (12 pcs)',
+    productName: 'Set Family Box',
     price: 18.0 
   },
   { 
     key: 'mega_craving' as ProductKey, 
     brandName: 'Hokkaido Inti Jebok',
-    productName: 'Set Mega Craving (25 pcs)',
+    productName: 'Set Mega Craving',
     price: 30.0 
   },
 ]
@@ -52,14 +52,18 @@ export default function OrderSummary({
             {selectedItems.map((product) => (
               <div key={product.key} className="mb-3">
                 {/* Baris 1: Brand + Unit Price */}
-                <div className="flex justify-between items-center">
-                  <span className="text-xs text-slate-500">{product.brandName}</span>
-                  <span className="text-xs text-slate-500">{quantities[product.key]} × RM {product.price.toFixed(2)}</span>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-slate-500">{product.brandName}</span>
+                  <span className="text-slate-500 whitespace-nowrap flex-shrink-0">
+                    {quantities[product.key]} × RM {product.price.toFixed(2)}
+                  </span>
                 </div>
                 {/* Baris 2: Product Name + Total Item Price */}
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-700">{product.productName}:</span>
-                  <span className="font-medium text-slate-900">{formatCurrency(product.price * quantities[product.key])}</span>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-slate-700 truncate">{product.productName}:</span>
+                  <span className="whitespace-nowrap flex-shrink-0 font-medium text-slate-900 ml-2">
+                    {formatCurrency(product.price * quantities[product.key])}
+                  </span>
                 </div>
               </div>
             ))}

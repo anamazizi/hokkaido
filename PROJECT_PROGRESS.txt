@@ -1,6 +1,44 @@
 PROJECT PROGRESS LOG
 =====================
 Date: 17 September 2026
+TASK: Pelarasan Kemasan Teks dan Penjajaran Harga OrderSummary
+DATE: 17 September 2026
+TIME: 22:45 UTC+8
+STATUS: ✅ BERHASIL
+
+PERUBAHAN DILAKSANAKAN:
+
+1. BUANG KURUNGAN & TEKS PCS PADA NAMA SET:
+   - "Set Solo Sweet (3 pcs)" → "Set Solo Sweet"
+   - "Set Family Box (12 pcs)" → "Set Family Box"
+   - "Set Mega Craving (25 pcs)" → "Set Mega Craving"
+   - Ubah array productOptions di OrderSummary.tsx
+
+2. PENJAJARAN SEBARIS HARGA (NO WRAPPING):
+   - Baris 1 (Brand + Unit Price):
+     - Tambah: `whitespace-nowrap flex-shrink-0` pada span harga
+     - Contoh: "1 × RM 5.00" kekal sebaris
+   
+   - Baris 2 (Product Name + Total Item Price):
+     - Nama produk: `truncate` untuk elakkan overflow
+     - Harga: `whitespace-nowrap flex-shrink-0 ml-2`
+     - Format: "RM 60.00" kekal sebaris tanpa terputus
+   
+   - Kelas tambahan: `text-sm` pada div pembungkus
+
+BUILD GATE: npm run build Exit Code 0 (tiada ralat TypeScript)
+
+CLINERULES COMPLIANCE:
+- Zero‑Mock: Tiada penghapusan fungsi, hanya kemas kini teks/styling
+- UI Contrast: Kelas kontras tinggi dikekalkan
+- Build Gate: Build Exit Code 0
+- Git Procedure: Commit & push dengan message deskriptif
+
+RESULTS:
+✅ Nama produk lebih ringkas dan profesional
+✅ Harga tidak terputus menjadi "RM" atas "60.00" bawah
+✅ Layout lebih kemas terutama pada mobile
+✅ Pengalaman pengguna lebih baik
 TASK: Pelarasan Paparan dan Penetapan Harga Storefront
 DATE: 17 September 2026
 TIME: 22:30 UTC+8

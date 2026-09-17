@@ -1,6 +1,59 @@
 # PROJECT PROGRESS LOG
 ## 17 September 2026 (21:45 UTC+8)
 ### Pembaikan Isu Kemas Kini Sejarah Tindakan Real-time di Kad Pesanan
+## 17 September 2026 (22:45 UTC+8)
+### Pelarasan Kemasan Teks dan Penjajaran Harga OrderSummary
+- **Status**: ✅ BERHASIL (Build Exit Code 0)
+
+**Perubahan Dilaksanakan:**
+
+1. **Buang Semua Kurungan & Teks PCS pada Nama Set (components/OrderSummary.tsx):**
+   - Padam tanda kurungan dan sebutan kuantiti biji/pcs dari nama produk:
+     - `"Set Solo Sweet (3 pcs)"` → `"Set Solo Sweet"`
+     - `"Set Family Box (12 pcs)"` → `"Set Family Box"`
+     - `"Set Mega Craving (25 pcs)"` → `"Set Mega Craving"`
+   - Perubahan dilakukan pada array `productOptions` yang mentakrifkan nama produk
+
+2. **Penjajaran Sebaris Harga (Elakkan Teks Tergantung/Wrapping):**
+   - **Baris 1 (Brand + Unit Price):** 
+     - Tambah `whitespace-nowrap flex-shrink-0` pada span harga
+     - Struktur: `<span className="text-slate-500 whitespace-nowrap flex-shrink-0">{quantities[product.key]} × RM {product.price.toFixed(2)}</span>`
+   
+   - **Baris 2 (Product Name + Total Item Price):**
+     - Tambah `truncate` pada nama produk untuk elakkan overflow
+     - Tambah `whitespace-nowrap flex-shrink-0 ml-2` pada span harga
+     - Struktur: 
+       ```typescript
+       <span className="text-slate-700 truncate">{product.productName}:</span>
+       <span className="whitespace-nowrap flex-shrink-0 font-medium text-slate-900 ml-2">
+         {formatCurrency(product.price * quantities[product.key])}
+       </span>
+       ```
+   - **Kelas tambahan:** `text-sm` pada div pembungkus untuk saiz teks konsisten
+
+**Kesan Visual:**
+- Nama produk lebih ringkas tanpa maklumat berlebihan (tiada "(3 pcs)", "(12 pcs)", "(25 pcs)")
+- Harga kekal sebaris tanpa terputus menjadi "RM" di atas dan "60.00" di bawah
+- Teks tidak akan wrapping walaupun pada paparan mobile sempit
+- Ruang antara label dan harga lebih konsisten dengan `ml-2`
+
+**Pematuhan .clinerules:**
+- ✅ **Zero‑Mock:** Tiada penghapusan fungsi perniagaan, hanya kemas kini teks dan styling
+- ✅ **UI Contrast:** Kelas kontras tinggi dikekalkan (`text-slate-700`, `text-slate-500`, `text-slate-900`)
+- ✅ **Build Gate:** `npm run build` Exit Code 0 (tiada ralat TypeScript)
+- ✅ **Git Procedure:** Perubahan akan di-push dengan message deskriptif
+
+**Hasil Selepas Pembaikan:**
+- Paparan ringkasan pesanan lebih bersih dan profesional
+- Harga sentiasa kelihatan sebaris tanpa terputus
+- Pengalaman pengguna lebih baik terutama pada peranti mobile
+- Konsistensi visual yang lebih tinggi di seluruh aplikasi
+
+**Nota Teknikal:**
+- Perubahan hanya pada komponen OrderSummary tanpa kesan pada logik perniagaan
+- `truncate` kelas memastikan nama produk dipendekkan dengan ellipsis jika terlalu panjang
+- `whitespace-nowrap` mencegah teks harga dari wrapping ke baris baru
+- `flex-shrink-0` memastikan elemen harga tidak mengecut apabila ruang terhad
 ## 17 September 2026 (22:30 UTC+8)
 ### Pelarasan Paparan dan Penetapan Harga Storefront
 - **Status**: ✅ BERHASIL (Build Exit Code 0)

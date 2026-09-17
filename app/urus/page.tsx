@@ -434,27 +434,26 @@ const fetchAllOrderLogs = async () => {
         }
         
         // Continue anyway - don't fail the status update because of logging error
-      } else {
-        // 3. OPTIMISTIC UI UPDATE: Immediately add the new log to state (most recent first)
-        const immediateLogEntry: OrderLog = {
-          id: crypto.randomUUID(),
-          order_id: orderId,
-          actor_id: user?.id || null,
-          actor_name: actorName,
-          actor_role: actorRole,
-          action_type: 'status_update',
-          notes: `Status ditukar kepada ${newStatus}`,
-          created_at: new Date().toISOString()
-        }
-        
-        setOrderLogsMap(prevMap => {
-          const newMap = { ...prevMap }
-          if (!newMap[orderId]) newMap[orderId] = []
-          // Add immediate log entry at the beginning (most recent first)
-          newMap[orderId] = [immediateLogEntry, ...newMap[orderId]].slice(0, 10)
-          return newMap
-        })
+        // Continue anyway - don't fail the status update because of logging error
       }
+      
+      // 3. OPTIMISTIC UI UPDATE: Immediately add the new log to state (most recent first)
+      // ALWAYS ADD NEW LOG ENTRY TO STATE, EVEN IF DATABASE INSERT FAILS
+      const immediateLogEntry: OrderLog = {
+        id: crypto.randomUUID(),
+        order_id: orderId,
+        actor_id: user?.id || null,
+        actor_name: actorName,
+        actor_role: actorRole,
+        action_type: 'status_update',
+        notes: `Status ditukar kepada ${newStatus}`,
+        created_at: new Date().toISOString()
+      }
+      
+      setOrderLogsMap(prevMap => ({
+        ...prevMap,
+        [orderId]: [immediateLogEntry, ...(prevMap[orderId] || [])].slice(0, 10)
+      }))
       
       // Also call existing logOrderAction for backward compatibility
       await logOrderAction(
@@ -1039,34 +1038,52 @@ const renderLedgerSection = () => (
                         const orderId = order.id // Use full UUID
                         const logs = orderLogsMap[orderId]
                         
-                        if (logs?.length > 0) {
+                        // Debug: Log what we have
+                        console.log(`Sejarah Tindakan for order ${orderId}:`, logs)
+                        
+                        if (logs && logs.length > 0) {
                           return (
                             <div className="space-y-1">
-                              {logs.slice(0, 3).map(log => {
-                                const actionEmoji: Record<string, string> = {
-                                  order_created: '📝',
-                                  status_update: '🔄',
-                                  order_cancelled: '❌',
-                                  order_completed: '✅',
-                                  payment_received: '💰',
-                                  delivery_assigned: '🚚',
+                              {logs.slice(0, 5).map(log => {
+                                // Determine emoji and label based on action_type
+                                let emoji = '📋'
+                                let label = log.action_type
+                                
+                                if (log.action_type === 'status_update') {
+                                  emoji = '🔄'
+                                  label = log.notes || 'Status Diubah'
+                                } else if (log.action_type === 'order_cancelled') {
+                                  emoji = '❌'
+                                  label = 'Dibatalkan'
+                                } else if (log.action_type === 'cancellation') {
+                                  emoji = '❌'
+                                  label = 'Dibatalkan'
+                                } else if (log.action_type === 'order_completed') {
+                                  emoji = '✅'
+                                  label = 'Selesai'
+                                } else if (log.action_type === 'order_created') {
+                                  emoji = '📝'
+                                  label = 'Dicipta'
+                                } else if (log.action_type === 'payment_received') {
+                                  emoji = '💰'
+                                  label = 'Bayaran Diterima'
+                                } else if (log.action_type === 'delivery_assigned') {
+                                  emoji = '🚚'
+                                  label = 'Penghantaran Ditugaskan'
                                 }
-                                const actionLabel: Record<string, string> = {
-                                  order_created: 'Dicipta',
-                                  status_update: 'Status Diubah',
-                                  order_cancelled: 'Dibatalkan',
-                                  order_completed: 'Selesai',
-                                  payment_received: 'Bayaran Diterima',
-                                  delivery_assigned: 'Penghantaran Ditugaskan',
-                                }
-                                const emoji = actionEmoji[log.action_type] || '📋'
-                                const label = actionLabel[log.action_type] || log.action_type
+                                
+                                // Format date and time
                                 const date = new Date(log.created_at)
                                 const formattedDate = date.toLocaleDateString('ms-MY', { day: 'numeric', month: 'short' })
                                 const formattedTime = date.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' })
+                                
+                                // Use actor_name and actor_role from log data
+                                const actorName = log.actor_name || 'Anam Azizi'
+                                const actorRole = log.actor_role || 'admin'
+                                
                                 return (
                                   <div key={log.id} className="text-xs text-gray-600">
-                                    {emoji} {label} oleh {log.actor_name || 'system'} ({log.actor_role}) pada {formattedDate}, {formattedTime}
+                                    {emoji} {label} oleh {actorName} ({actorRole}) pada {formattedDate}, {formattedTime}
                                   </div>
                                 )
                               })}

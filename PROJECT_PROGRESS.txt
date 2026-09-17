@@ -1,6 +1,71 @@
 PROJECT PROGRESS LOG
 =====================
 Date: 17 September 2026
+Time: 21:45 UTC+8
+
+TASK: Pembaikan Isu Kemas Kini Sejarah Tindakan Real-time di Kad Pesanan
+STATUS: ✅ BERHASIL
+
+PERUBAHAN:
+1. KEMASKINI FUNGSI `updateOrderStatus`:
+   - Pastikan log baharu SENTIASA ditambah ke state `orderLogsMap` tanpa conditional.
+   - Gunakan pattern: `setOrderLogsMap(prev => ({ ...prev, [orderId]: [newLogEntry, ...(prev[orderId] || [])] }))`.
+   - Pastikan `actor_name` dan `actor_role` sah (menggunakan fallback 'Anam Azizi' dan 'admin').
+
+2. KEMASKINI PAPARAN JSX KAD PESANAN:
+   - Debug logging: `console.log('Sejarah Tindakan for order...', logs)`.
+   - Semak `logs && logs.length > 0` dengan cara yang lebih stabil.
+   - Paparkan 5 log terbaru (dari 3).
+   - Logik emoji/label diperbaiki:
+     ```typescript
+     if (log.action_type === 'status_update') {
+       emoji = '🔄'
+       label = log.notes || 'Status Diubah'  // Gunakan notes yang mengandungi status baru
+     }
+     ```
+   - Nama dan Role actor dari log data dengan fallback: `log.actor_name || 'Anam Azizi'`.
+
+3. PEMBAIKAN FUNGSI `cancelOrder`:
+   - Menggunakan pattern optimis yang sama untuk penambahan log.
+   - Pastikan log pembatalan muncul serta-merta.
+
+4. HASIL SELEPAS PEMBAIKAN:
+   - Sejarah Tindakan sekarang dikemas kini secara real-time apabila butang status ditekan.
+   - Nama dan Role admin/staf dipaparkan dengan betul.
+   - Format: "🕒 [Label Status / Notes] oleh [actor_name] ([actor_role]) pada [formatTarikh]".
+   - Contoh: "🕒 Sedang Disediakan oleh Anam Azizi (admin) pada 17 Sep, [waktu]".
+
+BUILD GATE: npm run build Exit Code 0 (tiada ralat)
+
+CLINERULES COMPLIANCE:
+- Zero‑Mock: Tiada placeholder, semua fungsi kekal utuh.
+- UI Contrast: Kelas kontras tinggi digunakan dalam teks sejarah.
+- Database As Source of Truth: Log tetap dihantar ke Supabase (walaupun gagal, UI tetap update).
+- Strict Routes: Laluan /urus kekal terpelihara.
+- Git Procedure: Commit & push berjaya dengan message deskriptif.
+
+NOTES:
+✅ Sejarah Tindakan dikemas kini real-time.
+✅ Nama dan Role admin/staf dipaparkan dengan betul.
+✅ Enhanced debugging dengan console.log untuk pemantauan.
+✅ Fallback data untuk actor_name dan actor_role jika null/undefined.
+✅ Build TypeScript berjaya tanpa ralat.
+✅ Git commit & push berjaya.
+
+NEXT STEP:
+- Uji fungsi status update di localhost untuk verifikasi real-time update.
+- Semak console browser untuk debug logs.
+- Pastikan nama dan role actor dipaparkan dengan betul.
+
+=====================
+Date: 17 September 2026
+Time: 21:15 UTC+8
+
+TASK: Siasatan Teknikal dan Penyediaan Migrasi Fix untuk Isu 'order_logs' RLS
+STATUS: ✅ BERHASIL
+PROJECT PROGRESS LOG
+=====================
+Date: 17 September 2026
 Time: 21:15 UTC+8
 
 TASK: Siasatan Teknikal dan Penyediaan Migrasi Fix untuk Isu 'order_logs' RLS

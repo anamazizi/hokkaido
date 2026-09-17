@@ -327,7 +327,16 @@ setActionLoadingId(orderId + '_status_' + newStatus)
       const { error } = await supabase.from('orders').update({ status: newStatus }).eq('id', orderId)
       if (error) throw error
       
-      // Log the status change
+      // Log the status change - insert record into order_logs table
+      await supabase.from('order_logs').insert({
+        order_id: orderId,
+        actor_name: userProfile?.full_name || 'Anam Azizi',
+        actor_role: userProfile?.role || 'admin',
+        action_type: 'status_updated',
+        notes: `Status ditukar kepada ${newStatus}`
+      })
+      
+      // Also call existing logOrderAction for backward compatibility
       await logOrderAction(
         orderId,
         'status_update',
@@ -355,7 +364,16 @@ setActionLoadingId(orderId + '_cancel')
         .eq('id', orderId)
       if (error) throw error
       
-      // Log cancellation
+      // Log cancellation - insert record into order_logs table
+      await supabase.from('order_logs').insert({
+        order_id: orderId,
+        actor_name: userProfile?.full_name || 'Anam Azizi',
+        actor_role: userProfile?.role || 'admin',
+        action_type: 'order_cancelled',
+        notes: 'Pesanan dibatalkan oleh pengguna'
+      })
+      
+      // Also call existing logOrderAction for backward compatibility
       await logOrderAction(
         orderId,
         'cancellation',
@@ -786,7 +804,7 @@ const renderLedgerSection = () => (
                     <p><strong>{order.customer_name}</strong> • {order.phone_number}</p>
                     {order.items && Array.isArray(order.items) && order.items.length > 0 ? (
                       order.items.map((item: any, idx: number) => (
-                        <p key={idx}>{item.item_name || item.product_type || 'Item'} × {item.quantity}</p>
+                        <p key={idx}>{item.name || 'Item'} × {item.quantity}</p>
                       ))
                     ) : (
                       <p>{order.product_type} × {order.quantity}</p>

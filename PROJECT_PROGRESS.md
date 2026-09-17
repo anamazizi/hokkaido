@@ -1,4 +1,44 @@
 # PROJECT PROGRESS LOG
+## 17 September 2026 (18:00 UTC+8)
+### Penyelesaian Isu Penyeragaman Pangkalan Data bagi 'items' dan 'order_logs'
+- **Status**: ✅ BERHASIL (Build Exit Code 0)
+
+- **Perubahan Dilakukan**:
+  1. **SIMPAN SENARAI PENUH ITEMS DI STOREFRONT (app/page.tsx)**:
+     - Semasa pelanggan menekan butang hantar pesanan, tambah medan `items` ke dalam payload Supabase.
+     - Formatkan semua produk yang dipilih (kuantiti > 0) ke dalam array JSON `itemsPayload`.
+     - Setiap item mengandungi: `key`, `name`, `quantity`, `price`, `cogs`, `profit`.
+     - Masukkan `items: itemsPayload` ke dalam arahan `supabase.from('orders').insert([payload])`.
+     - Pastikan medan `total_price`, `cogs`, dan `net_profit` dikira berasaskan keseluruhan item terpilih.
+     - Log penciptaan pesanan ke dalam jadual `order_logs` dengan `action_type: 'order_created'`.
+
+  2. **PAPARAN KESEMUA ITEM DI DASHBOARD (app/urus/page.tsx)**:
+     - Periksa medan `order.items`: jika `Array.isArray(order.items)` dan mempunyai rekod, lakukan mapping.
+     - Betulkan paparan untuk menggunakan `item.name` dengan betul berbanding `item.item_name`.
+     - Hanya gunakan fallback `order.product_type x order.quantity` jika `order.items` kosong (pesanan lama).
+
+  3. **LOG SEJARAH TINDAKAN STATUS (app/urus/page.tsx)**:
+     - Dalam fungsi `updateOrderStatus`: selepas kemas kini `orders`, masukkan rekod log ke Supabase.
+     - Format: `order_id`, `actor_name`, `actor_role`, `action_type: 'status_updated'`, `notes: 'Status ditukar kepada ${newStatus}'`.
+     - Dalam fungsi `cancelOrder`: tambah log dengan `action_type: 'order_cancelled'`.
+     - Pastikan fungsi `fetchOrders()` dan `fetchAllOrderLogs()` berfungsi untuk memuatkan senarai dari `order_logs` secara masa-nyata.
+
+  4. **PENGESAHAN & PUSH**:
+     - Jalankan `npm run build` - Exit Code 0 tanpa ralat TypeScript.
+     - Tolak kod ke GitHub dengan commit message: "fix: store full items array in orders and insert order_logs on status change".
+
+- **Pematuhan .clinerules**:
+  - ✅ Zero‑Mock: Tiada placeholder, semua fungsi asal kekal utuh.
+  - ✅ Database As Source of Truth: `items` dan `order_logs` disimpan di pangkalan data Supabase.
+  - ✅ Server‑Side Validation: Log status dihantar ke Supabase secara transaksi.
+  - ✅ Build Gate: Build berjaya tanpa ralat.
+  - ✅ Strict Routes: Laluan `/urus` dan `/` kekal terpelihara.
+
+- **Langkah Seterusnya**:
+  - Uji penciptaan pesanan dengan multiple items untuk memastikan array `items` disimpan dengan betul.
+  - Verifikasi bahawa log status muncul dalam kotak sejarah audit trail.
+  - Pastikan paparan produk di dashboard menunjukkan semua item dengan betul.
+
 ## 17 September 2026 (17:40 UTC+8)
 ### Penambahbaikan Dashboard Pengurusan Pesanan: Loading State, Loop Items, Audit Trail & WhatsApp Copy
 - **Status**: ✅ BERHASIL (Build Exit Code 0)

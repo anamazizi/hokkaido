@@ -142,6 +142,21 @@ export default function Home() {
         net_profit: profit,
         status: 'pending',
       })
+      // Format itemsPayload untuk menyimpan semua item yang dipilih
+      const itemsPayload = Object.entries(quantities)
+        .filter(([_, qty]) => qty > 0)
+        .map(([key, qty]) => {
+          const product = productDetails[key as keyof typeof productDetails];
+          return {
+            key,
+            name: product.name,
+            quantity: qty,
+            price: product.price,
+            cogs: product.cogs,
+            profit: product.profit
+          };
+        });
+
       const { error } = await supabase
         .from('orders')
         .insert({
@@ -161,6 +176,7 @@ export default function Home() {
           cogs: totalCogs,
           net_profit: profit,
           status: 'pending',
+          items: itemsPayload
         })
       if (error) {
         console.error('Supabase Error Details:', error)
@@ -170,6 +186,21 @@ export default function Home() {
         console.error('Supabase Error Hint:', error.hint)
         throw new Error(`Gagal menyimpan pesanan: ${error.message}`)
       }
+      
+      // Log order creation in order_logs table
+      try {
+        await supabase.from('order_logs').insert({
+          order_id: orderId,
+          actor_name: 'System',
+          actor_role: 'system',
+          action_type: 'order_created',
+          notes: 'Pesanan baru dibuat melalui storefront'
+        })
+      } catch (logError) {
+        console.error('Error logging order creation:', logError)
+        // Continue anyway, don't fail the order creation
+      }
+      
       setOrderId(orderId)
       saveCustomerDataToLocalStorage()
       

@@ -4,6 +4,57 @@ PROJECT PROGRESS LOG
 =====================
 =====================
 Date: 17 September 2026
+Time: 18:10 UTC+8
+
+TASK: Siasatan Pangkalan Data & Susunan Format Teks Produk
+STATUS: ✅ BERHASIL
+
+PERUBAHAN:
+1. SIASATAN PANGKALAN DATA & SEJARAH TINDAKAN (/urus):
+   - Analisis fail migrasi SQL: order_logs menggunakan lajur `action_type` (bukan `action`).
+   - Periksa percanggahan antara kod TypeScript dan skema SQL: 
+     * Kod menggunakan `status_updated` tetapi skema sedia ada menggunakan `status_update`.
+     * Betulkan `updateOrderStatus()` untuk menggunakan `action_type: 'status_update'` (tanpa 'd').
+     * Betulkan pemetaan emoji dan label untuk menggunakan `status_update` (tanpa 'd').
+   - Pastikan penyelarasan antara:
+     * Trigger database (log_order_status_change) → `status_update`
+     * Fungsi logOrderAction → `status_update`  
+     * Kod updateOrderStatus → `status_update`
+     * Paparan emoji/label → `status_update`
+
+2. SUSUNAN FORMAT TEKS PRODUK (Kad Pesanan /urus):
+   - Formatkan paparan produk menjadi dua baris berasingan:
+     * Baris 1: Label kecil/pudar: "Hokkaido Inti Jebok"
+     * Baris 2: Nama pakej dan kuantiti yang jelas (contoh: "Set Solo Sweet (3 pcs) × 1")
+   - Ekstrak nama produk dengan remove prefix "Hokkaido Inti Jebok - ".
+   - Gunakan div berasingan dengan kelas CSS untuk perbezaan visual.
+
+3. PENGESAHAN & PUSH:
+   - npm run build Exit Code 0 (tiada ralat TypeScript).
+   - Git commit dengan mesej: "fix: investigate and align audit log schema and adjust item display layout".
+   - Git push ke repositori GitHub.
+
+BUILD GATE: npm run build Exit Code 0 (tiada ralat)
+
+CLINERULES COMPLIANCE:
+- Zero-Mock: Tiada placeholder, semua fungsi kekal utuh.
+- Database As Source of Truth: Konsistensi antara kod dan skema SQL dijaga.
+- Strict Routes: Laluan /urus kekal terpelihara.
+- UI Contrast: Format teks produk mematuhi panduan kontras tinggi.
+
+NOTES:
+✅ Skema audit log diselaraskan: `action_type: 'status_update'` konsisten.
+✅ Paparan produk diformatkan dengan lebih teratur (dua baris).
+✅ Kotak sejarah tindakan kini akan memaparkan log dengan betul.
+✅ Build TypeScript berjaya tanpa ralat.
+
+NEXT STEP:
+- Uji kotak sejarah tindakan untuk memastikan log status dipaparkan dengan betul.
+- Verifikasi format paparan produk untuk pesanan dengan multiple items.
+- Pastikan trigger database dan kod frontend konsisten dalam penggunaan `action_type`.
+
+=====================
+Date: 17 September 2026
 Time: 17:40 UTC+8
 
 TASK: Penambahbaikan Dashboard Pengurusan Pesanan: Loading State, Loop Items, Audit Trail & WhatsApp Copy

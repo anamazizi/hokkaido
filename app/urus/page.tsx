@@ -332,7 +332,7 @@ setActionLoadingId(orderId + '_status_' + newStatus)
         order_id: orderId,
         actor_name: userProfile?.full_name || 'Anam Azizi',
         actor_role: userProfile?.role || 'admin',
-        action_type: 'status_updated',
+        action_type: 'status_update',
         notes: `Status ditukar kepada ${newStatus}`
       })
       
@@ -803,9 +803,17 @@ const renderLedgerSection = () => (
                   <div className="space-y-2 mb-4">
                     <p><strong>{order.customer_name}</strong> • {order.phone_number}</p>
                     {order.items && Array.isArray(order.items) && order.items.length > 0 ? (
-                      order.items.map((item: any, idx: number) => (
-                        <p key={idx}>{item.name || 'Item'} × {item.quantity}</p>
-                      ))
+                      order.items.map((item: any, idx: number) => {
+                        // Extract product name - remove "Hokkaido Inti Jebok - " prefix
+                        const fullName = item.name || 'Item';
+                        const displayName = fullName.replace('Hokkaido Inti Jebok - ', '');
+                        return (
+                          <div key={idx} className="mb-1">
+                            <div className="text-xs text-gray-500">Hokkaido Inti Jebok</div>
+                            <div className="font-semibold text-slate-800">{displayName} × {item.quantity}</div>
+                          </div>
+                        );
+                      })
                     ) : (
                       <p>{order.product_type} × {order.quantity}</p>
                     )}
@@ -829,7 +837,7 @@ const renderLedgerSection = () => (
                           {orderLogsMap[order.id].slice(0, 3).map(log => {
                             const actionEmoji: Record<string, string> = {
                               order_created: '📝',
-                              status_updated: '🔄',
+                              status_update: '🔄',
                               order_cancelled: '❌',
                               order_completed: '✅',
                               payment_received: '💰',
@@ -837,7 +845,7 @@ const renderLedgerSection = () => (
                             }
                             const actionLabel: Record<string, string> = {
                               order_created: 'Dicipta',
-                              status_updated: 'Status Diubah',
+                              status_update: 'Status Diubah',
                               order_cancelled: 'Dibatalkan',
                               order_completed: 'Selesai',
                               payment_received: 'Bayaran Diterima',

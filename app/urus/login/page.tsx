@@ -2,18 +2,27 @@
 
 export const dynamic = 'force-dynamic'
 
-import { LogIn, LogOut } from 'lucide-react'
+import { LogIn, LogOut, AlertTriangle } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import type { User } from '@supabase/supabase-js'
 
 export default function LoginPage() {
+  const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [checkingSession, setCheckingSession] = useState(true)
+  const [isUnauthorizedError, setIsUnauthorizedError] = useState(false)
 
-  // Check for existing session on page load - DO NOT auto-signout to preserve OAuth redirect state
   useEffect(() => {
+    // Check for error parameters in URL
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      const errorParam = params.get('error')
+      setIsUnauthorizedError(errorParam === 'unauthorized')
+    }
+
     const checkExistingSession = async () => {
       try {
         console.log('Login page: Checking for existing session...')
@@ -104,6 +113,12 @@ export default function LoginPage() {
     }
   }
 
+  const handleAccessDashboard = async () => {
+    if (typeof window !== 'undefined') {
+      window.location.href = '/urus'
+    }
+  }
+
   // Show loading while checking session
   if (checkingSession) {
     return (
@@ -131,6 +146,21 @@ export default function LoginPage() {
           </p>
         </div>
 
+        {/* Display unauthorized error banner */}
+        {isUnauthorizedError && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-center gap-3">
+              <AlertTriangle className="h-5 w-5 text-red-600" />
+              <div>
+                <h3 className="font-medium text-red-800">Akses Ditolak</h3>
+                <p className="text-sm text-red-700">
+                  Akaun anda tidak mempunyai kebenaran untuk mengakses sistem pengurusan. Sila log keluar dan gunakan emel pentadbir/staf.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Display current session info if exists */}
         {currentUser && (
           <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
@@ -143,6 +173,17 @@ export default function LoginPage() {
             <p className="text-sm text-yellow-700 mb-3">
               Emel: <strong>{currentUser.email}</strong>
             </p>
+            
+            {/* Main dashboard access button */}
+            <button
+              onClick={handleAccessDashboard}
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed mb-3"
+            >
+              <LogIn className="h-5 w-5" />
+              {loading ? 'Memproses...' : 'Masuk ke Dashboard Pengurusan (/urus)'}
+            </button>
+
             <button
               onClick={handleLogoutCurrentSession}
               disabled={loading}

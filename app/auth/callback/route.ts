@@ -60,9 +60,9 @@ export async function GET(request: Request) {
           // Admin/staff: proceed to /urus dashboard
           return NextResponse.redirect(new URL('/urus', requestUrl.origin))
         } else {
-          // Regular user: redirect to home page
-          console.log(`OAuth callback: User ${userEmail} with role '${userRole}' redirected to home`)
-          return NextResponse.redirect(new URL('/', requestUrl.origin))
+          // Regular user: redirect to login page with unauthorized error
+          console.log(`OAuth callback: User ${userEmail} with role '${userRole}' redirected to login`)
+          return NextResponse.redirect(new URL('/urus/login?error=unauthorized', requestUrl.origin))
         }
       } catch (error) {
         console.error('Error fetching user profile in OAuth callback:', error)

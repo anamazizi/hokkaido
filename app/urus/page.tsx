@@ -71,13 +71,22 @@ const [orderLogsMap, setOrderLogsMap] = useState<Record<string, OrderLog[]>>({})
           .eq('id', user.id)
           .single()
         
-        // Step 4: STRICT ROLE VALIDATION
+        // Step 4: ADMIN EMAIL BYPASS - Normalize email and allow immediate access for known admin email
+        const userEmail = (user.email || '').toLowerCase().trim()
+        const isAdminEmail = userEmail === 'anamazizi@gmail.com'
+        
+        // Step 5: STRICT ROLE VALIDATION
         const userRole = profile?.role || 'user'
         
-        // Step 5: Redirect 'user' role to home page IMMEDIATELY
-        if (userRole !== 'staff' && userRole !== 'admin') {
-          console.warn(`RBAC BLOCK: User ${user.email} with role '${userRole}' attempted to access /urus dashboard`)
-          router.replace('/')
+        // Step 6: ADMIN BYPASS - Grant full admin access if email matches
+        if (isAdminEmail) {
+          console.log(`Admin email bypass: User ${userEmail} granted admin access despite role '${userRole}'`)
+          // Admin email gets full access, continue to load dashboard
+          setUserProfile({ ...profile, role: 'admin' } as UserProfile)
+        } else if (userRole !== 'staff' && userRole !== 'admin') {
+          // Step 7: Redirect 'user' role to login page IMMEDIATELY
+          console.warn(`RBAC BLOCK: User ${user.email} with role '${userRole}' attempted to access /urus dashboard, redirecting to login`)
+          router.replace('/urus/login?error=unauthorized')
           return
         }
         

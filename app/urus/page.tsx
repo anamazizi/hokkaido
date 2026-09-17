@@ -328,25 +328,55 @@ setActionLoadingId(orderId + '_status_' + newStatus)
       const currentOrder = orders.find(o => o.id === orderId)
       const oldStatus = currentOrder?.status || 'pending'
       
+      // Prepare fallback for user profile data
+      const actorName = userProfile?.full_name || user?.user_metadata?.full_name || 'Pengurus'
+      const actorRole = userProfile?.role || 'admin'
+
+      // 1. OPTIMISTIC UPDATE: Update orders state immediately
+      setOrders(prevOrders => 
+        prevOrders.map(order => 
+          order.id === orderId 
+            ? { ...order, status: newStatus }
+            : order
+        )
+      )
+
       const { error } = await supabase.from('orders').update({ status: newStatus }).eq('id', orderId)
       if (error) throw error
       
-      // Log the status change - insert record into order_logs table
-      const { error: logErr } = await supabase.from('order_logs').insert({
-        order_id: orderId,
-        actor_name: userProfile?.full_name || 'Anam Azizi',
-        actor_role: userProfile?.role || 'admin',
-        action_type: 'status_update',
-        notes: `Status ditukar kepada ${newStatus}`
-      })
-      if (logErr) {
-        console.error('Gagal simpan order_log:', logErr)
-        console.error('Payload order_log:', {
+      // 2. Log the status change - insert record into order_logs table with detailed error handling
+      const { data: insertedLog, error: logErr } = await supabase
+        .from('order_logs')
+        .insert({
           order_id: orderId,
-          actor_name: userProfile?.full_name || 'Anam Azizi',
-          actor_role: userProfile?.role || 'admin',
+          actor_name: actorName,
+          actor_role: actorRole,
           action_type: 'status_update',
           notes: `Status ditukar kepada ${newStatus}`
+        })
+        .select()
+        .single()
+
+      if (logErr) {
+        console.error('Ralat Penuh Insert Order Log:', JSON.stringify(logErr, null, 2))
+        console.error('Payload order_log:', {
+          order_id: orderId,
+          actor_name: actorName,
+          actor_role: actorRole,
+          action_type: 'status_update',
+          notes: `Status ditukar kepada ${newStatus}`
+        })
+        // Continue anyway - don't fail the status update because of logging error
+      }
+
+      // 3. OPTIMISTIC UI UPDATE: Immediately add the new log to state
+      if (insertedLog) {
+        setOrderLogsMap(prevMap => {
+          const newMap = { ...prevMap }
+          if (!newMap[orderId]) newMap[orderId] = []
+          // Add new log at the beginning (most recent first)
+          newMap[orderId] = [insertedLog, ...newMap[orderId]].slice(0, 10)
+          return newMap
         })
       }
       
@@ -375,6 +405,19 @@ setActionLoadingId(orderId + '_status_' + newStatus)
     
 setActionLoadingId(orderId + '_cancel')
     try {
+      // Prepare fallback for user profile data
+      const actorName = userProfile?.full_name || user?.user_metadata?.full_name || 'Pengurus'
+      const actorRole = userProfile?.role || 'admin'
+
+      // 1. OPTIMISTIC UPDATE: Update orders state immediately
+      setOrders(prevOrders => 
+        prevOrders.map(order => 
+          order.id === orderId 
+            ? { ...order, status: 'cancelled', cancelled_at: new Date().toISOString() }
+            : order
+        )
+      )
+
       const { error } = await supabase
         .from('orders')
         .update({ 
@@ -384,22 +427,39 @@ setActionLoadingId(orderId + '_cancel')
         .eq('id', orderId)
       if (error) throw error
       
-      // Log cancellation - insert record into order_logs table
-      const { error: logErr } = await supabase.from('order_logs').insert({
-        order_id: orderId,
-        actor_name: userProfile?.full_name || 'Anam Azizi',
-        actor_role: userProfile?.role || 'admin',
-        action_type: 'order_cancelled',
-        notes: 'Pesanan dibatalkan oleh pengguna'
-      })
-      if (logErr) {
-        console.error('Gagal simpan order_log (cancel):', logErr)
-        console.error('Payload order_log (cancel):', {
+      // 2. Log cancellation - insert record into order_logs table with detailed error handling
+      const { data: insertedLog, error: logErr } = await supabase
+        .from('order_logs')
+        .insert({
           order_id: orderId,
-          actor_name: userProfile?.full_name || 'Anam Azizi',
-          actor_role: userProfile?.role || 'admin',
+          actor_name: actorName,
+          actor_role: actorRole,
           action_type: 'order_cancelled',
           notes: 'Pesanan dibatalkan oleh pengguna'
+        })
+        .select()
+        .single()
+
+      if (logErr) {
+        console.error('Ralat Penuh Insert Order Log (cancel):', JSON.stringify(logErr, null, 2))
+        console.error('Payload order_log (cancel):', {
+          order_id: orderId,
+          actor_name: actorName,
+          actor_role: actorRole,
+          action_type: 'order_cancelled',
+          notes: 'Pesanan dibatalkan oleh pengguna'
+        })
+        // Continue anyway - don't fail the cancellation because of logging error
+      }
+
+      // 3. OPTIMISTIC UI UPDATE: Immediately add the new log to state
+      if (insertedLog) {
+        setOrderLogsMap(prevMap => {
+          const newMap = { ...prevMap }
+          if (!newMap[orderId]) newMap[orderId] = []
+          // Add new log at the beginning (most recent first)
+          newMap[orderId] = [insertedLog, ...newMap[orderId]].slice(0, 10)
+          return newMap
         })
       }
       

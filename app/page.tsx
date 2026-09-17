@@ -389,7 +389,8 @@ loading="lazy"
             {isSubmitting ? 'Menghantar...' : 'Hantar Pesanan'}
           </button>
           <p className="text-xs md:text-sm text-slate-600 text-center mt-2 font-medium">
-            Pesanan akan dihantar melalui Whatsapp, kita teruskan proses di sana
+            Pesanan akan dihantar melalui WhatsApp,<br />
+            kita teruskan di WhatsApp
           </p>
         </form>
 
@@ -417,7 +418,7 @@ loading="lazy"
           <div className="bg-blue-50/50 rounded-xl p-5 border border-blue-200/40">
             <h3 className="text-xl font-semibold mb-4 flex items-center text-blue-800">
               <MessageCircle className="mr-2 h-5 w-5" />
-              Tanya Kami di WhatsApp
+              Ada Pertanyaan?
             </h3>
             
             <form onSubmit={handleInquirySubmit} className="space-y-4">

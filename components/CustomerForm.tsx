@@ -45,7 +45,7 @@ export default function CustomerForm({ name, setName, phone, setPhone, deliveryT
               onChange={(e) => setPhone(digitsOnly(e.target.value))}
             />
           </div>
-          <p className="mt-1 text-xs text-gray-500">Hanya nombor lokal (cth: 01110890100 atau 1110890100)</p>
+          <p className="text-xs text-slate-500 mt-1">(cth: 01110890100)</p>
         </div>
       </div>
     </div>

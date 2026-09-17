@@ -269,7 +269,11 @@ const fetchAllOrderLogs = async () => {
         .select('*')
         .order('created_at', { ascending: false })
         .limit(100) // Limit to recent logs
-      if (error) throw error
+      
+      if (error) {
+        console.error('Gagal baca order_logs:', error)
+        throw error
+      }
       
       // Group logs by order_id
       const map: Record<string, OrderLog[]> = {}
@@ -328,13 +332,23 @@ setActionLoadingId(orderId + '_status_' + newStatus)
       if (error) throw error
       
       // Log the status change - insert record into order_logs table
-      await supabase.from('order_logs').insert({
+      const { error: logErr } = await supabase.from('order_logs').insert({
         order_id: orderId,
         actor_name: userProfile?.full_name || 'Anam Azizi',
         actor_role: userProfile?.role || 'admin',
         action_type: 'status_update',
         notes: `Status ditukar kepada ${newStatus}`
       })
+      if (logErr) {
+        console.error('Gagal simpan order_log:', logErr)
+        console.error('Payload order_log:', {
+          order_id: orderId,
+          actor_name: userProfile?.full_name || 'Anam Azizi',
+          actor_role: userProfile?.role || 'admin',
+          action_type: 'status_update',
+          notes: `Status ditukar kepada ${newStatus}`
+        })
+      }
       
       // Also call existing logOrderAction for backward compatibility
       await logOrderAction(
@@ -342,6 +356,12 @@ setActionLoadingId(orderId + '_status_' + newStatus)
         'status_update',
         `Status changed from ${oldStatus} to ${newStatus}`
       )
+      
+      // Immediately refresh the order logs to show the new entry
+      await fetchAllOrderLogs()
+      
+      // Also refresh orders to update the status in the list
+      await fetchOrders()
     } catch (error) {
       console.error('Error updating order status:', error)
       alert('Ralat mengemas kini status pesanan.')
@@ -365,13 +385,23 @@ setActionLoadingId(orderId + '_cancel')
       if (error) throw error
       
       // Log cancellation - insert record into order_logs table
-      await supabase.from('order_logs').insert({
+      const { error: logErr } = await supabase.from('order_logs').insert({
         order_id: orderId,
         actor_name: userProfile?.full_name || 'Anam Azizi',
         actor_role: userProfile?.role || 'admin',
         action_type: 'order_cancelled',
         notes: 'Pesanan dibatalkan oleh pengguna'
       })
+      if (logErr) {
+        console.error('Gagal simpan order_log (cancel):', logErr)
+        console.error('Payload order_log (cancel):', {
+          order_id: orderId,
+          actor_name: userProfile?.full_name || 'Anam Azizi',
+          actor_role: userProfile?.role || 'admin',
+          action_type: 'order_cancelled',
+          notes: 'Pesanan dibatalkan oleh pengguna'
+        })
+      }
       
       // Also call existing logOrderAction for backward compatibility
       await logOrderAction(
@@ -393,6 +423,12 @@ setActionLoadingId(orderId + '_cancel')
           window.open(whatsappLink, '_blank')
         }
       }
+      
+      // Immediately refresh the order logs to show the new cancellation entry
+      await fetchAllOrderLogs()
+      
+      // Also refresh orders to update the status in the list
+      await fetchOrders()
     } catch (error) {
       console.error('Error cancelling order:', error)
       alert('Ralat membatalkan pesanan.')

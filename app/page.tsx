@@ -189,13 +189,23 @@ export default function Home() {
       
       // Log order creation in order_logs table
       try {
-        await supabase.from('order_logs').insert({
+        const { error: logErr } = await supabase.from('order_logs').insert({
           order_id: orderId,
           actor_name: 'System',
           actor_role: 'system',
           action_type: 'order_created',
           notes: 'Pesanan baru dibuat melalui storefront'
         })
+        if (logErr) {
+          console.error('Gagal simpan order_log (created):', logErr)
+          console.error('Payload order_log (created):', {
+            order_id: orderId,
+            actor_name: 'System',
+            actor_role: 'system',
+            action_type: 'order_created',
+            notes: 'Pesanan baru dibuat melalui storefront'
+          })
+        }
       } catch (logError) {
         console.error('Error logging order creation:', logError)
         // Continue anyway, don't fail the order creation

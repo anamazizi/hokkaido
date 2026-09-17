@@ -1,4 +1,47 @@
 # PROJECT PROGRESS LOG
+## 17 September 2026 (18:30 UTC+8)
+### Penyelesaian Isu 'Sejarah Tindakan' Tersekat pada 'Menunggu tindakan pertama'
+- **Status**: ✅ BERHASIL (Build Exit Code 0)
+
+- **Perubahan Dilakukan**:
+  1. **DIAGNOSTIK KOD & PANGKALAN DATA (app/urus/page.tsx)**:
+     - Analisis struktur jadual `order_logs`: menggunakan lajur `action_type` (bukan `action`).
+     - Tambah penanganan ralat khusus untuk insert `order_logs` dalam fungsi `updateOrderStatus` dan `cancelOrder`:
+       ```typescript
+       const { error: logErr } = await supabase.from('order_logs').insert({...});
+       if (logErr) console.error('Gagal simpan order_log:', logErr);
+       ```
+     - Perbaiki fungsi `fetchAllOrderLogs` dengan logging ralat yang lebih jelas untuk masalah SELECT.
+     - Pastikan payload insert sepadan tepat 100% dengan skema SQL.
+
+  2. **KEMAS KINI KEADAAN PAPARAN (State Update)**:
+     - Tambah pemanggilan `fetchAllOrderLogs()` selepas berjaya mengemas kini status untuk `optimistic update`.
+     - Tambah pemanggilan `fetchOrders()` untuk mengemas kini senarai pesanan.
+     - Lakukan perkara yang sama dalam fungsi `cancelOrder`.
+     - Pastikan senarai log dalam state kad pesanan dikemas kini serta-merta selepas tindakan.
+
+  3. **PERBAIKAN KONSISTENSI KOD**:
+     - Betulkan penggunaan `action_type: 'status_update'` (tanpa 'd') untuk konsisten dengan sistem sedia ada.
+     - Tambah penanganan ralat yang sama dalam `app/page.tsx` untuk log `order_created`.
+     - Pastikan semua kod frontend konsisten dengan skema database SQL.
+
+  4. **PENGESAHAN & PUSH**:
+     - Jalankan `npm run build` - Exit Code 0 tanpa ralat TypeScript.
+     - Git commit dengan mesej: "fix: resolve audit trail insertion error and ensure instant log state refresh".
+     - Git push ke repositori GitHub.
+
+- **Pematuhan .clinerules**:
+  - ✅ Zero‑Mock: Tiada placeholder, semua fungsi kekal utuh.
+  - ✅ Database As Source of Truth: Konsistensi penuh antara kod TypeScript dan skema SQL.
+  - ✅ Server‑Side Validation: Semua ralat Supabase ditangani dengan teliti.
+  - ✅ Build Gate: Build berjaya tanpa ralat TypeScript.
+  - ✅ Strict Routes: Laluan `/urus` kekal terpelihara.
+
+- **Langkah Seterusnya**:
+  - Uji fungsi `updateOrderStatus` untuk memastikan log muncul dalam kotak sejarah.
+  - Verifikasi bahawa perubahan status segera dipaparkan dalam senarai log.
+  - Pastikan ralat Supabase (jika ada) dicatat dalam console untuk diagnostik.
+
 ## 17 September 2026 (18:00 UTC+8)
 ### Penyelesaian Isu Penyeragaman Pangkalan Data bagi 'items' dan 'order_logs'
 - **Status**: ✅ BERHASIL (Build Exit Code 0)

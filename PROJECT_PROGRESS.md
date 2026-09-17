@@ -1,5 +1,55 @@
 # PROJECT PROGRESS LOG
 ## 18 September 2026 (06:57 UTC+8)
+## 18 September 2026 (07:44 UTC+8)
+### Pelarasan Kemasan Teks CustomerForm & Storefront
+- **Status**: ✅ BERHASIL (Build Exit Code 0)
+
+**Perubahan Dilaksanakan:**
+
+1. **Kemas Kini Teks Contoh Nombor Telefon (components/CustomerForm.tsx):**
+   - Padam teks bantuan panjang "Hanya nombor lokal (cth: 01110890100 atau 1110890100)".
+   - Tukar kepada teks ringkas: "(cth: 01110890100)".
+   - Pastikan gaya kontras tinggi: `className="text-xs text-slate-500 mt-1"`.
+
+2. **Susunan Dua Baris di Bawah Butang "Hantar Pesanan" (app/page.tsx):**
+   - Ubah teks panjang tunggal kepada susunan dua baris yang teratur:
+     ```typescript
+     <p className="text-xs md:text-sm text-slate-600 text-center mt-2 font-medium">
+       Pesanan akan dihantar melalui WhatsApp,<br />
+       kita teruskan di WhatsApp
+     </p>
+     ```
+   - Format lebih kemas dan mudah dibaca pada peranti mobile.
+
+3. **Tukar Tajuk Kad Pertanyaan WhatsApp (app/page.tsx):**
+   - Tukar tajuk kad daripada "Tanya Kami di WhatsApp" kepada "Ada Pertanyaan?".
+   - Kekalkan medan input nama dan pertanyaan serta butang "Tanya Kami di WhatsApp" yang berfungsi dengan pembungkus `encodeURIComponent()`.
+   - Tajuk lebih ringkas dan sesuai untuk seksyen pertanyaan.
+
+**Kesan Visual & Pengguna:**
+- Teks bantuan nombor telefon lebih ringkas dan tidak mengganggu.
+- Maklumat proses WhatsApp lebih teratur dengan dua baris yang jelas.
+- Tajuk pertanyaan lebih mesra pengguna dan tidak terlalu panjang.
+- Keseluruhan UI lebih bersih dan profesional.
+
+**Pematuhan .clinerules:**
+- ✅ **Zero‑Mock:** Tiada penghapusan fungsi perniagaan, hanya kemas kini teks dan styling.
+- ✅ **UI Contrast:** Kelas kontras tinggi dikekalkan (`text-slate-500`, `text-slate-600`, `text-slate-700`).
+- ✅ **Build Gate:** `npm run build` Exit Code 0 (tiada ralat TypeScript).
+- ✅ **Git Procedure:** Perubahan telah di‑push dengan mesej deskriptif.
+- ✅ **Strict Routes:** Semua laluan URL kekal sama.
+
+**Hasil Selepas Pembaikan:**
+- Paparan borang pelanggan lebih ringkas dengan contoh nombor yang jelas.
+- Maklumat proses WhatsApp lebih teratur dan mudah difahami.
+- Tajuk seksyen pertanyaan lebih sesuai dan tidak berulang dengan butang tindakan.
+- Pengalaman pengguna lebih baik dengan teks yang lebih fokus dan kemas.
+
+**Nota Teknikal:**
+- Perubahan pada dua fail: `components/CustomerForm.tsx` dan `app/page.tsx`.
+- Teks bantuan telefon menggunakan kelas `text-slate-500` untuk kontras yang sesuai.
+- Susunan dua baris menggunakan `<br />` untuk line break tanpa menambah markup tambahan.
+- Tajuk kad pertanyaan diubah tanpa menjejaskan fungsi butang WhatsApp yang sedia ada.
 ### Kemas Kini Tipografi & Teks Promosi Storefront (app/page.tsx)
 - **Status**: ✅ BERHASIL (Build Exit Code 0)
 

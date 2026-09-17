@@ -55,6 +55,50 @@ RESULTS:
 ✅ Pengalaman pengguna lebih baik dengan maklumat yang jelas.
 
 =====================
+=====================
+Date: 18 September 2026
+TASK: Pelarasan Kemasan Teks CustomerForm & Storefront
+DATE: 18 September 2026
+TIME: 07:44 UTC+8
+STATUS: ✅ BERHASIL
+
+PERUBAHAN DILAKSANAKAN:
+
+1. KEMAS KINI TEKS CONTOH NOMBOR TELEFON (CustomerForm.tsx):
+   - Padam teks bantuan panjang "Hanya nombor lokal (cth: 01110890100 atau 1110890100)".
+   - Tukar kepada teks ringkas: "(cth: 01110890100)".
+   - Gaya kontras tinggi: `className="text-xs text-slate-500 mt-1"`.
+
+2. SUSUNAN DUA BARIS DI BAWAH BUTANG "HANTAR PESANAN" (app/page.tsx):
+   - Ubah teks panjang tunggal kepada susunan dua baris yang teratur:
+     <p className="text-xs md:text-sm text-slate-600 text-center mt-2 font-medium">
+       Pesanan akan dihantar melalui WhatsApp,<br />
+       kita teruskan di WhatsApp
+     </p>
+   - Format lebih kemas dan mudah dibaca pada peranti mobile.
+
+3. TUKAR TAJUK KAD PERTANYAAN WHATSAPP (app/page.tsx):
+   - Tukar tajuk kad daripada "Tanya Kami di WhatsApp" kepada "Ada Pertanyaan?".
+   - Kekalkan medan input nama dan pertanyaan serta butang "Tanya Kami di WhatsApp" yang berfungsi dengan `encodeURIComponent()`.
+   - Tajuk lebih ringkas dan sesuai untuk seksyen pertanyaan.
+
+BUILD GATE: npm run build Exit Code 0 (tiada ralat TypeScript)
+
+CLINERULES COMPLIANCE:
+- Zero‑Mock: Tiada penghapusan fungsi, hanya kemas kini teks dan styling.
+- UI Contrast: Kelas kontras tinggi dikekalkan (text-slate-500, text-slate-600, text-slate-700).
+- Build Gate: Build Exit Code 0.
+- Git Procedure: Perubahan telah di‑push dengan mesej deskriptif.
+- Strict Routes: Semua laluan URL kekal sama.
+
+RESULTS:
+✅ Teks bantuan nombor telefon lebih ringkas dan tidak mengganggu.
+✅ Maklumat proses WhatsApp lebih teratur dengan dua baris yang jelas.
+✅ Tajuk pertanyaan lebih mesra pengguna dan tidak terlalu panjang.
+✅ UI lebih bersih dan profesional.
+✅ Pengalaman pengguna lebih baik dengan teks yang lebih fokus dan kemas.
+
+=====================
 Date: 18 September 2026
 TASK: Pelarasan Saiz Teks dan Penjajaran Harga OrderSummary
 DATE: 18 September 2026

@@ -290,20 +290,52 @@ const fetchAllOrderLogs = async () => {
   }
 
   const logOrderAction = async (orderId: string, actionType: string, notes?: string) => {
-    if (!user) return
+    if (!user) {
+      console.error('logOrderAction: No authenticated user, skipping log')
+      return
+    }
     try {
       // Get user profile for logging
       let userProfileData = userProfile
       if (!userProfileData) {
-        const { data } = await supabase
+        console.log('logOrderAction: Fetching user profile for', user.id)
+        const { data, error: profileError } = await supabase
           .from('user_profiles')
           .select('*')
           .eq('id', user.id)
           .single()
-        userProfileData = data
+        
+        if (profileError) {
+          console.error('logOrderAction: Error fetching user profile:', profileError)
+          console.log('logOrderAction: Using fallback user data')
+        } else {
+          userProfileData = data
+        }
       }
 
-      if (!userProfileData) return
+      // If still no profile data, use fallback from user metadata
+      if (!userProfileData) {
+        const actorName = user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'System'
+        const actorRole = 'admin' // Default fallback
+        console.log('logOrderAction: Using fallback actor:', { actorName, actorRole })
+        
+        const { error } = await supabase
+          .from('order_logs')
+          .insert({
+            order_id: orderId,
+            actor_id: user.id,
+            actor_name: actorName,
+            actor_role: actorRole,
+            action_type: actionType,
+            notes
+          })
+        
+        if (error) {
+          console.error('logOrderAction: INSERT error (with fallback):', error)
+          console.error('logOrderAction: Error details:', JSON.stringify(error, null, 2))
+        }
+        return
+      }
 
       const { error } = await supabase
         .from('order_logs')
@@ -315,7 +347,19 @@ const fetchAllOrderLogs = async () => {
           action_type: actionType,
           notes
         })
-      if (error) throw error
+      
+      if (error) {
+        console.error('logOrderAction: INSERT error:', error)
+        console.error('logOrderAction: Payload:', {
+          order_id: orderId,
+          actor_id: user.id,
+          actor_name: userProfileData.full_name,
+          actor_role: userProfileData.role,
+          action_type: actionType,
+          notes
+        })
+        throw error
+      }
     } catch (error) {
       console.error('Error logging order action:', error)
     }
@@ -345,13 +389,17 @@ const fetchAllOrderLogs = async () => {
       if (error) throw error
       
       // 2. Log the status change - insert record into order_logs table with detailed error handling
+      const actorId = user?.id
       const logPayload = {
         order_id: orderId,
+        actor_id: actorId,
         actor_name: actorName,
         actor_role: actorRole,
         action_type: 'status_update',
         notes: `Status ditukar kepada ${newStatus}`
       }
+      
+      console.log('updateOrderStatus: Attempting to insert order log with payload:', logPayload)
       
       const { data: insertedLog, error: logErr } = await supabase
         .from('order_logs')
@@ -362,6 +410,29 @@ const fetchAllOrderLogs = async () => {
       if (logErr) {
         console.error('Ralat Penuh Insert Order Log:', JSON.stringify(logErr, null, 2))
         console.error('Payload order_log:', logPayload)
+        console.error('Error details:', logErr)
+        
+        // Try alternative method: call RPC function log_order_action
+        try {
+          console.log('Trying RPC fallback with log_order_action function...')
+          const { data: rpcResult, error: rpcError } = await supabase.rpc(
+            'log_order_action',
+            {
+              p_order_id: orderId,
+              p_action_type: 'status_update',
+              p_notes: `Status changed from ${oldStatus} to ${newStatus}`
+            }
+          )
+          
+          if (rpcError) {
+            console.error('RPC function also failed:', rpcError)
+          } else {
+            console.log('RPC log_order_action succeeded:', rpcResult)
+          }
+        } catch (rpcErr) {
+          console.error('RPC call failed:', rpcErr)
+        }
+        
         // Continue anyway - don't fail the status update because of logging error
       } else {
         // 3. OPTIMISTIC UI UPDATE: Immediately add the new log to state (most recent first)
@@ -433,13 +504,17 @@ const fetchAllOrderLogs = async () => {
       if (error) throw error
       
       // 2. Log cancellation - insert record into order_logs table with detailed error handling
+      const actorId = user?.id
       const logPayload = {
         order_id: orderId,
+        actor_id: actorId,
         actor_name: actorName,
         actor_role: actorRole,
         action_type: 'order_cancelled',
         notes: 'Pesanan dibatalkan oleh pengguna'
       }
+      
+      console.log('cancelOrder: Attempting to insert order log with payload:', logPayload)
       
       const { data: insertedLog, error: logErr } = await supabase
         .from('order_logs')
@@ -450,6 +525,28 @@ const fetchAllOrderLogs = async () => {
       if (logErr) {
         console.error('Ralat Penuh Insert Order Log (cancel):', JSON.stringify(logErr, null, 2))
         console.error('Payload order_log (cancel):', logPayload)
+        console.error('Error details:', logErr)
+        
+        // Try alternative method: call RPC function log_order_action
+        try {
+          console.log('Trying RPC fallback with log_order_action function...')
+          const { data: rpcResult, error: rpcError } = await supabase.rpc(
+            'log_order_action',
+            {
+              p_order_id: orderId,
+              p_action_type: 'cancellation',
+              p_notes: 'Order cancelled by user'
+            }
+          )
+          
+          if (rpcError) {
+            console.error('RPC function also failed:', rpcError)
+          } else {
+            console.log('RPC log_order_action succeeded:', rpcResult)
+          }
+        } catch (rpcErr) {
+          console.error('RPC call failed:', rpcErr)
+        }
         // Continue anyway - don't fail the cancellation because of logging error
       }
 

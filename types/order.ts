@@ -18,6 +18,7 @@ export interface Order {
   net_profit: number
   status: OrderStatus
   notes: string | null
+items?: any[]
   created_at: string
   updated_at: string
   completed_at: string | null

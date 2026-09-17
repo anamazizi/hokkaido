@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import type { User } from '@supabase/supabase-js'
-import { LogOut, Package, CheckCircle, Clock, Phone, DollarSign, FileText, BarChart3, Download, Truck, XCircle, Share } from 'lucide-react'
+import { LogOut, Package, CheckCircle, Clock, Phone, DollarSign, FileText, BarChart3, Download, Truck, XCircle, Share, Loader2 } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import type { Order, OrderStatus } from '@/types/order'
 import type { AccountingLedgerEntry, JoinedLedgerEntry, FinancialMetrics } from '@/types/accounting'
@@ -36,6 +36,7 @@ export default function UrusDashboard() {
   const [authChecking, setAuthChecking] = useState(true)
 const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
 const [orderLogsMap, setOrderLogsMap] = useState<Record<string, OrderLog[]>>({})
+  const [actionLoadingId, setActionLoadingId] = useState<string | null>(null)
   const [ledgerEntries, setLedgerEntries] = useState<JoinedLedgerEntry[]>([])
   const [ledgerLoading, setLedgerLoading] = useState(true)
   const [financialMetrics, setFinancialMetrics] = useState<FinancialMetrics>({
@@ -317,6 +318,7 @@ const fetchAllOrderLogs = async () => {
   }
 
   const updateOrderStatus = async (orderId: string, newStatus: OrderStatus) => {
+setActionLoadingId(orderId + '_status_' + newStatus)
     try {
       // Get current order status from state
       const currentOrder = orders.find(o => o.id === orderId)
@@ -334,12 +336,15 @@ const fetchAllOrderLogs = async () => {
     } catch (error) {
       console.error('Error updating order status:', error)
       alert('Ralat mengemas kini status pesanan.')
+    } finally {
+      setActionLoadingId(null)
     }
   }
 
   const cancelOrder = async (orderId: string) => {
     if (!confirm('Adakah anda pasti mahu membatalkan pesanan ini?')) return
     
+setActionLoadingId(orderId + '_cancel')
     try {
       const { error } = await supabase
         .from('orders')
@@ -373,6 +378,8 @@ const fetchAllOrderLogs = async () => {
     } catch (error) {
       console.error('Error cancelling order:', error)
       alert('Ralat membatalkan pesanan.')
+    } finally {
+      setActionLoadingId(null)
     }
   }
 
@@ -380,10 +387,10 @@ const fetchAllOrderLogs = async () => {
     const templates: Record<OrderStatus, string> = {
       pending: `Hai ${order.customer_name}, pesanan Hokkaido disahkan.\n\nKami akan mula sediakan sebentar lagi.\n\nRujukan Order : #${order.id}`,
       accepted: `Hai ${order.customer_name}, pesanan Hokkaido disahkan.\n\nKami akan mula sediakan sebentar lagi.\n\nRujukan Order : #${order.id}`,
-      preparing: `Hai ${order.customer_name}, pesanan Hokkaido anda sedang disediakan.\n\n(Ready-stock Frozen - sedap dinikmati sejuk!) ❄️🧁\n\nRujukan Order : #${order.id}`,
+      preparing: `Hai ${order.customer_name}, pesanan Hokkaido anda sedang disediakan.\n\nRujukan Order : #${order.id}`,
       ready_pickup: `Hai ${order.customer_name}, pesanan Hokkaido sedia diambil di kedai.\n\nRujukan Order : #${order.id}`,
-      delivering: `Hai ${order.customer_name}, rider dalam perjalanan ke lokasi anda.\n\nSila sediakan tunai: RM ${order.total_price}.\n\nRujukan Order : #${order.id}`,
-      completed: `Terima kasih ${order.customer_name}! Pesanan Hokkaido selesai.\n\nSemoga menikmati Hokkaido anda! 🧀\n\nRujukan Order : #${order.id}`,
+      delivering: `Hai ${order.customer_name}, rider dalam perjalanan ke lokasi anda.\n\nRujukan Order : #${order.id}`,
+      completed: `Terima kasih ${order.customer_name}! Pesanan Hokkaido selesai.\n\nSemoga menikmati Hokkaido anda! 🧀\n\nBoleh kongsikan maklum balas atau feedback anda di sini ya. Terima kasih banyak atas sokongan! 😊\n\nRujukan Order : #${order.id}`,
       cancelled: ``,
     }
     const template = templates[status]
@@ -777,54 +784,66 @@ const renderLedgerSection = () => (
                   </div>
                   <div className="space-y-2 mb-4">
                     <p><strong>{order.customer_name}</strong> • {order.phone_number}</p>
-                    <p>{order.product_type} × {order.quantity}</p>
+                    {order.items && Array.isArray(order.items) && order.items.length > 0 ? (
+                      order.items.map((item: any, idx: number) => (
+                        <p key={idx}>{item.item_name || item.product_type || 'Item'} × {item.quantity}</p>
+                      ))
+                    ) : (
+                      <p>{order.product_type} × {order.quantity}</p>
+                    )}
                     <p>{order.delivery_type === 'delivery' ? 'Penghantaran' : 'Ambil Sendiri'}</p>
                     {order.distance_km && <p>Jarak: {order.distance_km.toFixed(2)} km</p>}
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    {next && <button onClick={() => updateOrderStatus(order.id, next!)} className="flex-1 min-w-[140px] py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg">Tandai {STATUS_LABELS[next!]}</button>}
+                    {next && <button onClick={() => updateOrderStatus(order.id, next!)} disabled={actionLoadingId === order.id + '_status_' + next} className={`flex-1 min-w-[140px] py-2 ${actionLoadingId === order.id + '_status_' + next ? 'bg-blue-400 opacity-70 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'} text-white font-medium rounded-lg flex items-center justify-center gap-2`}>{actionLoadingId === order.id + '_status_' + next && <Loader2 className="w-4 h-4 animate-spin" />}Tandai {STATUS_LABELS[next!]}</button>}
                     {whatsappLink && <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 py-2 px-4 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg"><Phone className="h-4 w-4" /> WhatsApp</a>}
                     <a href={forwardLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg"><Share className="h-4 w-4" /> Forward / Kongsi Pesanan</a>
                     {order.status !== 'completed' && order.status !== 'cancelled' && (
-                      <button onClick={() => cancelOrder(order.id)} className="inline-flex items-center justify-center gap-2 py-2 px-4 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg">
-                        <XCircle className="h-4 w-4" /> Batal Pesanan
+                      <button onClick={() => cancelOrder(order.id)} disabled={actionLoadingId === order.id + '_cancel'} className={`inline-flex items-center justify-center gap-2 py-2 px-4 ${actionLoadingId === order.id + '_cancel' ? 'bg-red-400 opacity-70 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700'} text-white font-medium rounded-lg`}>
+                        {actionLoadingId === order.id + '_cancel' ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="h-4 w-4" />} Batal Pesanan
                       </button>
                     )}
-{orderLogsMap[order.id]?.length > 0 && (
+{
                     <div className="mt-4 pt-4 border-t border-gray-200">
                       <h4 className="text-sm font-medium text-gray-700 mb-2">🕒 Sejarah Tindakan:</h4>
-                      <div className="space-y-1">
-                        {orderLogsMap[order.id].slice(0, 3).map(log => {
-                          const actionEmoji: Record<string, string> = {
-                            order_created: '📝',
-                            status_updated: '🔄',
-                            order_cancelled: '❌',
-                            order_completed: '✅',
-                            payment_received: '💰',
-                            delivery_assigned: '🚚',
-                          }
-                          const actionLabel: Record<string, string> = {
-                            order_created: 'Dicipta',
-                            status_updated: 'Status Diubah',
-                            order_cancelled: 'Dibatalkan',
-                            order_completed: 'Selesai',
-                            payment_received: 'Bayaran Diterima',
-                            delivery_assigned: 'Penghantaran Ditugaskan',
-                          }
-                          const emoji = actionEmoji[log.action_type] || '📋'
-                          const label = actionLabel[log.action_type] || log.action_type
-                          const date = new Date(log.created_at)
-                          const formattedDate = date.toLocaleDateString('ms-MY', { day: 'numeric', month: 'short' })
-                          const formattedTime = date.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' })
-                          return (
-                            <div key={log.id} className="text-xs text-gray-600">
-                              {emoji} {label} oleh {log.actor_name || 'system'} ({log.actor_role}) pada {formattedDate}, {formattedTime}
-                            </div>
-                          )
-                        })}
-                      </div>
+                      {orderLogsMap[order.id]?.length > 0 ? (
+                        <div className="space-y-1">
+                          {orderLogsMap[order.id].slice(0, 3).map(log => {
+                            const actionEmoji: Record<string, string> = {
+                              order_created: '📝',
+                              status_updated: '🔄',
+                              order_cancelled: '❌',
+                              order_completed: '✅',
+                              payment_received: '💰',
+                              delivery_assigned: '🚚',
+                            }
+                            const actionLabel: Record<string, string> = {
+                              order_created: 'Dicipta',
+                              status_updated: 'Status Diubah',
+                              order_cancelled: 'Dibatalkan',
+                              order_completed: 'Selesai',
+                              payment_received: 'Bayaran Diterima',
+                              delivery_assigned: 'Penghantaran Ditugaskan',
+                            }
+                            const emoji = actionEmoji[log.action_type] || '📋'
+                            const label = actionLabel[log.action_type] || log.action_type
+                            const date = new Date(log.created_at)
+                            const formattedDate = date.toLocaleDateString('ms-MY', { day: 'numeric', month: 'short' })
+                            const formattedTime = date.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' })
+                            return (
+                              <div key={log.id} className="text-xs text-gray-600">
+                                {emoji} {label} oleh {log.actor_name || 'system'} ({log.actor_role}) pada {formattedDate}, {formattedTime}
+                              </div>
+                            )
+                          })}
+                        </div>
+                      ) : (
+                        <div className="text-xs text-gray-500 italic">
+                          🕒 Rekod: Pesanan baharu diterima (Menunggu tindakan pertama)
+                        </div>
+                      )}
                     </div>
-                  )}
+                  }
                   </div>
                 </div>
               )

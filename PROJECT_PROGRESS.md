@@ -1,4 +1,72 @@
 # PROJECT PROGRESS LOG
+## 17 September 2026 (17:40 UTC+8)
+### Penambahbaikan Dashboard Pengurusan Pesanan: Loading State, Loop Items, Audit Trail & WhatsApp Copy
+- **Status**: ✅ BERHASIL (Build Exit Code 0)
+
+- **Perubahan Dilakukan**:
+  1. **Penunjuk Visual Loading & Nyahaktif Butang**:
+     - Tambah state `actionLoadingId` untuk track tindakan aktif.
+     - Butang "Tandai Status" dan "Batal Pesanan" menunjukkan spinner (`Loader2`) dan menjadi disabled ketika diproses.
+     - Mencegah double‑submit dengan opacity rendah dan `cursor-not-allowed`.
+  2. **Paparan Lengkap Semua Item Pesanan**:
+     - Periksa field `order.items` (array); jika ada, map semua item.
+     - Fallback ke `product_type × quantity` jika tiada array items.
+     - Tambah optional property `items?: any[]` pada type `Order`.
+  3. **Kotak Jejak Sejarah (Audit Trail) yang Sentiasa Kelihatan**:
+     - Paparkan kotak sejarah untuk setiap pesanan walaupun tiada rekod log.
+     - Jika tiada entri, tunjukkan fallback: “🕒 Rekod: Pesanan baharu diterima (Menunggu tindakan pertama)”.
+     - Jika ada, senaraikan 3 tindakan terkini dengan emoji, label Bahasa Melayu, dan timestamp terformat.
+  4. **Kemas Kini Skrip Mesej WhatsApp Status**:
+     - Preparing: Padam “Ready‑stock Frozen”.
+     - Delivering: Padam “Sila sediakan tunai”.
+     - Completed: Tambah permintaan maklum balas: “Boleh kongsikan maklum balas atau feedback anda di sini ya. Terima kasih banyak atas sokongan! 😊”.
+  5. **Pengesahan Binaan & Tolak Kod**:
+     - `npm run build` Exit Code 0 (tiada ralat TypeScript).
+     - Commit & push dengan mesej: “feat: add button loading indicators, loop all order items, show audit fallback, and clean up whatsapp copy”.
+
+- **Pematuhan .clinerules**:
+  - ✅ Zero‑Mock: Semua fungsi asal kekal utuh; tiada placeholder.
+  - ✅ Strict Routes: Laluan `/urus` kekal terpelihara.
+  - ✅ Build Gate: Build berjaya tanpa ralat.
+  - ✅ Database As Source of Truth: Audit trail diambil dari `order_logs`.
+  - ✅ Server‑Side Validation: Status update dan cancellation menggunakan transaksi Supabase.
+
+- **Langkah Seterusnya**:
+  - Uji butang loading dengan tindakan status dan pembatalan.
+  - Pastikan array items dipaparkan dengan betul untuk pesanan yang mempunyai multiple items.
+  - Verifikasi mesej WhatsApp yang dihasilkan mengikut templat terkini.
+## 17 September 2026 (17:20 UTC+8)
+### Dashboard Pengurusan Pesanan: Format WhatsApp Forward & Audit Trail
+- **Status**: ✅ BERHASIL (Build Exit Code 0)
+
+- **Perubahan Dilakukan**:
+  1. **Butang Kongsi Fleksibel ("Forward / Kongsi Pesanan")**:
+     - Tambah butang perkongsian WhatsApp pada setiap kad pesanan dengan URL: `https://api.whatsapp.com/send?text=${encodeURIComponent(forwardMessage)}`.
+     - Tidak menggunakan nombor telefon tetap supaya pengurus boleh memilih penerima (pelanggan atau rider) terus di aplikasi WhatsApp.
+  2. **Penyelarasan Templat Mesej Forward**:
+     - Gunakan format teks berstruktur untuk order details (Order ID, Nama, Telefon, Alamat, Google Maps, senarai item, subtotal, delivery fee, jumlah, kaedah).
+     - Pastikan teks disarung dengan `encodeURIComponent()`.
+     - JANGAN letak perkataan "COD". Gantikan dengan "Penghantaran" atau "Ambil Sendiri" berdasarkan delivery_type.
+  3. **Penyelarasan Mesej WhatsApp Status**:
+     - Untuk notifikasi kemas kini status pelanggan (Accepted, Preparing, Completed, Cancelled), gunakan jarak baris kosong ganda (`\n\n`) yang kemas.
+     - Nombor rujukan diletakkan di baris paling bawah.
+  4. **Paparan Jejak Sejarah Audit (Audit Trail Display)**:
+     - Di bahagian bawah setiap kad pesanan, paparkan rekod tindakan daripada jadual `order_logs` dengan emoji dan label yang sesuai.
+     - Contoh format: "🕒 Disahkan oleh Anam (Admin) pada 17 Sep, 09:30".
+  5. **Pengesahan Binaan & Tolak Kod**:
+     - Jalankan `npm run build` dan pastikan Exit Code 0 tanpa ralat TypeScript.
+     - Git commit & push dengan mesej: "feat: format whatsapp forward template, remove COD label, and show audit logs".
+
+- **Pematuhan .clinerules**:
+  - ✅ Zero-Mock: Tiada penghapusan logik perniagaan, semua fungsi kekal utuh.
+  - ✅ Strict Routes: Laluan `/urus` kekal terpelihara.
+  - ✅ Build Gate: `npm run build` Exit Code 0 (tiada ralat TypeScript).
+  - ✅ Database As Source of Truth: Audit trail diambil dari jadual `order_logs`.
+  - ✅ Server-Side Validation: Status update tetap menggunakan server-side transaction.
+
+- **Langkah Seterusnya**:
+  - Uji butang forward untuk memastikan pembukaan WhatsApp dengan teks yang betul.
+  - Verifikasi format audit trail menunjukkan emoji dan tarikh yang sesuai.
 ## 17 September 2026 (17:00 UTC+8)
 ### Redirect Unauthorized Access to /urus/login & Admin Bypass Enhancement
 - **Status**: ✅ BERHASIL (Build Exit Code 0)

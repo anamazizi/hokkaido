@@ -6,12 +6,10 @@ interface CustomerFormProps {
   setName: (name: string) => void
   phone: string
   setPhone: (phone: string) => void
-  address: string
-  setAddress: (address: string) => void
   deliveryType: 'pickup' | 'delivery'
 }
 
-export default function CustomerForm({ name, setName, phone, setPhone, address, setAddress, deliveryType }: CustomerFormProps) {
+export default function CustomerForm({ name, setName, phone, setPhone, deliveryType }: CustomerFormProps) {
   return (
     <div className="mb-8">
       <h3 className="text-xl font-semibold mb-4 flex items-center">
@@ -50,22 +48,6 @@ export default function CustomerForm({ name, setName, phone, setPhone, address, 
           <p className="mt-1 text-xs text-gray-500">Hanya nombor lokal (cth: 01110890100 atau 1110890100)</p>
         </div>
       </div>
-      {deliveryType === 'delivery' && (
-        <div className="mt-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Alamat Penghantaran (No. Rumah / Jalan / Bangunan) *
-          </label>
-          <textarea
-            required
-            className="w-full p-3 border border-gray-300 rounded-lg text-slate-900 bg-white placeholder:text-gray-400"
-            placeholder="Contoh: No. 12, Jalan Melur, Taman Indah"
-            rows={3}
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-          />
-          <p className="mt-1 text-xs text-gray-500">Sila berikan alamat lengkap untuk penghantaran COD.</p>
-        </div>
-      )}
     </div>
   )
 }

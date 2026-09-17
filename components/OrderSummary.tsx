@@ -13,17 +13,20 @@ interface OrderSummaryProps {
 const productOptions = [
   { 
     key: 'solo_sweet' as ProductKey, 
-    name: 'Hokkaido Inti Jebok (Set Solo Sweet)',
+    brandName: 'Hokkaido Inti Jebok',
+    productName: 'Set Solo Sweet (3 pcs)',
     price: 4.5 
   },
   { 
     key: 'family_box' as ProductKey, 
-    name: 'Hokkaido Inti Jebok (Set Family Box)',
+    brandName: 'Hokkaido Inti Jebok',
+    productName: 'Set Family Box (12 pcs)',
     price: 18.0 
   },
   { 
     key: 'mega_craving' as ProductKey, 
-    name: 'Hokkaido Inti Jebok (Set Mega Craving)',
+    brandName: 'Hokkaido Inti Jebok',
+    productName: 'Set Mega Craving (25 pcs)',
     price: 30.0 
   },
 ]
@@ -47,9 +50,14 @@ export default function OrderSummary({
         ) : (
           <>
             {selectedItems.map((product) => (
-              <div key={product.key} className="flex justify-between">
-                <span className="text-slate-700">{product.name}:</span>
-                <span className="font-medium text-slate-900">{quantities[product.key]} × {formatCurrency(product.price)}</span>
+              <div key={product.key}>
+                <div className="flex justify-between">
+                  <div>
+                    <div className="text-sm text-slate-600">{product.brandName}</div>
+                    <div className="text-slate-700">{product.productName}:</div>
+                  </div>
+                  <span className="font-medium text-slate-900">{quantities[product.key]} × {formatCurrency(product.price)}</span>
+                </div>
               </div>
             ))}
             <div className="flex justify-between">
@@ -66,7 +74,7 @@ export default function OrderSummary({
             )}
             <div className="border-t border-amber-200/40 pt-3 mt-3">
               <div className="flex justify-between font-bold text-lg">
-                <span className="text-slate-900">Jumlah Tuntut Tunai (COD):</span>
+                <span className="text-slate-900">Jumlah:</span>
                 <span className="text-green-700">{formatCurrency(totalPrice)}</span>
               </div>
             </div>

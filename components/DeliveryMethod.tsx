@@ -18,14 +18,12 @@ export default function DeliveryMethod({ deliveryType, setDeliveryType }: Delive
           onClick={() => setDeliveryType('pickup')}
         >
           <div className="font-medium">Ambil Sendiri di Kedai</div>
-          <div className="text-gray-600">Tiada caj penghantaran</div>
         </div>
         <div
           className={`p-4 border rounded-lg cursor-pointer ${deliveryType === 'delivery' ? 'border-green-500 bg-green-50' : 'border-gray-300'}`}
           onClick={() => setDeliveryType('delivery')}
         >
-          <div className="font-medium">Penghantaran Tunai (COD)</div>
-          <div className="text-gray-600">Caj penghantaran berdasarkan jarak</div>
+          <div className="font-medium">Penghantaran</div>
         </div>
       </div>
     </div>

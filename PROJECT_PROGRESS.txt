@@ -1,6 +1,54 @@
 PROJECT PROGRESS LOG
 =====================
 Date: 17 September 2026
+TASK: Penambahbaikan UI Storefront & Templat WhatsApp
+DATE: 17 September 2026
+TIME: 22:15 UTC+8
+STATUS: ✅ BERHASIL
+
+PERUBAHAN DILAKSANAKAN:
+
+1. HEADER SLOGAN (app/page.tsx):
+   - Format 2 baris: "Gebu di luar, creamy di dalam." + "Inti kastard penuh melimpah!"
+
+2. KAEDAH TERIMA (DeliveryMethod.tsx):
+   - Teks bersih sahaja: "Ambil Sendiri di Kedai" dan "Penghantaran"
+   - PADAM semua teks penerangan kecil
+
+3. RUANG ALAMAT (CustomerForm.tsx & app/page.tsx):
+   - Kotak teks alamat dipindahkan ke bawah pilihan "Penghantaran"
+   - Placeholder: "Sila berikan alamat lengkap untuk penghantaran"
+   - PADAM semua sebutan "COD"
+
+4. RINGKASAN PESANAN (OrderSummary.tsx):
+   - Susunan teks: Jenama Hokkaido (atas kecil) + Nama Set (bawah jelas)
+   - Padam "COD" pada label jumlah
+
+5. VALIDASI ALAMAT & KUANTITI (app/page.tsx):
+   - Mesej amaran merah jika alamat kosong
+   - Mesej amaran kuning jika tiada produk dipilih
+   - Butang "Hantar Pesanan" dinyahtaktif jika syarat tidak dipenuhi
+
+6. TEMPLAT WHATSAPP (app/page.tsx):
+   - Format: "1x Hokkaido Inti Jebok\nSet Solo Sweet (3 pcs) - RM 4.50"
+   - Padam semua sebutan "COD"
+   - Kaedah hanya: "Penghantaran" atau "Ambil Sendiri di Kedai"
+   - Kekalkan encodeURIComponent()
+
+BUILD GATE: npm run build Exit Code 0 (tiada ralat TypeScript)
+
+CLINERULES COMPLIANCE:
+- Zero‑Mock: Tiada penghapusan fungsi, hanya ubah UI/teks
+- UI Contrast: Kelas kontras tinggi dikekalkan
+- Strict URL Encoding: WhatsApp message tetap dibungkus dengan encodeURIComponent()
+- Build Gate: Build Exit Code 0
+
+RESULTS:
+✅ Header slogan 2 baris lebih jelas
+✅ Interface kaedah terima lebih bersih
+✅ Ruang alamat lebih logikal
+✅ Validasi alamat dengan feedback visual
+✅ Templat WhatsApp lebih profesional
 Time: 21:45 UTC+8
 
 TASK: Pembaikan Isu Kemas Kini Sejarah Tindakan Real-time di Kad Pesanan

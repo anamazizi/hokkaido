@@ -1,6 +1,67 @@
 # PROJECT PROGRESS LOG
 ## 17 September 2026 (21:45 UTC+8)
 ### Pembaikan Isu Kemas Kini Sejarah Tindakan Real-time di Kad Pesanan
+## 17 September 2026 (22:15 UTC+8)
+### Penambahbaikan UI Storefront & Templat WhatsApp
+- **Status**: ✅ BERHASIL (Build Exit Code 0)
+
+**Perubahan Dilaksanakan:**
+
+1. **Kemas Kini Slogan Header (app/page.tsx):**
+   - Ayat slogan diubah kepada format 2 baris:
+     ```
+     Gebu di luar, creamy di dalam.
+     Inti kastard penuh melimpah!
+     ```
+
+2. **Pembaikan Kaedah Terima & Ruang Alamat:**
+   - **DeliveryMethod.tsx:** Teks butang disederhanakan:
+     - "Ambil Sendiri di Kedai" (tiada penerangan kecil)
+     - "Penghantaran" (tiada "Tunai (COD)")
+     - Padam semua teks penerangan kecil
+   - **CustomerForm.tsx:** Padam prop `address` dan `setAddress`
+   - **app/page.tsx:** Kotak teks alamat dipindahkan betul-betul di bawah butang pilihan "Penghantaran"
+     - Placeholder: "Sila berikan alamat lengkap untuk penghantaran"
+     - Padam semua sebutan "COD"
+
+3. **Ringkasan Pesaran & Validasi Alamat:**
+   - **OrderSummary.tsx:** Ubah format susunan teks produk:
+     - Baris 1 (kecil/pudar): Hokkaido Inti Jebok
+     - Baris 2 (jelas): Nama set dengan kuantiti
+     - Padam sebutan "COD" pada label jumlah
+   - **app/page.tsx:** Tambah validasi alamat dan kuantiti:
+     - Mesej amaran merah: "Sila isi alamat lengkap dahulu"
+     - Mesej amaran kuning: "Sila pilih sekurang-kurangnya satu set produk"
+     - Butang "Hantar Pesanan" dinyahtaktif jika alamat kosong atau tiada produk dipilih
+
+4. **Format Templat Mesej WhatsApp:**
+   - **app/page.tsx:** Ubah format produk dalam templat WhatsApp:
+     ```
+     1x Hokkaido Inti Jebok
+     Set Solo Sweet (3 pcs) - RM 4.50
+     ```
+   - Padam semua sebutan "COD"
+   - Kaedah terima hanya paparkan: "Penghantaran" atau "Ambil Sendiri di Kedai"
+   - Kekalkan pembungkus `encodeURIComponent()` mengikut .clinerules
+
+**Pematuhan .clinerules:**
+- ✅ **Zero‑Mock:** Tiada penghapusan fungsi asas, hanya ubah UI dan teks
+- ✅ **UI Contrast:** Kelas kontras tinggi dikekalkan pada semua input dan komponen
+- ✅ **Strict URL Encoding:** WhatsApp message tetap dibungkus dengan `encodeURIComponent()`
+- ✅ **Build Gate:** `npm run build` Exit Code 0 (tiada ralat TypeScript)
+- ✅ **Git Procedure:** Perubahan akan di-push dengan message deskriptif
+
+**Hasil Selepas Pembaikan:**
+- Header dengan slogan 2 baris yang lebih jelas
+- Interface kaedah terima yang lebih bersih tanpa teks kecil yang mengganggu
+- Ruang alamat yang lebih logikal (muncul tepat di bawah pilihan "Penghantaran")
+- Validasi alamat yang lebih baik dengan feedback visual
+- Templat WhatsApp yang lebih profesional tanpa sebutan "COD"
+
+**Nota Teknikal:**
+- Restruktur komponen untuk memisahkan CustomerForm dan Address input
+- Tambah conditional rendering untuk mesej amaran berdasarkan state
+- Pastikan backward compatibility dengan struktur data sedia ada
 - **Status**: ✅ BERHASIL (Build Exit Code 0)
 
 **Isu yang Dikenalpasti:**

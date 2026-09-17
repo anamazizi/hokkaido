@@ -216,15 +216,19 @@ export default function Home() {
       
       // Prepare variables for WhatsApp message template
       const phoneFormatted = sanitizePhone(phone)
-      const deliveryMethodText = deliveryType === 'delivery' ? 'Penghantaran COD' : 'Ambil Sendiri di Kedai'
+      const deliveryMethodText = deliveryType === 'delivery' ? 'Penghantaran' : 'Ambil Sendiri di Kedai'
       const googleMapsUrl = deliveryType === 'delivery' && selectedLat && selectedLng 
         ? `https://www.google.com/maps?q=${selectedLat},${selectedLng}`
         : storeMapsUrl
       
       // Build order items list for WhatsApp message
-      const orderItemsText = selectedItems.map(item => 
-        `${item.quantity}x ${item.name} - ${formatCurrency(item.price * item.quantity)}`
-      ).join('\n')
+      const orderItemsText = selectedItems.map(item => {
+        const product = productDetails[item.key as keyof typeof productDetails]
+        const productName = item.key === 'solo_sweet' ? 'Set Solo Sweet (3 pcs)' :
+                           item.key === 'family_box' ? 'Set Family Box (12 pcs)' :
+                           'Set Mega Craving (25 pcs)'
+        return `${item.quantity}x Hokkaido Inti Jebok\n${productName} - ${formatCurrency(item.price * item.quantity)}`
+      }).join('\n')
 
       const subtotal = totalPrice - deliveryFee
       const grandTotal = totalPrice
@@ -256,7 +260,10 @@ export default function Home() {
         <div className="mb-10">
           <h1 className="text-4xl font-bold text-gray-900 text-center mb-3">Hokkaido Inti Jebok</h1>
           <p className="text-lg text-gray-600 text-center mb-2">- Kek Muffin Inti Custard -</p>
-          <p className="text-lg text-gray-500 text-center">Gebu di luar, creamy di dalam. Inti kastard penuh melimpah!</p>
+          <p className="text-lg text-gray-500 text-center">
+            Gebu di luar, creamy di dalam.<br />
+            Inti kastard penuh melimpah!
+          </p>
         </div>
 
         {/* Main Banner Image */}
@@ -289,7 +296,7 @@ loading="lazy"
             Maklumat Pesanan
           </h2>
 
-          <CustomerForm name={name} setName={setName} phone={phone} setPhone={setPhone} address={address} setAddress={setAddress} deliveryType={deliveryType} />
+          <CustomerForm name={name} setName={setName} phone={phone} setPhone={setPhone} deliveryType={deliveryType} />
           {typeof window !== 'undefined' && localStorage.getItem('hokkaido_customer_data') && (
             <div className="mb-4 text-right">
               <button
@@ -312,6 +319,23 @@ loading="lazy"
           <ProductSelection quantities={quantities} setQuantities={setQuantities} />
           <DeliveryMethod deliveryType={deliveryType} setDeliveryType={setDeliveryType} />
           
+          {/* Address input appears directly below Delivery option when "Penghantaran" is selected */}
+          {deliveryType === 'delivery' && (
+            <div className="mt-4 mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Alamat Penghantaran (No. Rumah / Jalan / Bangunan) *
+              </label>
+              <textarea
+                required
+                className="w-full p-3 border border-gray-300 rounded-lg text-slate-900 bg-white placeholder:text-gray-400"
+                placeholder="Sila berikan alamat lengkap untuk penghantaran"
+                rows={3}
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+              />
+            </div>
+          )}
+          
           {deliveryType === 'delivery' && (
             <MapDisplay
               storeLat={4.1948617}
@@ -333,9 +357,26 @@ loading="lazy"
             totalPrice={totalPrice}
           />
 
+          {/* Validation warnings */}
+          <div className="space-y-2 mb-4">
+            {deliveryType === 'delivery' && (!address.trim()) && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-red-700 text-sm font-medium">Sila isi alamat lengkap dahulu</p>
+              </div>
+            )}
+            
+            {Object.values(quantities).reduce((sum, qty) => sum + qty, 0) === 0 && (
+              <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p className="text-yellow-700 text-sm font-medium">Sila pilih sekurang-kurangnya satu set produk</p>
+              </div>
+            )}
+          </div>
+
           <button
             type="submit"
-            disabled={isSubmitting || (deliveryType === 'delivery' && (!selectedLat || !selectedLng || !address.trim()))}
+            disabled={isSubmitting || 
+                     (deliveryType === 'delivery' && (!selectedLat || !selectedLng || !address.trim())) ||
+                     Object.values(quantities).reduce((sum, qty) => sum + qty, 0) === 0}
             className="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 disabled:bg-gray-400 text-white font-bold rounded-lg transition shadow-md"
           >
             {isSubmitting ? 'Menghantar...' : 'Hantar Pesanan'}

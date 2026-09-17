@@ -54,14 +54,14 @@ export default function OrderSummary({
                 {/* Baris 1: Brand + Unit Price */}
                 <div className="flex justify-between items-center text-xs">
                   <span className="text-slate-500">{product.brandName}</span>
-                  <span className="text-slate-500 whitespace-nowrap flex-shrink-0">
+                  <span className="text-[11px] text-slate-400 whitespace-nowrap flex-shrink-0">
                     {quantities[product.key]} × RM {product.price.toFixed(2)}
                   </span>
                 </div>
                 {/* Baris 2: Product Name + Total Item Price */}
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-slate-700 truncate">{product.productName}:</span>
-                  <span className="whitespace-nowrap flex-shrink-0 font-medium text-slate-900 ml-2">
+                  <span className="text-slate-700 font-medium truncate">{product.productName}:</span>
+                  <span className="whitespace-nowrap flex-shrink-0 font-bold text-slate-900 ml-2">
                     {formatCurrency(product.price * quantities[product.key])}
                   </span>
                 </div>

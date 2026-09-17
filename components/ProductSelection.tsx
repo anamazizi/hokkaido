@@ -13,7 +13,7 @@ const productOptions = [
     key: 'solo_sweet' as ProductKey, 
     title: 'Hokkaido Inti Jebok',
     name: 'Set Solo Sweet (3 biji)', 
-    price: 4.5 
+    price: 5.0 
   },
   { 
     key: 'family_box' as ProductKey, 

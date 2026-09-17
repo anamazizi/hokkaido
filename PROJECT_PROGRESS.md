@@ -1,6 +1,63 @@
 # PROJECT PROGRESS LOG
 ## 17 September 2026 (21:45 UTC+8)
 ### Pembaikan Isu Kemas Kini Sejarah Tindakan Real-time di Kad Pesanan
+## 17 September 2026 (22:30 UTC+8)
+### Pelarasan Paparan dan Penetapan Harga Storefront
+- **Status**: ✅ BERHASIL (Build Exit Code 0)
+
+**Perubahan Dilaksanakan:**
+
+1. **Alamat Premis di Bawah Butang 'Ambil Sendiri' (DeliveryMethod.tsx):**
+   - Tambah paparan alamat fizikal kedai apabila kaedah "Ambil Sendiri di Kedai" dipilih:
+     ```typescript
+     {deliveryType === 'pickup' && (
+       <div className="text-xs text-slate-700 mt-2">
+         📍 Kiosk No 1, Stadium Majlis Perbandaran Manjung, 32040 Seri Manjung, Perak.
+       </div>
+     )}
+     ```
+   - Alamat hanya dipaparkan apabila butang aktif/dipilih
+   - Menggunakan kelas kontras tinggi `text-slate-700` untuk keterlihatan optimum
+
+2. **Pelarasan Harga Set Solo Sweet kepada RM 5.00:**
+   - **lib/utils.ts:** Ubah harga `solo_sweet` dari 4.5 kepada 5.0, untung dari 1.5 kepada 2.0
+   - **components/ProductSelection.tsx:** Kemas kini harga paparan dari RM 4.50 kepada RM 5.00
+   - **components/OrderSummary.tsx:** Kemas kini harga dari 4.5 kepada 5.0
+   - **app/page.tsx:** Pengiraan subtotal otomatik akan menggunakan harga baharu (5.0 × kuantiti)
+
+3. **Susunan Format Teks Kad Ringkasan Pesanan (OrderSummary.tsx):**
+   - Ubah struktur dua baris yang lebih seimbang:
+     - **Baris 1 (atas):** 
+       - Kiri: "Hokkaido Inti Jebok" (`text-xs text-slate-500`)
+       - Kanan: "{kuantiti} × RM {harga_seunit}" (contoh: "1 × RM disconnect_param")
+     - **Baris 2 (bawah):**
+       - Kiri: Nama Set dengan kuantiti pcs (contoh: "Set Solo Sweet (3 pcs):")
+       - Kanan: Jumlah harga item (`formatCurrency(product.price * quantities[product.key])`)
+   - Menggunakan `flex justify-between items-center` untuk penyusunan rapi
+   - Tambah `mb-3` untuk ruang antara item yang mencukupi
+
+**Pengiraan Subtotal Baharu:**
+- Formula: `Subtotal = (solo × 5.00) + (family × 18.00) + (mega × 30.00)`
+- Sistem akan mengira secara automatik berdasarkan kuantiti yang dipilih
+- Semua paparan harga di UI konsisten dengan nilai terbaharu
+
+**Pematuhan .clinerules:**
+- ✅ **Zero‑Mock:** Tiada penghapusan fungsi perniagaan, hanya kemas kini nilai dan UI
+- ✅ **UI Contrast:** Kelas kontras tinggi dikekalkan (`text-slate-700`, `text-slate-500`)
+- ✅ **Build Gate:** `npm run build` Exit Code 0 (tiada ralat TypeScript)
+- ✅ **Strict Data Integrity:** Pengiraan harga konsisten di semua komponen
+- ✅ **Git Procedure:** Perubahan akan di-push dengan message deskriptif
+
+**Hasil Selepas Pembaikan:**
+- Paparan alamat kedai yang informatif ketika pelanggan pilih "Ambil Sendiri"
+- Harga terkini Set Solo Sweet (RM 5.00) yang konsisten di seluruh sistem
+- Layout ringkasan pesanan yang lebih kemas dan mudah dibaca
+- Semua perubahan berfungsi tanpa mengganggu logik perniagaan sedia ada
+
+**Nota Teknikal:**
+- Profit margin Set Solo Sweet dinaikkan dari RM 1.50 kepada RM 2.00
+- Pengiraan automatik di backend akan menggunakan harga terbaharu
+- Struktur data Supabase kekal serasi tanpa perlu migrasi
 ## 17 September 2026 (22:15 UTC+8)
 ### Penambahbaikan UI Storefront & Templat WhatsApp
 - **Status**: ✅ BERHASIL (Build Exit Code 0)

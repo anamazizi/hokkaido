@@ -47,9 +47,9 @@ export function getProductDetails(productType: string) {
   const products = {
     solo_sweet: {
       name: 'Hokkaido Inti Jebok - Set Solo Sweet (3 pcs)',
-      price: 4.5,
+      price: 5.0,
       cogs: 3.0,
-      profit: 1.5,
+      profit: 2.0,
     },
     family_box: {
       name: 'Hokkaido Inti Jebok - Set Family Box (12 pcs)',

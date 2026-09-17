@@ -6,6 +6,8 @@ interface DeliveryMethodProps {
 }
 
 export default function DeliveryMethod({ deliveryType, setDeliveryType }: DeliveryMethodProps) {
+  const storeAddress = "📍 Kiosk No 1, Stadium Majlis Perbandaran Manjung, 32040 Seri Manjung, Perak."
+  
   return (
     <div className="mb-8">
       <h3 className="text-xl font-semibold mb-4 flex items-center">
@@ -18,6 +20,11 @@ export default function DeliveryMethod({ deliveryType, setDeliveryType }: Delive
           onClick={() => setDeliveryType('pickup')}
         >
           <div className="font-medium">Ambil Sendiri di Kedai</div>
+          {deliveryType === 'pickup' && (
+            <div className="text-xs text-slate-700 mt-2">
+              {storeAddress}
+            </div>
+          )}
         </div>
         <div
           className={`p-4 border rounded-lg cursor-pointer ${deliveryType === 'delivery' ? 'border-green-500 bg-green-50' : 'border-gray-300'}`}

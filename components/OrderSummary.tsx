@@ -15,7 +15,7 @@ const productOptions = [
     key: 'solo_sweet' as ProductKey, 
     brandName: 'Hokkaido Inti Jebok',
     productName: 'Set Solo Sweet (3 pcs)',
-    price: 4.5 
+    price: 5.0 
   },
   { 
     key: 'family_box' as ProductKey, 
@@ -50,13 +50,16 @@ export default function OrderSummary({
         ) : (
           <>
             {selectedItems.map((product) => (
-              <div key={product.key}>
-                <div className="flex justify-between">
-                  <div>
-                    <div className="text-sm text-slate-600">{product.brandName}</div>
-                    <div className="text-slate-700">{product.productName}:</div>
-                  </div>
-                  <span className="font-medium text-slate-900">{quantities[product.key]} × {formatCurrency(product.price)}</span>
+              <div key={product.key} className="mb-3">
+                {/* Baris 1: Brand + Unit Price */}
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-slate-500">{product.brandName}</span>
+                  <span className="text-xs text-slate-500">{quantities[product.key]} × RM {product.price.toFixed(2)}</span>
+                </div>
+                {/* Baris 2: Product Name + Total Item Price */}
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-700">{product.productName}:</span>
+                  <span className="font-medium text-slate-900">{formatCurrency(product.price * quantities[product.key])}</span>
                 </div>
               </div>
             ))}

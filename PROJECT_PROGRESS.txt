@@ -1,6 +1,44 @@
 PROJECT PROGRESS LOG
 =====================
 Date: 17 September 2026
+TASK: Pelarasan Paparan dan Penetapan Harga Storefront
+DATE: 17 September 2026
+TIME: 22:30 UTC+8
+STATUS: ✅ BERHASIL
+
+PERUBAHAN DILAKSANAKAN:
+
+1. ALAMAT PREMIS DI BAWAH 'AMBIL SENDIRI' (DeliveryMethod.tsx):
+   - Tambah paparan alamat kedai apabila pilihan aktif:
+     "📍 Kiosk No 1, Stadium Majlis Perbandaran Manjung, 32040 Seri Manjung, Perak."
+   - Kelas: `text-xs text-slate-700 mt-2`
+   - Hanya muncul apabila `deliveryType === 'pickup'`
+
+2. PELARASAN HARGA SET SOLO SWEET KE RM 5.00:
+   - lib/utils.ts: Harga 4.5 → 5.0, Untung 1.5 → 2.0
+   - ProductSelection.tsx: Paparan RM 4.50 → RM 5.00
+   - OrderSummary.tsx: Harga 4.5 → 5.0
+   - Subtotal formula: (solo×5.00) + (family×18.00) + (mega×30.00)
+
+3. SUSUNAN FORMAT TEKS KAD RINGKASAN (OrderSummary.tsx):
+   - Baris 1: "Hokkaido Inti Jebok" (kiri) + "{qty} × RM {harga}" (kanan)
+   - Baris 2: Nama Set (kiri) + Jumlah harga item (kanan)
+   - Menggunakan `flex justify-between items-center` untuk penyusunan rapi
+   - Kelas teks: `text-xs text-slate-500` untuk baris 1, `text-slate-700` untuk baris 2
+
+BUILD GATE: npm run build Exit Code 0 (tiada ralat TypeScript)
+
+CLINERULES COMPLIANCE:
+- Zero‑Mock: Tiada penghapusan fungsi, hanya kemas kini nilai/UI
+- UI Contrast: Kelas kontras tinggi dikekalkan
+- Strict Data Integrity: Harga konsisten di semua komponen
+- Build Gate: Build Exit Code 0
+
+RESULTS:
+✅ Alamat kedai dipaparkan ketika pilih "Ambil Sendiri"
+✅ Harga Set Solo Sweet dikemas kini ke RM 5.00 secara konsisten
+✅ Layout ringkasan pesanan lebih kemas dan mudah dibaca
+✅ Semua perubahan berfungsi tanpa gangguan logik sedia ada
 TASK: Penambahbaikan UI Storefront & Templat WhatsApp
 DATE: 17 September 2026
 TIME: 22:15 UTC+8

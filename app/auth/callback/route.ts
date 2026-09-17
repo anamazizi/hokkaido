@@ -36,7 +36,10 @@ export async function GET(request: Request) {
     
     if (exchangeError) {
       console.error('Error exchanging code for session:', exchangeError)
-      return NextResponse.redirect(new URL('/urus/login', requestUrl.origin))
+      const errorMessage = exchangeError.message || 'Failed to exchange authorization code'
+      return NextResponse.redirect(
+        new URL(`/urus/login?error=${encodeURIComponent(errorMessage)}`, requestUrl.origin)
+      )
     }
 
     // Check user role after session is established

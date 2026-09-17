@@ -12,33 +12,30 @@ export default function LoginPage() {
   const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [checkingSession, setCheckingSession] = useState(true)
 
-  // Auto-clear stale sessions on page load - sign out any lingering tokens immediately
+  // Check for existing session on page load - DO NOT auto-signout to preserve OAuth redirect state
   useEffect(() => {
-    const clearStaleSessions = async () => {
+    const checkExistingSession = async () => {
       try {
-        console.log('Login page: Auto-clearing any stale sessions...')
+        console.log('Login page: Checking for existing session...')
         
-        // 1. Force sign out to clear any residual cookies/localStorage tokens
-        await supabase.auth.signOut()
-        
-        // 2. After sign out, check if any session still remains (e.g., valid admin session)
+        // Check current session without forcing sign out
         const { data: { session } } = await supabase.auth.getSession()
         
         if (session?.user) {
-          // Store current user info for display (likely a valid admin session that survived signOut)
+          // Store current user info for display
           setCurrentUser(session.user)
           console.log('Login page: Active session detected for:', session.user.email)
         } else {
-          console.log('Login page: No active session, signed out completely')
+          console.log('Login page: No active session found')
         }
       } catch (error) {
-        console.error('Error clearing stale sessions:', error)
+        console.error('Error checking session:', error)
       } finally {
         setCheckingSession(false)
       }
     }
 
-    clearStaleSessions()
+    checkExistingSession()
   }, [])
 
   const handleGoogleLogin = async () => {
@@ -51,9 +48,10 @@ export default function LoginPage() {
         provider: 'google',
         options: {
           redirectTo: `${currentOrigin}/auth/callback?next=/urus`,
+          scopes: 'openid email profile',
           queryParams: {
-            // Force Google to show account selection dialog
-            prompt: 'select_account',
+            // Force Google to show account selection dialog AND consent screen
+            prompt: 'select_account consent',
             // Request offline access for refresh tokens
             access_type: 'offline',
           },

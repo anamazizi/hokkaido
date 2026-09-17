@@ -1,4 +1,31 @@
 # PROJECT PROGRESS LOG
+## 17 September 2026 (16:45 UTC+8)
+### Google Consent Prompt & OAuth Callback Streamlining
+- **Status**: ✅ BERHASIL (Build Exit Code 0)
+
+- **Perubahan Dilakukan**:
+  1. **Wajibkan Skrin Google Consent & Skop Penuh di app/urus/login/page.tsx**:
+     - Padam auto-signout di dalam useEffect awal untuk mengelakkan proses redirect terbatal.
+     - Konfigurasi signInWithOAuth dengan skop eksplisit: `scopes: 'openid email profile'`.
+     - Parameter `prompt: 'select_account consent'` untuk memaksa Google memaparkan skrin pengesahan "Continue" selepas akaun dipilih.
+  2. **Pengendalian Callback yang Stabil di app/auth/callback/route.ts**:
+     - Pastikan `exchangeCodeForSession(code)` dijalankan dengan error handling yang lebih baik.
+     - Jika terdapat error, redirect ke `/urus/login?error=${encodeURIComponent(error.message)}`.
+     - RBAC check tetap berfungsi: Admin/Staff → `/urus`, User biasa → `/`.
+  3. **Pengesahan Binaan & Tolak Kod**:
+     - Jalankan `npm run build` dan pastikan Exit Code 0.
+     - Commit dan push ke GitHub dengan mesej: "fix: enforce google consent prompt and streamline oauth callback".
+- **Pematuhan .clinerules**:
+  - ✅ Zero-Mock: Tiada penghapusan logik perniagaan, semua fungsi kekal utuh.
+  - ✅ Strict Routes: Laluan `/urus` dilindungi dengan middleware RBAC.
+  - ✅ Build Gate: `npm run build` Exit Code 0 (tiada ralat TypeScript).
+  - ✅ Database As Source of Truth: Gunakan jadual `user_profiles` untuk validasi peranan.
+  - ✅ Server-Side Validation: OAuth callback melakukan validasi RBAC di server-side.
+- **Langkah Seterusnya**:
+  - Uji log masuk Google untuk memastikan skrin consent "You're signing back in to... Continue" dipaparkan.
+  - Pastikan redirect ke `/urus` berjaya selepas pengesahan consent.
+
+
 ## 17 September 2026 (16:30 UTC+8)
 ### OAuth Callback Exchange & Middleware False-Negative Redirect Fix
 - **Status**: ✅ BERHASIL (Build Exit Code 0)

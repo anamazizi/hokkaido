@@ -1,4 +1,58 @@
 # PROJECT PROGRESS LOG
+## 18 September 2026 (06:14 UTC+8)
+### Pelarasan Saiz Teks dan Penjajaran Harga OrderSummary
+- **Status**: ✅ BERHASIL (Build Exit Code 0)
+
+**Perubahan Dilaksanakan:**
+
+1. **Kecilkan Teks Harga Seunit di Baris Pertama (components/OrderSummary.tsx):**
+   - Tukar kelas harga seunit dari `text-slate-500 whitespace-nowrap flex-shrink-0` kepada `text-[11px] text-slate-400 whitespace-nowrap flex-shrink-0`.
+   - Contoh: `<span className="text-[11px] text-slate-400 whitespace-nowrap flex-shrink-0">{quantities[product.key]} × RM {product.price.toFixed(2)}</span>`
+   - Kesan: Teks harga seunit lebih halus dan pudar, kurang menonjol daripada label brand.
+
+2. **Buang Baki Teks PCS & Kurungan (Jika Masih Ada):**
+   - Semak paparan teks nama produk di baris kedua.
+   - Pastikan tiada sebutan biji seperti "(3 pcs)", "(12 pcs)", "(25 pcs)" kekal dalam nama produk.
+   - Paparkan nama bersih sahaja: "Set Solo Sweet:", "Set Family Box:", "Set Mega Craving:".
+   - (Nota: Dalam kod semasa, productOptions sudah menggunakan nama bersih tanpa kurungan, jadi tiada perubahan diperlukan.)
+
+3. **Kunci Lajur Harga Kanan Supaya Tidak Wrap ke Bawah:**
+   - Pada baris kedua, berikan fleksibiliti maksimum kepada teks label kiri dan kunci lajur harga kanan:
+     ```typescript
+     <div className="flex justify-between items-center text-sm">
+       <span className="text-slate-700 font-medium truncate">{product.productName}:</span>
+       <span className="whitespace-nowrap flex-shrink-0 font-bold text-slate-900 ml-2">
+         {formatCurrency(product.price * quantities[product.key])}
+       </span>
+     </div>
+     ```
+   - Tambah `font-medium` pada label kiri dan `font-bold` pada harga kanan.
+   - Pastikan "RM 30.00", "RM 18.00", atau "RM 5.00" tidak terputus menjadi dua baris pada skrin telefon mudah alih.
+
+**Kesan Visual:**
+- Harga seunit lebih halus dan tidak bersaing dengan perhatian pengguna.
+- Nama produk kekal bersih tanpa maklumat berlebihan.
+- Harga item total sentiasa kelihatan sebaris tanpa wrapping, walaupun pada paparan mobile sempit.
+- Penekanan visual yang lebih kuat pada jumlah harga item dengan `font-bold`.
+
+**Pematuhan .clinerules:**
+- ✅ **Zero‑Mock:** Tiada penghapusan fungsi perniagaan, hanya kemas kini styling dan kelas.
+- ✅ **UI Contrast:** Kelas kontras tinggi dikekalkan (`text-slate-700`, `text-slate-400`, `text-slate-900`).
+- ✅ **Build Gate:** `npm run build` Exit Code 0 (tiada ralat TypeScript).
+- ✅ **Git Procedure:** Perubahan telah di‑push dengan mesej deskriptif.
+
+**Hasil Selepas Pembaikan:**
+- Paparan ringkasan pesanan lebih profesional dengan hierarki visual yang lebih jelas.
+- Harga seunit tidak lagi mencuri perhatian dari jumlah harga item.
+- Layout lebih stabil pada pelbagai saiz skrin.
+- Pengalaman pengguna lebih baik terutama pada peranti mobile.
+
+**Nota Teknikal:**
+- Perubahan hanya pada komponen OrderSummary tanpa kesan pada logik perniagaan.
+- `text-[11px]` menggunakan arbitrary Tailwind size untuk saiz yang lebih kecil daripada `text-xs`.
+- `font-bold` meningkatkan penekanan pada jumlah harga item.
+- `ml-2` mengekalkan ruang konsisten antara label dan harga.
+
 ## 17 September 2026 (21:45 UTC+8)
 ### Pembaikan Isu Kemas Kini Sejarah Tindakan Real-time di Kad Pesanan
 ## 17 September 2026 (22:45 UTC+8)

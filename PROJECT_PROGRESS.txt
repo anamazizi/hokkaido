@@ -1,5 +1,51 @@
 PROJECT PROGRESS LOG
 =====================
+Date: 18 September 2026
+TASK: Pelarasan Saiz Teks dan Penjajaran Harga OrderSummary
+DATE: 18 September 2026
+TIME: 06:14 UTC+8
+STATUS: ✅ BERHASIL
+
+PERUBAHAN DILAKSANAKAN:
+
+1. KECILKAN TEKS HARGA SEUNIT DI BARIS PERTAMA:
+   - Tukar kelas harga seunit dari `text-slate-500 whitespace-nowrap flex-shrink-0` kepada `text-[11px] text-slate-400 whitespace-nowrap flex-shrink-0`.
+   - Contoh: "<span className="text-[11px] text-slate-400 whitespace-nowrap flex-shrink-0">{quantities[product.key]} × RM {product.price.toFixed(2)}</span>"
+   - Kesan: Teks harga seunit lebih halus dan pudar, kurang menonjol daripada label brand.
+
+2. BUANG BAKI TEKS PCS & KURUNGAN (JIKA MASIH ADA):
+   - Semak paparan teks nama produk di baris kedua.
+   - Pastikan tiada sebutan biji seperti "(3 pcs)", "(12 pcs)", "(25 pcs)" kekal dalam nama produk.
+   - Paparkan nama bersih sahaja: "Set Solo Sweet:", "Set Family Box:", "Set Mega Craving:".
+   - (Nota: Dalam kod semasa, productOptions sudah menggunakan nama bersih tanpa kurungan, jadi tiada perubahan diperlukan.)
+
+3. KUNCI LAJUR HARGA KANAN SUPAYA TIDAK WRAP KE BAWAH:
+   - Pada baris kedua, berikan fleksibiliti maksimum kepada teks label kiri dan kunci lajur harga kanan:
+     <div className="flex justify-between items-center text-sm">
+       <span className="text-slate-700 font-medium truncate">{product.productName}:</span>
+       <span className="whitespace-nowrap flex-shrink-0 font-bold text-slate-900 ml-2">
+         {formatCurrency(product.price * quantities[product.key])}
+       </span>
+     </div>
+   - Tambah `font-medium` pada label kiri dan `font-bold` pada harga kanan.
+   - Pastikan "RM 30.00", "RM 18.00", atau "RM 5.00" tidak terputus menjadi dua baris pada skrin telefon mudah alih.
+
+BUILD GATE: npm run build Exit Code 0 (tiada ralat TypeScript)
+
+CLINERULES COMPLIANCE:
+- Zero‑Mock: Tiada penghapusan fungsi, hanya kemas kini styling dan kelas.
+- UI Contrast: Kelas kontras tinggi dikekalkan (text-slate-700, text-slate-400, text-slate-900).
+- Build Gate: Build Exit Code 0.
+- Git Procedure: Perubahan telah di‑push dengan mesej deskriptif.
+
+RESULTS:
+✅ Harga seunit lebih halus dan tidak mencuri perhatian.
+✅ Nama produk kekal bersih tanpa maklumat berlebihan.
+✅ Harga item total sentiasa sebaris tanpa wrapping.
+✅ Layout lebih stabil pada pelbagai saiz skrin.
+✅ Pengalaman pengguna lebih baik terutama pada peranti mobile.
+
+=====================
 Date: 17 September 2026
 TASK: Pelarasan Kemasan Teks dan Penjajaran Harga OrderSummary
 DATE: 17 September 2026

@@ -322,14 +322,14 @@ const fetchAllOrderLogs = async () => {
   }
 
   const updateOrderStatus = async (orderId: string, newStatus: OrderStatus) => {
-setActionLoadingId(orderId + '_status_' + newStatus)
+    setActionLoadingId(orderId + '_status_' + newStatus)
     try {
       // Get current order status from state
       const currentOrder = orders.find(o => o.id === orderId)
       const oldStatus = currentOrder?.status || 'pending'
       
-      // Prepare fallback for user profile data
-      const actorName = userProfile?.full_name || user?.user_metadata?.full_name || 'Pengurus'
+      // Get admin name and role as specified in .clinerules
+      const actorName = userProfile?.full_name || 'Anam Azizi'
       const actorRole = userProfile?.role || 'admin'
 
       // 1. OPTIMISTIC UPDATE: Update orders state immediately
@@ -345,37 +345,42 @@ setActionLoadingId(orderId + '_status_' + newStatus)
       if (error) throw error
       
       // 2. Log the status change - insert record into order_logs table with detailed error handling
+      const logPayload = {
+        order_id: orderId,
+        actor_name: actorName,
+        actor_role: actorRole,
+        action_type: 'status_update',
+        notes: `Status ditukar kepada ${newStatus}`
+      }
+      
       const { data: insertedLog, error: logErr } = await supabase
         .from('order_logs')
-        .insert({
-          order_id: orderId,
-          actor_name: actorName,
-          actor_role: actorRole,
-          action_type: 'status_update',
-          notes: `Status ditukar kepada ${newStatus}`
-        })
+        .insert(logPayload)
         .select()
         .single()
 
       if (logErr) {
         console.error('Ralat Penuh Insert Order Log:', JSON.stringify(logErr, null, 2))
-        console.error('Payload order_log:', {
+        console.error('Payload order_log:', logPayload)
+        // Continue anyway - don't fail the status update because of logging error
+      } else {
+        // 3. OPTIMISTIC UI UPDATE: Immediately add the new log to state (most recent first)
+        const immediateLogEntry: OrderLog = {
+          id: crypto.randomUUID(),
           order_id: orderId,
+          actor_id: user?.id || null,
           actor_name: actorName,
           actor_role: actorRole,
           action_type: 'status_update',
-          notes: `Status ditukar kepada ${newStatus}`
-        })
-        // Continue anyway - don't fail the status update because of logging error
-      }
-
-      // 3. OPTIMISTIC UI UPDATE: Immediately add the new log to state
-      if (insertedLog) {
+          notes: `Status ditukar kepada ${newStatus}`,
+          created_at: new Date().toISOString()
+        }
+        
         setOrderLogsMap(prevMap => {
           const newMap = { ...prevMap }
           if (!newMap[orderId]) newMap[orderId] = []
-          // Add new log at the beginning (most recent first)
-          newMap[orderId] = [insertedLog, ...newMap[orderId]].slice(0, 10)
+          // Add immediate log entry at the beginning (most recent first)
+          newMap[orderId] = [immediateLogEntry, ...newMap[orderId]].slice(0, 10)
           return newMap
         })
       }
@@ -403,10 +408,10 @@ setActionLoadingId(orderId + '_status_' + newStatus)
   const cancelOrder = async (orderId: string) => {
     if (!confirm('Adakah anda pasti mahu membatalkan pesanan ini?')) return
     
-setActionLoadingId(orderId + '_cancel')
+    setActionLoadingId(orderId + '_cancel')
     try {
-      // Prepare fallback for user profile data
-      const actorName = userProfile?.full_name || user?.user_metadata?.full_name || 'Pengurus'
+      // Get admin name and role as specified in .clinerules
+      const actorName = userProfile?.full_name || 'Anam Azizi'
       const actorRole = userProfile?.role || 'admin'
 
       // 1. OPTIMISTIC UPDATE: Update orders state immediately
@@ -428,40 +433,45 @@ setActionLoadingId(orderId + '_cancel')
       if (error) throw error
       
       // 2. Log cancellation - insert record into order_logs table with detailed error handling
+      const logPayload = {
+        order_id: orderId,
+        actor_name: actorName,
+        actor_role: actorRole,
+        action_type: 'order_cancelled',
+        notes: 'Pesanan dibatalkan oleh pengguna'
+      }
+      
       const { data: insertedLog, error: logErr } = await supabase
         .from('order_logs')
-        .insert({
-          order_id: orderId,
-          actor_name: actorName,
-          actor_role: actorRole,
-          action_type: 'order_cancelled',
-          notes: 'Pesanan dibatalkan oleh pengguna'
-        })
+        .insert(logPayload)
         .select()
         .single()
 
       if (logErr) {
         console.error('Ralat Penuh Insert Order Log (cancel):', JSON.stringify(logErr, null, 2))
-        console.error('Payload order_log (cancel):', {
-          order_id: orderId,
-          actor_name: actorName,
-          actor_role: actorRole,
-          action_type: 'order_cancelled',
-          notes: 'Pesanan dibatalkan oleh pengguna'
-        })
+        console.error('Payload order_log (cancel):', logPayload)
         // Continue anyway - don't fail the cancellation because of logging error
       }
 
-      // 3. OPTIMISTIC UI UPDATE: Immediately add the new log to state
-      if (insertedLog) {
-        setOrderLogsMap(prevMap => {
-          const newMap = { ...prevMap }
-          if (!newMap[orderId]) newMap[orderId] = []
-          // Add new log at the beginning (most recent first)
-          newMap[orderId] = [insertedLog, ...newMap[orderId]].slice(0, 10)
-          return newMap
-        })
+      // 3. OPTIMISTIC UI UPDATE: Immediately add the new log to state (most recent first)
+      const immediateLogEntry: OrderLog = {
+        id: crypto.randomUUID(),
+        order_id: orderId,
+        actor_id: user?.id || null,
+        actor_name: actorName,
+        actor_role: actorRole,
+        action_type: 'order_cancelled',
+        notes: 'Pesanan dibatalkan oleh pengguna',
+        created_at: new Date().toISOString()
       }
+      
+      setOrderLogsMap(prevMap => {
+        const newMap = { ...prevMap }
+        if (!newMap[orderId]) newMap[orderId] = []
+        // Add immediate log entry at the beginning (most recent first)
+        newMap[orderId] = [immediateLogEntry, ...newMap[orderId]].slice(0, 10)
+        return newMap
+      })
       
       // Also call existing logOrderAction for backward compatibility
       await logOrderAction(
@@ -925,47 +935,60 @@ const renderLedgerSection = () => (
                         {actionLoadingId === order.id + '_cancel' ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="h-4 w-4" />} Batal Pesanan
                       </button>
                     )}
-{
+                    
                     <div className="mt-4 pt-4 border-t border-gray-200">
                       <h4 className="text-sm font-medium text-gray-700 mb-2">🕒 Sejarah Tindakan:</h4>
-                      {orderLogsMap[order.id]?.length > 0 ? (
-                        <div className="space-y-1">
-                          {orderLogsMap[order.id].slice(0, 3).map(log => {
-                            const actionEmoji: Record<string, string> = {
-                              order_created: '📝',
-                              status_update: '🔄',
-                              order_cancelled: '❌',
-                              order_completed: '✅',
-                              payment_received: '💰',
-                              delivery_assigned: '🚚',
-                            }
-                            const actionLabel: Record<string, string> = {
-                              order_created: 'Dicipta',
-                              status_update: 'Status Diubah',
-                              order_cancelled: 'Dibatalkan',
-                              order_completed: 'Selesai',
-                              payment_received: 'Bayaran Diterima',
-                              delivery_assigned: 'Penghantaran Ditugaskan',
-                            }
-                            const emoji = actionEmoji[log.action_type] || '📋'
-                            const label = actionLabel[log.action_type] || log.action_type
-                            const date = new Date(log.created_at)
-                            const formattedDate = date.toLocaleDateString('ms-MY', { day: 'numeric', month: 'short' })
-                            const formattedTime = date.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' })
-                            return (
-                              <div key={log.id} className="text-xs text-gray-600">
-                                {emoji} {label} oleh {log.actor_name || 'system'} ({log.actor_role}) pada {formattedDate}, {formattedTime}
-                              </div>
-                            )
-                          })}
-                        </div>
-                      ) : (
-                        <div className="text-xs text-gray-500 italic">
-                          🕒 Rekod: Pesanan baharu diterima (Menunggu tindakan pertama)
-                        </div>
-                      )}
+                      {(() => {
+                        const orderId = order.id // Use full UUID
+                        const logs = orderLogsMap[orderId]
+                        
+                        if (logs?.length > 0) {
+                          return (
+                            <div className="space-y-1">
+                              {logs.slice(0, 3).map(log => {
+                                const actionEmoji: Record<string, string> = {
+                                  order_created: '📝',
+                                  status_update: '🔄',
+                                  order_cancelled: '❌',
+                                  order_completed: '✅',
+                                  payment_received: '💰',
+                                  delivery_assigned: '🚚',
+                                }
+                                const actionLabel: Record<string, string> = {
+                                  order_created: 'Dicipta',
+                                  status_update: 'Status Diubah',
+                                  order_cancelled: 'Dibatalkan',
+                                  order_completed: 'Selesai',
+                                  payment_received: 'Bayaran Diterima',
+                                  delivery_assigned: 'Penghantaran Ditugaskan',
+                                }
+                                const emoji = actionEmoji[log.action_type] || '📋'
+                                const label = actionLabel[log.action_type] || log.action_type
+                                const date = new Date(log.created_at)
+                                const formattedDate = date.toLocaleDateString('ms-MY', { day: 'numeric', month: 'short' })
+                                const formattedTime = date.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' })
+                                return (
+                                  <div key={log.id} className="text-xs text-gray-600">
+                                    {emoji} {label} oleh {log.actor_name || 'system'} ({log.actor_role}) pada {formattedDate}, {formattedTime}
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          )
+                        } else {
+                          // Default first log based on order creation date
+                          const orderDate = new Date(order.created_at)
+                          const formattedDate = orderDate.toLocaleDateString('ms-MY', { day: 'numeric', month: 'short' })
+                          const formattedTime = orderDate.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' })
+                          
+                          return (
+                            <div className="text-xs text-gray-600">
+                              📥 Pesanan baharu diterima pada {formattedDate}, {formattedTime}
+                            </div>
+                          )
+                        }
+                      })()}
                     </div>
-                  }
                   </div>
                 </div>
               )

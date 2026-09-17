@@ -258,12 +258,19 @@ export default function Home() {
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Header with clean images */}
         <div className="mb-10">
-          <h1 className="text-4xl font-bold text-gray-900 text-center mb-3">Hokkaido Inti Jebok</h1>
+          <h1 className="font-serif tracking-wide font-bold text-amber-950 text-3xl md:text-4xl text-center drop-shadow-sm">Hokkaido Inti Jebok</h1>
           <p className="text-lg text-gray-600 text-center mb-2">- Kek Muffin Inti Custard -</p>
-          <p className="text-lg text-gray-500 text-center">
-            Gebu di luar, creamy di dalam.<br />
-            Inti kastard penuh melimpah!
-          </p>
+          <div className="mt-3 text-center space-y-1 font-serif">
+            <p className="text-base md:text-lg font-semibold text-amber-900">
+              Nampak sedap, kan? 😋<br />
+              Itu baru tengok… belum rasa!
+            </p>
+            <p className="text-sm md:text-base italic text-slate-700 pt-1">
+              Dah rasa,<br />
+              Baru tahu kenapa ramai orang Suka.<br />
+              <span className="font-bold text-amber-800 not-italic">Nikmati Kelazatannya Sekarang! 🤤</span>
+            </p>
+          </div>
         </div>
 
         {/* Main Banner Image */}
@@ -381,6 +388,9 @@ loading="lazy"
           >
             {isSubmitting ? 'Menghantar...' : 'Hantar Pesanan'}
           </button>
+          <p className="text-xs md:text-sm text-slate-600 text-center mt-2 font-medium">
+            Pesanan akan dihantar melalui Whatsapp, kita teruskan proses di sana
+          </p>
         </form>
 
       {orderId && (

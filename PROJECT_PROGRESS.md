@@ -1,4 +1,70 @@
 # PROJECT PROGRESS LOG
+## 18 September 2026 (06:57 UTC+8)
+### Kemas Kini Tipografi & Teks Promosi Storefront (app/page.tsx)
+- **Status**: ✅ BERHASIL (Build Exit Code 0)
+
+**Perubahan Dilaksanakan:**
+
+1. **Tipografi Tajuk Utama "Hokkaido Inti Jebok":**
+   - Ubah penggayaan tajuk utama h1 supaya nampak premium dan sesuai dengan konsep bakeri eksklusif:
+     ```typescript
+     <h1 className="font-serif tracking-wide font-bold text-amber-950 text-3xl md:text-4xl text-center drop-shadow-sm">
+       Hokkaido Inti Jebok
+     </h1>
+     ```
+   - Kekalkan teks sub‑tajuk "- Kek Muffin Inti Custard -" di bawahnya dengan styling sedia ada.
+
+2. **Gantikan Ayat Slogan kepada Teks Promosi Baru:**
+   - Struktur teks promosi yang lebih interaktif dan memujuk pembeli:
+     ```typescript
+     <div className="mt-3 text-center space-y-1 font-serif">
+       <p className="text-base md:text-lg font-semibold text-amber-900">
+         Nampak sedap, kan? 😋<br />
+         Itu baru tengok… belum rasa!
+       </p>
+       <p className="text-sm md:text-base italic text-slate-700 pt-1">
+         Dah rasa,<br />
+         Baru tahu kenapa ramai orang Suka.<br />
+         <span className="font-bold text-amber-800 not-italic">
+           Nikmati Kelazatannya Sekarang! 🤤
+         </span>
+       </p>
+     </div>
+     ```
+
+3. **Makluman di Bawah Butang "Hantar Pesanan":**
+   - Tepat di bawah butang utama, tambah teks makluman kecil:
+     ```typescript
+     <p className="text-xs md:text-sm text-slate-600 text-center mt-2 font-medium">
+       Pesanan akan dihantar melalui Whatsapp, kita teruskan proses di sana
+     </p>
+     ```
+   - Gaya teks yang jelas dan berkontras tinggi sesuai dengan .clinerules.
+
+**Kesan Visual & Pengguna:**
+- Tajuk utama lebih premium dengan font serif bakeri, warna amber gelap, dan shadow halus.
+- Teks promosi lebih interaktif dan memujuk, menggunakan emoji dan copywriting yang menarik.
+- Maklumat proses WhatsApp memberikan ketelusan dan jangkaan pengguna yang jelas.
+- Keseluruhan storefront nampak lebih profesional dan persuasive.
+
+**Pematuhan .clinerules:**
+- ✅ **Zero‑Mock:** Tiada penghapusan fungsi perniagaan, hanya kemas kini teks dan styling.
+- ✅ **UI Contrast:** Kelas kontras tinggi dikekalkan (`text-amber-950`, `text-slate-600`, `text-slate-700`, `text-slate-900`).
+- ✅ **Build Gate:** `npm run build` Exit Code 0 (tiada ralat TypeScript).
+- ✅ **Git Procedure:** Perubahan telah di‑push dengan mesej deskriptif.
+- ✅ **Strict Routes:** Semua laluan URL kekal sama.
+
+**Hasil Selepas Pembaikan:**
+- Paparan storefront lebih premium dan sesuai dengan identiti bakeri eksklusif.
+- Copywriting yang lebih persuasive dan memujuk pengguna untuk membuat pesanan.
+- Ketelasan proses WhatsApp meningkatkan keyakinan pengguna.
+- Pengalaman pengguna lebih baik dengan maklumat yang jelas dan design yang profesional.
+
+**Nota Teknikal:**
+- Perubahan hanya pada fail `app/page.tsx` tanpa kesan pada logik perniagaan atau komponen lain.
+- Penggunaan `font-serif` untuk tajuk utama memberikan kesan bakeri klasik.
+- Struktur teks promosi menggunakan emoji dan line breaks untuk keterbacaan yang lebih baik.
+- Makluman WhatsApp menggunakan kelas kontras tinggi sesuai dengan panduan .clinerules.
 ## 18 September 2026 (06:14 UTC+8)
 ### Pelarasan Saiz Teks dan Penjajaran Harga OrderSummary
 - **Status**: ✅ BERHASIL (Build Exit Code 0)

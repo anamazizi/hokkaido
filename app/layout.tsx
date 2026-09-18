@@ -5,8 +5,31 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Hokkaido Inti Jebok Order System',
-  description: 'Hyper-local COD & Pickup order management for Hokkaido Inti Jebok - Kek Muffin Inti Custard -',
+  metadataBase: new URL('https://hokkaido.manjung.my'),
+  title: "Hokkaido Inti Jebok — Gebu di Luar, Creamy di Dalam",
+  description: "Nikmati kek muffin kastard melimpah sejuk gebu. Tempah mudah untuk penghantaran COD atau ambil sendiri di Stadium Manjung!",
+  openGraph: {
+    title: "Hokkaido Inti Jebok — Gebu di Luar, Creamy di Dalam",
+    description: "Nikmati kek muffin kastard melimpah sejuk gebu. Tempah mudah untuk penghantaran COD atau ambil sendiri di Stadium Manjung!",
+    url: "https://hokkaido.manjung.my",
+    siteName: "Hokkaido Inti Jebok",
+    images: [
+      {
+        url: "/images/hokkaido-banner.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Hokkaido Inti Jebok Muffin Custard",
+      },
+    ],
+    locale: "ms_MY",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Hokkaido Inti Jebok",
+    description: "Kek muffin inti kastard gebu dan melimpah.",
+    images: ["/images/hokkaido-banner.jpg"],
+  },
 }
 
 export default function RootLayout({

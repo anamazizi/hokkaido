@@ -130,6 +130,9 @@ const [orderLogsMap, setOrderLogsMap] = useState<Record<string, OrderLog[]>>({})
       const { data, error } = await supabase.from('orders').select('*').order('created_at', { ascending: false })
       if (error) throw error
       setOrders(data || [])
+      
+      // Juga muat semua log dari order_logs untuk audit trail yang lengkap
+      await fetchAllOrderLogs()
     } catch (error) {
       console.error('Error fetching orders:', error)
     } finally {
@@ -262,8 +265,8 @@ const exportCSV = async () => {
 // See the useEffect above for the consolidated implementation
 
 const fetchAllOrderLogs = async () => {
-    if (!user) return
     try {
+      console.log('fetchAllOrderLogs: Fetching all order logs from Supabase...')
       const { data, error } = await supabase
         .from('order_logs')
         .select('*')
@@ -271,8 +274,11 @@ const fetchAllOrderLogs = async () => {
       
       if (error) {
         console.error('Gagal baca order_logs:', error)
+        console.error('Error details:', JSON.stringify(error, null, 2))
         throw error
       }
+      
+      console.log(`fetchAllOrderLogs: Successfully fetched ${data?.length || 0} logs`)
       
       // Group logs by order_id
       const map: Record<string, OrderLog[]> = {}
@@ -280,6 +286,8 @@ const fetchAllOrderLogs = async () => {
         if (!map[log.order_id]) map[log.order_id] = []
         map[log.order_id].push(log)
       })
+      
+      console.log(`fetchAllOrderLogs: Created map with ${Object.keys(map).length} order entries`)
       setOrderLogsMap(map)
     } catch (error) {
       console.error('Error fetching order logs:', error)

@@ -267,8 +267,7 @@ const fetchAllOrderLogs = async () => {
       const { data, error } = await supabase
         .from('order_logs')
         .select('*')
-        .order('created_at', { ascending: false })
-        .limit(100) // Limit to recent logs
+        .order('created_at', { ascending: true }) // Fetch in chronological order for proper sequencing
       
       if (error) {
         console.error('Gagal baca order_logs:', error)
@@ -284,8 +283,6 @@ const fetchAllOrderLogs = async () => {
       setOrderLogsMap(map)
     } catch (error) {
       console.error('Error fetching order logs:', error)
-    
-      console.error('Error fetching user profile:', error)
     }
   }
 
@@ -1041,10 +1038,32 @@ const renderLedgerSection = () => (
                         // Debug: Log what we have
                         console.log(`Sejarah Tindakan for order ${orderId}:`, logs)
                         
-                        if (logs && logs.length > 0) {
+                        // Combine initial order creation log with existing logs
+                        const allLogs = [
+                          // Initial order creation log
+                          {
+                            id: `initial-${orderId}`,
+                            order_id: orderId,
+                            action_type: 'order_created',
+                            notes: 'Pesanan baharu diterima',
+                            created_at: order.created_at,
+                            actor_name: 'System',
+                            actor_role: 'system'
+                          },
+                          ...(logs || [])
+                        ]
+                        
+                        // Ensure chronological order
+                        const sortedLogs = allLogs.sort((a, b) => {
+                          const dateA = a.created_at ? new Date(a.created_at).getTime() : 0
+                          const dateB = b.created_at ? new Date(b.created_at).getTime() : 0
+                          return dateA - dateB
+                        })
+                        
+                        if (sortedLogs.length > 0) {
                           return (
                             <div className="space-y-1">
-                              {logs.slice(0, 5).map(log => {
+                              {sortedLogs.map(log => {
                                 // Determine emoji and label based on action_type
                                 let emoji = '📋'
                                 let label = log.action_type
@@ -1088,20 +1107,9 @@ const renderLedgerSection = () => (
                                 )
                               })}
                             </div>
-                          )
-                        } else {
-                          // Default first log based on order creation date
-                          const orderDate = new Date(order.created_at)
-                          const formattedDate = orderDate.toLocaleDateString('ms-MY', { day: 'numeric', month: 'short' })
-                          const formattedTime = orderDate.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' })
-                          
-                          return (
-                            <div className="text-xs text-gray-600">
-                              📥 Pesanan baharu diterima pada {formattedDate}, {formattedTime}
-                            </div>
-                          )
-                        }
-                      })()}
+                           )
+                         }
+                        })()}
                     </div>
                   </div>
                 </div>

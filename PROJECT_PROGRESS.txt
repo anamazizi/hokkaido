@@ -1,4 +1,53 @@
 PROJECT PROGRESS LOG
+Date: 18 September 2026 (15:45 UTC+8)
+TASK: Pelarasan Templat WhatsApp & Penyeragaman Bahasa Sejarah Tindakan
+STATUS: ✅ BERHASIL
+
+PERUBAHAN DILAKSANAKAN:
+
+1. FORMAT TEKS WHATSAPP APABILA PESANAN DIBATALKAN (CANCELLED):
+   - Templat baharu dengan jarak baris yang kemas dan rujukan di bahagian bawah.
+   - Format: "Hai {customer_name}, Pesanan Hokkaido anda telah dibatalkan.\n\nSebarang pertanyaan lanjut boleh hubungi kami di sini.\n\nRujukan Order : #{order_id}"
+
+2. WHATSAPP UNTUK KAEDAH AMBIL SENDIRI DI KEDAI (READY_PICKUP):
+   - Tambah maklumat alamat premis dan pautan Google Maps kedai.
+   - Alamat: Kiosk No 1, Stadium Majlis Perbandaran Manjung, 32040 Seri Manjung, Perak.
+   - Pautan Google Maps: https://www.google.com/maps?q=4.1948617,100.6655929
+
+3. KEMAS KINI AYAT STATUS SELESAI (COMPLETED):
+   - Ubah ayat penutup status selesai:
+     * Buang ayat: "Terima kasih banyak atas sokongan!"
+     * Kekalkan emoji: 😊
+     * Tukar perkataan "Semoga" kepada "Selamat".
+   - Format teks baharu: "Terima kasih {customer_name}! Pesanan Hokkaido selesai.\n\nSelamat menikmati Hokkaido anda! 🧀\n\nBoleh kongsikan maklum balas atau feedback anda di sini ya. 😊\n\nRujukan Order : #{order_id}"
+
+4. SELARASKAN BAHASA SEJARAH TINDAKAN (BAHASA MELAYU SAHAJA):
+   - Seragamkan semua pemetaan label tindakan ke Bahasa Melayu sepenuhnya.
+   - Jangan gunakan teks Inggeris "Status changed from X to Y".
+   - Guna format rasmi tunggal:
+     * "Status ditukar kepada {status_bahasa_melayu} oleh {actor_name} ({actor_role}) pada {tarikh_masa}"
+     * "Pesanan dibatalkan oleh {actor_name} ({actor_role}) pada {tarikh_masa}"
+   - Paparan senarai sejarah bersih tanpa pengulangan teks Inggeris.
+   - Logik parsing automatik untuk menterjemah teks Inggeris jika ada.
+
+5. PENGESAHAN BINAAN & TOLAK KOD:
+   - npm run build Exit Code 0 tanpa ralat TypeScript.
+   - Git commit: "fix: refine whatsapp templates for cancel and pickup, update completed copy, and unify audit history in Malay"
+   - Git push ke origin main akan dilaksanakan oleh pengguna.
+
+PEMATUHAN .CLINERULES:
+- ✅ Zero‑Mock: Tiada placeholder atau penghapusan fungsi.
+- ✅ Database As Source of Truth: Templat WhatsApp disimpan dalam kod frontend; audit trail diambil dari pangkalan data.
+- ✅ Server‑Side Validation: Log status menggunakan label Bahasa Melayu.
+- ✅ Build Gate: npm run build Exit Code 0.
+- ✅ Strict Routes: Laluan /urus kekal terpelihara.
+
+HASIL SELEPAS PEMBETULAN:
+- ✅ Templat WhatsApp untuk pembatalan, ambil sendiri, dan selesai lebih kemas dan informatif.
+- ✅ Sejarah tindakan dipaparkan sepenuhnya dalam Bahasa Melayu.
+- ✅ Pengalaman pengguna lebih konsisten dan profesional.
+
+---
 =====================
 Date: 18 September 2026 (15:30 UTC+8)
 TASK: Pembetulan Skema order_logs dan RLS untuk Audit Trail Kekal

@@ -404,7 +404,7 @@ const fetchAllOrderLogs = async () => {
         actor_role: actorRole,
         action: 'status_update',
         action_type: 'status_update',
-        notes: `Status ditukar kepada ${newStatus}`
+        notes: `Status ditukar kepada ${STATUS_LABELS[newStatus]}`
       }
       
       console.log('updateOrderStatus: Attempting to insert order log with payload:', logPayload)
@@ -454,7 +454,7 @@ const fetchAllOrderLogs = async () => {
         actor_name: actorName,
         actor_role: actorRole,
         action_type: 'status_update',
-        notes: `Status ditukar kepada ${newStatus}`,
+        notes: `Status ditukar kepada ${STATUS_LABELS[newStatus]}`,
         created_at: new Date().toISOString()
       }
       
@@ -617,10 +617,10 @@ const fetchAllOrderLogs = async () => {
       pending: `Hai ${order.customer_name}, pesanan Hokkaido disahkan.\n\nKami akan mula sediakan sebentar lagi.\n\nRujukan Order : #${order.id}`,
       accepted: `Hai ${order.customer_name}, pesanan Hokkaido disahkan.\n\nKami akan mula sediakan sebentar lagi.\n\nRujukan Order : #${order.id}`,
       preparing: `Hai ${order.customer_name}, pesanan Hokkaido anda sedang disediakan.\n\nRujukan Order : #${order.id}`,
-      ready_pickup: `Hai ${order.customer_name}, pesanan Hokkaido sedia diambil di kedai.\n\nRujukan Order : #${order.id}`,
+      ready_pickup: `Hai ${order.customer_name}, pesanan Hokkaido sedia diambil di kedai! 🧁\n\n📍 Alamat Kedai:\nKiosk No 1, Stadium Majlis Perbandaran Manjung, 32040 Seri Manjung, Perak.\n\n🌐 Lokasi Kedai (Google Maps):\nhttps://www.google.com/maps?q=4.1948617,100.6655929\n\nRujukan Order : #${order.id}`,
       delivering: `Hai ${order.customer_name}, rider dalam perjalanan ke lokasi anda.\n\nRujukan Order : #${order.id}`,
-      completed: `Terima kasih ${order.customer_name}! Pesanan Hokkaido selesai.\n\nSemoga menikmati Hokkaido anda! 🧀\n\nBoleh kongsikan maklum balas atau feedback anda di sini ya. Terima kasih banyak atas sokongan! 😊\n\nRujukan Order : #${order.id}`,
-      cancelled: ``,
+      completed: `Terima kasih ${order.customer_name}! Pesanan Hokkaido selesai.\n\nSelamat menikmati Hokkaido anda! 🧀\n\nBoleh kongsikan maklum balas atau feedback anda di sini ya. 😊\n\nRujukan Order : #${order.id}`,
+      cancelled: `Hai ${order.customer_name}, Pesanan Hokkaido anda telah dibatalkan.\n\nSebarang pertanyaan lanjut boleh hubungi kami di sini.\n\nRujukan Order : #${order.id}`,
     }
     const template = templates[status]
     if (!template) return ''
@@ -1079,22 +1079,34 @@ const renderLedgerSection = () => (
                                 // Determine emoji and label based on action_type
                                 let emoji = '📋'
                                 let label = log.action_type
-                                
+
                                 if (log.action_type === 'status_update') {
                                   emoji = '🔄'
-                                  label = log.notes || 'Status Diubah'
-                                } else if (log.action_type === 'order_cancelled') {
+                                  // If notes contains English "Status changed from X to Y", translate to Malay
+                                  let notes = log.notes || 'Status Diubah'
+                                  if (notes.includes('Status changed from')) {
+                                    // Extract new status: pattern "Status changed from X to Y"
+                                    const match = notes.match(/Status changed from \w+ to (\w+)/)
+                                    if (match) {
+                                      const newStatus = match[1] as OrderStatus
+                                      const malayStatus = STATUS_LABELS[newStatus] || newStatus
+                                      label = `Status ditukar kepada ${malayStatus}`
+                                    } else {
+                                      label = 'Status Diubah'
+                                    }
+                                  } else {
+                                    // Use Malay notes as is
+                                    label = notes
+                                  }
+                                } else if (log.action_type === 'order_cancelled' || log.action_type === 'cancellation') {
                                   emoji = '❌'
-                                  label = 'Dibatalkan'
-                                } else if (log.action_type === 'cancellation') {
-                                  emoji = '❌'
-                                  label = 'Dibatalkan'
+                                  label = 'Pesanan dibatalkan'
                                 } else if (log.action_type === 'order_completed') {
                                   emoji = '✅'
                                   label = 'Selesai'
                                 } else if (log.action_type === 'order_created') {
                                   emoji = '📝'
-                                  label = 'Dicipta'
+                                  label = 'Pesanan baharu diterima'
                                 } else if (log.action_type === 'payment_received') {
                                   emoji = '💰'
                                   label = 'Bayaran Diterima'

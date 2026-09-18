@@ -1,4 +1,78 @@
 # PROJECT PROGRESS LOG
+## 18 September 2026 (15:45 UTC+8)
+### Pelarasan Templat WhatsApp & Penyeragaman Bahasa Sejarah Tindakan
+
+- **Status**: ✅ BERHASIL (Build Exit Code 0)
+
+**Perubahan Dilaksanakan:**
+
+1. **FORMAT TEKS WHATSAPP APABILA PESANAN DIBATALKAN (CANCELLED):**
+   - Templat baharu dengan jarak baris yang kemas dan rujukan di bahagian bawah:
+     ```
+     Hai {customer_name}, Pesanan Hokkaido anda telah dibatalkan.
+     
+     Sebarang pertanyaan lanjut boleh hubungi kami di sini.
+     
+     Rujukan Order : #{order_id}
+     ```
+
+2. **WHATSAPP UNTUK KAEDAH AMBIL SENDIRI DI KEDAI (READY_PICKUP):**
+   - Tambah maklumat alamat premis dan pautan Google Maps kedai:
+     ```
+     Hai {customer_name}, pesanan Hokkaido sedia diambil di kedai! 🧁
+     
+     📍 Alamat Kedai:
+     Kiosk No 1, Stadium Majlis Perbandaran Manjung, 32040 Seri Manjung, Perak.
+     
+     🌐 Lokasi Kedai (Google Maps):
+     https://www.google.com/maps?q=4.1948617,100.6655929
+     
+     Rujukan Order : #{order_id}
+     ```
+
+3. **KEMAS KINI AYAT STATUS SELESAI (COMPLETED):**
+   - Ubah ayat penutup status selesai:
+     * Buang ayat: "Terima kasih banyak atas sokongan!"
+     * Kekalkan emoji: 😊
+     * Tukar perkataan "Semoga" kepada "Selamat".
+   - Format teks baharu status Selesai:
+     ```
+     Terima kasih {customer_name}! Pesanan Hokkaido selesai.
+     
+     Selamat menikmati Hokkaido anda! 🧀
+     
+     Boleh kongsikan maklum balas atau feedback anda di sini ya. 😊
+     
+     Rujukan Order : #{order_id}
+     ```
+
+4. **SELARASKAN BAHASA SEJARAH TINDAKAN (BAHASA MELAYU SAHAJA):**
+   - Seragamkan semua pemetaan label tindakan ke Bahasa Melayu sepenuhnya.
+   - Jangan gunakan teks Inggeris "Status changed from X to Y".
+   - Guna format rasmi tunggal:
+     * "Status ditukar kepada {status_bahasa_melayu} oleh {actor_name} ({actor_role}) pada {tarikh_masa}"
+     * "Pesanan dibatalkan oleh {actor_name} ({actor_role}) pada {tarikh_masa}"
+   - Paparan senarai sejarah bersih tanpa pengulangan teks Inggeris.
+   - Logik parsing automatik untuk menterjemah teks Inggeris jika ada.
+
+5. **PENGESAHAN BINAAN & TOLAK KOD:**
+   - `npm run build` ✅ Exit Code 0 tanpa ralat TypeScript.
+   - Git commit: "fix: refine whatsapp templates for cancel and pickup, update completed copy, and unify audit history in Malay"
+   - Git push ke origin main akan dilaksanakan oleh pengguna.
+
+**Pematuhan .clinerules:**
+- ✅ **Zero‑Mock**: Tiada placeholder atau penghapusan fungsi.
+- ✅ **Database As Source of Truth**: Templat WhatsApp disimpan dalam kod frontend; audit trail diambil dari pangkalan data.
+- ✅ **Server‑Side Validation**: Log status menggunakan label Bahasa Melayu.
+- ✅ **Build Gate**: `npm run build` Exit Code 0.
+- ✅ **Strict Routes**: Laluan `/urus` kekal terpelihara.
+
+**Hasil Selepas Pembetulan:**
+- ✅ Templat WhatsApp untuk pembatalan, ambil sendiri, dan selesai lebih kemas dan informatif.
+- ✅ Sejarah tindakan dipaparkan sepenuhnya dalam Bahasa Melayu.
+- ✅ Pengalaman pengguna lebih konsisten dan profesional.
+
+---
 ## 18 September 2026 (15:30 UTC+8)
 ### Pembetulan Skema order_logs dan RLS untuk Audit Trail Kekal
 

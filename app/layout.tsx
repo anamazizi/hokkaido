@@ -7,10 +7,10 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   metadataBase: new URL('https://hokkaido.manjung.my'),
   title: "Hokkaido Inti Jebok — Gebu di Luar, Creamy di Dalam",
-  description: "Nikmati kek muffin kastard melimpah sejuk gebu. Tempah mudah untuk penghantaran COD atau ambil sendiri di Stadium Manjung!",
+  description: "Nikmati kek muffin kastard melimpah gebu. Tempah mudah untuk penghantaran COD atau ambil sendiri di Stadium Manjung!",
   openGraph: {
     title: "Hokkaido Inti Jebok — Gebu di Luar, Creamy di Dalam",
-    description: "Nikmati kek muffin kastard melimpah sejuk gebu. Tempah mudah untuk penghantaran COD atau ambil sendiri di Stadium Manjung!",
+    description: "Nikmati kek muffin kastard melimpah gebu. Tempah mudah untuk penghantaran COD atau ambil sendiri di Stadium Manjung!",
     url: "https://hokkaido.manjung.my",
     siteName: "Hokkaido Inti Jebok",
     images: [

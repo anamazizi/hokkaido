@@ -1,4 +1,44 @@
 # PROJECT PROGRESS LOG
+## 18 September 2026 (15:55 UTC+8)
+### Penambahbaikan UX Fungsi Pembatalan Pesanan: Buang Dialog Pop-up
+
+- **Status**: ✅ BERHASIL (Build Exit Code 0)
+
+**Perubahan Dilaksanakan:**
+
+1. **BUANG SEMUA DIALOG POP-UP PENGESAHAN (CONFIRM / ALERT) PADA BUTANG BATAL:**
+   - Dialo native window.confirm yang mengganggu aliran kerja telah dibuang:
+     * `"Adakah anda pasti mahu membatalkan pesanan ini?"` – **DIHAPUS**.
+     * `"Hantar notifikasi pembatalan kepada pelanggan melalui WhatsApp?"` – **DIHAPUS**.
+   - Aliran kerja sekarang lebih pantas dan tidak terganggu oleh pop-up pelayar.
+
+2. **PENSTRUKTURAN SEMULA ALIRAN FUNGSI BATAL PESANAN (cancelOrder):**
+   - Apabila butang merah "Batal Pesanan" ditekan:
+     * Status pesanan ditukar terus ke 'cancelled' di Supabase.
+     * Log tindakan pembatalan direkodkan ke jadual `order_logs` (dalam Bahasa Melayu).
+     * UI kad status dikemas kini kepada 'Dibatalkan'.
+     * **TIDAK** membuka atau memaksa WhatsApp secara automatik.
+     * Pengurus boleh menekan butang hijau WhatsApp secara manual pada kad tersebut jika ingin menghantar mesej pembatalan yang telah diformatkan.
+
+3. **PENGESAHAN BINAAN & TOLAK KOD:**
+   - `npm run build` ✅ Exit Code 0 tanpa ralat TypeScript.
+   - Git commit: "refactor: remove browser confirmation popups on order cancellation"
+   - Git push ke origin main akan dilaksanakan oleh pengguna.
+
+**Pematuhan .clinerules:**
+- ✅ **Zero‑Mock**: Tiada placeholder atau penghapusan fungsi.
+- ✅ **Database As Source of Truth**: Log pembatalan disimpan di Supabase PostgreSQL.
+- ✅ **Server‑Side Validation**: Status cancellation menggunakan transaksi Supabase.
+- ✅ **Build Gate**: `npm run build` Exit Code 0.
+- ✅ **Strict Routes**: Laluan `/urus` kekal terpelihara.
+
+**Hasil Selepas Pembetulan:**
+- ✅ Pengalaman pengguna lebih lancar tanpa pop-up mengganggu.
+- ✅ Pembatalan pesanan lebih pantas dan efisien.
+- ✅ Kawalan penuh kepada pengurus untuk menghantar notifikasi WhatsApp secara manual.
+- ✅ Audit trail pembatalan kekal lengkap dan dalam Bahasa Melayu.
+
+---
 ## 18 September 2026 (15:45 UTC+8)
 ### Pelarasan Templat WhatsApp & Penyeragaman Bahasa Sejarah Tindakan
 

@@ -484,7 +484,6 @@ const fetchAllOrderLogs = async () => {
   }
 
   const cancelOrder = async (orderId: string) => {
-    if (!confirm('Adakah anda pasti mahu membatalkan pesanan ini?')) return
     
     setActionLoadingId(orderId + '_cancel')
     try {
@@ -585,19 +584,7 @@ const fetchAllOrderLogs = async () => {
         'Order cancelled by user'
       )
       
-      // Generate WhatsApp cancellation notification
-      const order = orders.find(o => o.id === orderId)
-      if (order) {
-        const phone = order.phone_number.replace(/[^0-9]/g, '')
-        const message = `Hai ${order.customer_name}, pesanan Hokkaido #${order.id} telah dibatalkan atas permintaan pihak pengurusan. Sila hubungi kami jika ada sebarang pertanyaan.`
-        const encoded = encodeURIComponent(message)
-        const whatsappLink = `https://wa.me/${phone}?text=${encoded}`
-        
-        // Optionally open WhatsApp link or just display it
-        if (confirm('Hantar notifikasi pembatalan kepada pelanggan melalui WhatsApp?')) {
-          window.open(whatsappLink, '_blank')
-        }
-      }
+      
       
       // Immediately refresh the order logs to show the new cancellation entry
       await fetchAllOrderLogs()

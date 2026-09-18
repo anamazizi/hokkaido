@@ -331,6 +331,7 @@ const fetchAllOrderLogs = async () => {
             actor_id: user.id,
             actor_name: actorName,
             actor_role: actorRole,
+            action: actionType,
             action_type: actionType,
             notes
           })
@@ -349,6 +350,7 @@ const fetchAllOrderLogs = async () => {
           actor_id: user.id,
           actor_name: userProfileData.full_name,
           actor_role: userProfileData.role,
+          action: actionType,
           action_type: actionType,
           notes
         })
@@ -400,6 +402,7 @@ const fetchAllOrderLogs = async () => {
         actor_id: actorId,
         actor_name: actorName,
         actor_role: actorRole,
+        action: 'status_update',
         action_type: 'status_update',
         notes: `Status ditukar kepada ${newStatus}`
       }
@@ -514,6 +517,7 @@ const fetchAllOrderLogs = async () => {
         actor_id: actorId,
         actor_name: actorName,
         actor_role: actorRole,
+        action: 'order_cancelled',
         action_type: 'order_cancelled',
         notes: 'Pesanan dibatalkan oleh pengguna'
       }

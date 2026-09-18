@@ -1,4 +1,48 @@
 PROJECT PROGRESS LOG
+Date: 18 September 2026 (16:30 UTC+8)
+TASK: Penyelesaian Isu Penduaan Log Sejarah Tindakan (order_logs)
+STATUS: ✅ BERHASIL
+
+PERUBAHAN DILAKSANAKAN:
+
+1. KENAL PASTI DAN HAPUS SUMBER PENDUAAN INSERT:
+   - Fungsi updateOrderStatus dan cancelOrder sebelum ini melakukan insert manual ke order_logs sementara trigger SQL di Supabase juga memasukkan log automatik.
+   - Pembetulan: Hapus sepenuhnya kod insert manual ke order_logs dalam kedua-dua fungsi, supaya hanya trigger database (log_order_status_change dan log_order_cancellation) yang menulis audit trail.
+   - Ini menghapuskan penduaan di peringkat sumber: hanya satu rekod sahaja yang dimasukkan bagi setiap perubahan status atau pembatalan.
+
+2. HAPUS OPTIMISTIC LOG ENTRY YANG MENYUMBANG KEPADA PENDUAAN UI:
+   - Sebelum ini, selepas insert manual, log optimistik (immediateLogEntry) ditambah ke state UI serta-merta.
+   - Pembetulan: Hapus penambahan log optimistik kerana log sebenar akan tiba melalui langganan realtime dalam beberapa saat.
+   - UI kini bergantung sepenuhnya pada data yang diambil dari Supabase, menghilangkan risiko paparan berganda.
+
+3. DEDUPLICATION PADA PENGAMBILAN LOG:
+   - Dalam fungsi fetchAllOrderLogs, tambah langkah deduplikasi berdasarkan id log:
+     const uniqueLogs = Array.from(
+       new Map((data || []).map((log) => [log.id, log])).values()
+     )
+   - Log yang sama (id serupa) akan disaring sebelum dikumpulkan ke dalam orderLogsMap.
+   - Langganan realtime order_logs juga menggunakan fungsi ini, jadi penduaan dari sisi rangkaian turut dihalang.
+
+4. PENGESAHAN BINAAN & TOLAK KOD:
+   - npm run build Exit Code 0 tanpa sebarang ralat TypeScript.
+   - Git commit: "fix: deduplicate order_logs audit trail and prevent duplicate insertions"
+   - Git push ke origin main akan dilaksanakan oleh pengguna.
+
+PEMATUHAN .CLINERULES:
+- ✅ Zero‑Mock: Tiada placeholder atau penghapusan fungsi; semua logik audit trail kekal utuh.
+- ✅ Database As Source of Truth: Trigger SQL menjadi sumber tunggal untuk log status perubahan dan pembatalan.
+- ✅ Server‑Side Validation: Semua transaksi status menggunakan trigger yang dikendalikan server.
+- ✅ Build Gate: npm run build Exit Code 0.
+- ✅ Strict Routes: Laluan /urus kekal terpelihara.
+- ✅ UI Contrast: Format sejarah tindakan kekal menggunakan kelas kontras tinggi.
+
+HASIL SELEPAS PEMBETULAN:
+- ✅ Setiap perubahan status atau pembatalan menghasilkan tepat satu rekod dalam jadual order_logs.
+- ✅ Paparan Sejarah Tindakan dalam kad pesanan tidak lagi menunjukkan entri berganda (2‑3 kali) bagi tindakan yang sama.
+- ✅ Prestasi UI lebih lancar tanpa log optimistik yang bertindih dengan data sebenar.
+- ✅ Audit trail yang bersih dan konsisten untuk analisis dan pemantauan.
+
+---
 Date: 18 September 2026 (15:55 UTC+8)
 TASK: Penambahbaikan UX Fungsi Pembatalan Pesanan: Buang Dialog Pop-up
 STATUS: ✅ BERHASIL

@@ -280,14 +280,19 @@ const fetchAllOrderLogs = async () => {
       
       console.log(`fetchAllOrderLogs: Successfully fetched ${data?.length || 0} logs`)
       
+      // Deduplicate logs by id (ensure no duplicate entries)
+      const uniqueLogs = Array.from(
+        new Map((data || []).map((log) => [log.id, log])).values()
+      )
+      
       // Group logs by order_id
       const map: Record<string, OrderLog[]> = {}
-      data?.forEach(log => {
+      uniqueLogs.forEach(log => {
         if (!map[log.order_id]) map[log.order_id] = []
         map[log.order_id].push(log)
       })
       
-      console.log(`fetchAllOrderLogs: Created map with ${Object.keys(map).length} order entries`)
+      console.log(`fetchAllOrderLogs: Deduplicated ${data?.length || 0} logs to ${uniqueLogs.length} unique logs, created map with ${Object.keys(map).length} order entries`)
       setOrderLogsMap(map)
     } catch (error) {
       console.error('Error fetching order logs:', error)
@@ -395,80 +400,9 @@ const fetchAllOrderLogs = async () => {
       const { error } = await supabase.from('orders').update({ status: newStatus }).eq('id', orderId)
       if (error) throw error
       
-      // 2. Log the status change - insert record into order_logs table with detailed error handling
-      const actorId = user?.id
-      const logPayload = {
-        order_id: orderId,
-        actor_id: actorId,
-        actor_name: actorName,
-        actor_role: actorRole,
-        action: 'status_update',
-        action_type: 'status_update',
-        notes: `Status ditukar kepada ${STATUS_LABELS[newStatus]}`
-      }
+      // Logging handled by database trigger
       
-      console.log('updateOrderStatus: Attempting to insert order log with payload:', logPayload)
-      
-      const { data: insertedLog, error: logErr } = await supabase
-        .from('order_logs')
-        .insert(logPayload)
-        .select()
-        .single()
-
-      if (logErr) {
-        console.error('Ralat Penuh Insert Order Log:', JSON.stringify(logErr, null, 2))
-        console.error('Payload order_log:', logPayload)
-        console.error('Error details:', logErr)
-        
-        // Try alternative method: call RPC function log_order_action
-        try {
-          console.log('Trying RPC fallback with log_order_action function...')
-          const { data: rpcResult, error: rpcError } = await supabase.rpc(
-            'log_order_action',
-            {
-              p_order_id: orderId,
-              p_action_type: 'status_update',
-              p_notes: `Status changed from ${oldStatus} to ${newStatus}`
-            }
-          )
-          
-          if (rpcError) {
-            console.error('RPC function also failed:', rpcError)
-          } else {
-            console.log('RPC log_order_action succeeded:', rpcResult)
-          }
-        } catch (rpcErr) {
-          console.error('RPC call failed:', rpcErr)
-        }
-        
-        // Continue anyway - don't fail the status update because of logging error
-        // Continue anyway - don't fail the status update because of logging error
-      }
-      
-      // 3. OPTIMISTIC UI UPDATE: Immediately add the new log to state (most recent first)
-      // ALWAYS ADD NEW LOG ENTRY TO STATE, EVEN IF DATABASE INSERT FAILS
-      const immediateLogEntry: OrderLog = {
-        id: crypto.randomUUID(),
-        order_id: orderId,
-        actor_id: user?.id || null,
-        actor_name: actorName,
-        actor_role: actorRole,
-        action_type: 'status_update',
-        notes: `Status ditukar kepada ${STATUS_LABELS[newStatus]}`,
-        created_at: new Date().toISOString()
-      }
-      
-      setOrderLogsMap(prevMap => ({
-        ...prevMap,
-        [orderId]: [immediateLogEntry, ...(prevMap[orderId] || [])].slice(0, 10)
-      }))
-      
-      // Also call existing logOrderAction for backward compatibility
-      await logOrderAction(
-        orderId,
-        'status_update',
-        `Status changed from ${oldStatus} to ${newStatus}`
-      )
+      // Log will appear via database trigger and realtime subscription
       
       // Immediately refresh the order logs to show the new entry
       await fetchAllOrderLogs()
@@ -509,80 +443,8 @@ const fetchAllOrderLogs = async () => {
         .eq('id', orderId)
       if (error) throw error
       
-      // 2. Log cancellation - insert record into order_logs table with detailed error handling
-      const actorId = user?.id
-      const logPayload = {
-        order_id: orderId,
-        actor_id: actorId,
-        actor_name: actorName,
-        actor_role: actorRole,
-        action: 'order_cancelled',
-        action_type: 'order_cancelled',
-        notes: 'Pesanan dibatalkan oleh pengguna'
-      }
-      
-      console.log('cancelOrder: Attempting to insert order log with payload:', logPayload)
-      
-      const { data: insertedLog, error: logErr } = await supabase
-        .from('order_logs')
-        .insert(logPayload)
-        .select()
-        .single()
-
-      if (logErr) {
-        console.error('Ralat Penuh Insert Order Log (cancel):', JSON.stringify(logErr, null, 2))
-        console.error('Payload order_log (cancel):', logPayload)
-        console.error('Error details:', logErr)
-        
-        // Try alternative method: call RPC function log_order_action
-        try {
-          console.log('Trying RPC fallback with log_order_action function...')
-          const { data: rpcResult, error: rpcError } = await supabase.rpc(
-            'log_order_action',
-            {
-              p_order_id: orderId,
-              p_action_type: 'cancellation',
-              p_notes: 'Order cancelled by user'
-            }
-          )
-          
-          if (rpcError) {
-            console.error('RPC function also failed:', rpcError)
-          } else {
-            console.log('RPC log_order_action succeeded:', rpcResult)
-          }
-        } catch (rpcErr) {
-          console.error('RPC call failed:', rpcErr)
-        }
-        // Continue anyway - don't fail the cancellation because of logging error
-      }
-
-      // 3. OPTIMISTIC UI UPDATE: Immediately add the new log to state (most recent first)
-      const immediateLogEntry: OrderLog = {
-        id: crypto.randomUUID(),
-        order_id: orderId,
-        actor_id: user?.id || null,
-        actor_name: actorName,
-        actor_role: actorRole,
-        action_type: 'order_cancelled',
-        notes: 'Pesanan dibatalkan oleh pengguna',
-        created_at: new Date().toISOString()
-      }
-      
-      setOrderLogsMap(prevMap => {
-        const newMap = { ...prevMap }
-        if (!newMap[orderId]) newMap[orderId] = []
-        // Add immediate log entry at the beginning (most recent first)
-        newMap[orderId] = [immediateLogEntry, ...newMap[orderId]].slice(0, 10)
-        return newMap
-      })
-      
-      // Also call existing logOrderAction for backward compatibility
-      await logOrderAction(
-        orderId,
-        'cancellation',
-        'Order cancelled by user'
-      )
+      // Logging handled by database trigger
+      // Log will appear via database trigger and realtime subscription
       
       
       

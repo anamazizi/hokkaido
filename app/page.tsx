@@ -10,6 +10,7 @@ import CustomerForm from '@/components/CustomerForm'
 import ProductSelection from '@/components/ProductSelection'
 import DeliveryMethod from '@/components/DeliveryMethod'
 import OrderSummary from '@/components/OrderSummary'
+import CustomerReviews from '@/components/CustomerReviews'
 
 const MapDisplay = dynamic(() => import('@/components/MapDisplay'), {
   ssr: false,
@@ -456,6 +457,8 @@ loading="lazy"
             
             
           </div>
+{/* Customer Reviews */}
+        <CustomerReviews />
         </div>
       </div>
     </div>

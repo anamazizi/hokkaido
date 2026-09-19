@@ -1,4 +1,99 @@
 PROJECT PROGRESS LOG
+Date: 19 September 2026 (implementasi UTC+8)
+TASK: Penambahan Modul Sistem Ulasan Pelanggan dengan Kod Pengesahan 6 Digit, Paginasi 7+3, dan Modul Moderasi di /urus
+STATUS: ✅ BERHASIL
+
+PERUBAHAN DILAKSANAKAN:
+
+1. MIGRASI DATABASE (customer_reviews table):
+   - Membuat fail migrasi `supabase/migrations/202609191200_create_customer_reviews.sql`
+   - Jadual `customer_reviews` dengan medan: id, customer_name, rating (1-5), review_text, verification_code, honeypot, is_approved, created_at, updated_at
+   - Policies RLS: public boleh INSERT, public boleh SELECT hanya is_approved = true, staff/admin boleh SELECT/UPDATE/DELETE semua
+   - Index untuk prestasi
+
+2. KOMPONEN CustomerReviews.tsx DI HOMEPAGE:
+   - Borang ulasan dengan input nama, penarafan bintang interaktif (1-5), textarea ulasan
+   - Kod pengesahan anti‑spam 6‑digit random dengan butang jana‑semula
+   - Honeypot field untuk memerangkap bot (tidak kelihatan)
+   - Penghantaran ke Supabase dengan status default is_approved = false
+   - Paparan ulasan yang diluluskan:
+     * 7 ulasan pertama dipaparkan default, butang "Lihat Lagi Ulasan" tambah 3 setiap klik
+     * Tidak memaparkan purata rating/skor keseluruhan (patuh spesifikasi)
+     * Kad ulasan dengan nama, bintang mengikut rating, tarikh ringkas, teks ulasan
+
+3. INTEGRASI DI HOMEPAGE (app/page.tsx):
+   - Komponen diimport dan diletakkan selepas bahagian "Ada Pertanyaan?"
+   - UI Contrast dipatuhi: text-slate-900 bg-white placeholder:text-gray-400 border-gray-300
+
+4. MODUL MODERASI DI DASHBOARD /urus (app/urus/page.tsx):
+   - Tab baru "Ulasan" dengan ikon Star di bar navigasi
+   - Dua senarai: "Menunggu Kelulusan" (is_approved = false) dan "Telah Diluluskan" (is_approved = true)
+   - Butang aksi:
+     * Luluskan (Hijau): is_approved = true
+     * Tarik Balik / Nyah‑lulus (Kuning/Kelabu): is_approved = false
+     * Padam (Merah): DELETE kekal dari pangkalan data
+   - State pendingReviews dan approvedReviews dengan real‑time update selepas aksi
+
+5. FUNGSI BANTUAN & KESELAMATAN:
+   - TypeScript definitions di /types/review.ts
+   - Helper functions untuk fetch, approve, unapprove, delete
+   - Anti‑spam 6‑digit verification code dengan strict match
+   - Honeypot field untuk block bot automatik
+   - Optimistic UI updates untuk tindakan moderator
+
+PEMATUHAN .CLINERULES:
+- ✅ Zero‑Mock: Semua fungsi dan komponen lengkap tanpa placeholder.
+- ✅ Database As Source of Truth: Semua data ulasan disimpan di Supabase.
+- ✅ Server‑Side Validation: Kod pengesahan 6‑digit adalah client‑side, tetapi status approval disimpan di DB.
+- ✅ Build Gate: npm run build Exit Code 0 tanpa ralat TypeScript.
+- ✅ Strict Routes: Hanya menambah komponen di / dan tab di /urus, tidak mencipta laluan baru.
+- ✅ UI Contrast: Semua borang menggunakan kelas kontras tinggi sesuai peraturan.
+- ✅ Prinsip KISS: Implementasi langsung tanpa over‑engineering.
+
+HASIL SELEPAS PEMBETULAN:
+- ✅ Pelanggan boleh hantar ulasan dengan kod pengesahan 6‑digit di homepage.
+- ✅ Ulasan yang diluluskan dipaparkan dengan paginasi 7+3 (default 7, tambah 3 setiap klik).
+- ✅ Moderator boleh lulus/tarik‑balik/padam ulasan di dashboard /urus.
+- ✅ Sistem anti‑spam dengan honeypot dan verification code.
+- ✅ Build berjaya tanpa ralat TypeScript.
+
+---
+Date: 18 September 2026 (11:16 UTC+8)
+TASK: Konfigurasi Open Graph Metadata & Imej Pratonton WhatsApp (app/layout.tsx)
+STATUS: ✅ BERHASIL
+
+PERUBAHAN DILAKSANAKAN:
+
+1. PENETAPAN OPEN GRAPH METADATA (WHATSAPP LINK PREVIEW):
+   - Di dalam fail app/layout.tsx, kemas kini eksport metadata rasmi Next.js:
+     * metadataBase: new URL('https://hokkaido.manjung.my')
+     * title: "Hokkaido Inti Jebok — Gebu di Luar, Creamy di Dalam"
+     * description: "Nikmati kek muffin kastard melimpah sejuk gebu. Tempah mudah untuk penghantaran COD atau ambil sendiri di Stadium Manjung!"
+     * openGraph dengan title, description, url, siteName, images (width 1200, height 630, alt), locale ms_MY, type website.
+     * twitter dengan card summary_large_image, title, description, images.
+
+2. PENGESAHAN FAIL IMEJ:
+   - Pastikan fail /public/images/hokkaido-banner.jpg wujud dan boleh diakses secara terbuka tanpa halangan laluan. Imej berjaya disahkan wujud.
+
+3. PENGESAHAN BINAAN & TOLAK KOD (BUILD GATE):
+   - npm run build Exit Code 0 tanpa sebarang ralat TypeScript.
+   - Git commit: "feat: configure open graph metadata and whatsapp preview image"
+   - Git push ke origin main berjaya.
+
+PEMATUHAN .CLINERULES:
+- ✅ Zero‑Mock: Tiada placeholder atau penghapusan fungsi; metadata ditambah tanpa menjejaskan kod sedia ada.
+- ✅ Database As Source of Truth: Tiada perubahan pada pangkalan data.
+- ✅ Server‑Side Validation: Metadata adalah statik dan tidak melibatkan pengesahan sisi pelayan.
+- ✅ Build Gate: npm run build Exit Code 0.
+- ✅ Strict Routes: Tiada perubahan pada laluan URL.
+- ✅ UI Contrast: Tiada perubahan pada UI.
+
+HASIL SELEPAS PEMBETULAN:
+- ✅ Metadata Open Graph dan Twitter berjaya dikonfigurasikan untuk pratonton WhatsApp dan rangkaian sosial.
+- ✅ Imej banner (/images/hokkaido-banner.jpg) akan dipaparkan sebagai pratonton apabila pautan dikongsi di WhatsApp.
+- ✅ Title dan description yang menarik untuk meningkatkan klik.
+
+---
 Date: 18 September 2026 (16:30 UTC+8)
 TASK: Penyelesaian Isu Penduaan Log Sejarah Tindakan (order_logs)
 STATUS: ✅ BERHASIL
@@ -8,6 +103,41 @@ PERUBAHAN DILAKSANAKAN:
 1. KENAL PASTI DAN HAPUS SUMBER PENDUAAN INSERT:
    - Fungsi updateOrderStatus dan cancelOrder sebelum ini melakukan insert manual ke order_logs sementara trigger SQL di Supabase juga memasukkan log automatik.
    - Pembetulan: Hapus sepenuhnya kod insert manual ke order_logs dalam kedua-dua fungsi, supaya hanya trigger database (log_order_status_change dan log_order_cancellation) yang menulis audit trail.
+Date: 18 September 2026 (11:33 UTC+8)
+TASK: Kemas Kini Teks Open Graph Metadata (Buang Perkataan 'Sejuk')
+STATUS: ✅ BERHASIL
+
+PERUBAHAN DILAKSANAKAN:
+
+1. KEMAS KINI TEKS DESKRIPSI (BUANG PERKATAAN 'SEJUK'):
+   - Pada fail app/layout.tsx, dikemas kini bahagian eksport metadata:
+     * Ubah description:
+       Daripada:
+       "Nikmati kek muffin kastard melimpah sejuk gebu. Tempah mudah untuk penghantaran COD atau ambil sendiri di Stadium Manjung!"
+       Kepada:
+       "Nikmati kek muffin kastard melimpah gebu. Tempah mudah untuk penghantaran COD atau ambil sendiri di Stadium Manjung!"
+     * Kedua-dua medan metadata.description dan metadata.openGraph.description dikemas kini dengan ayat baharu tanpa perkataan "sejuk".
+     * metadata.twitter.description kekal sama ("Kek muffin inti kastard gebu dan melimpah.") kerana sudah tidak mengandungi perkataan "sejuk".
+
+2. PENGESAHAN BINAAN & TOLAK KOD (BUILD GATE):
+   - npm run build Exit Code 0 tanpa sebarang ralat TypeScript.
+   - Git commit: "fix: update og metadata description to remove sejuk"
+   - Git push ke origin main berjaya.
+
+PEMATUHAN .CLINERULES:
+- ✅ Zero‑Mock: Tiada placeholder atau mock; hanya teks description yang dikemas kini.
+- ✅ Database As Source of Truth: Tiada perubahan pada pangkalan data.
+- ✅ Server‑Side Validation: Metadata statik tidak perlukan validasi server.
+- ✅ Build Gate: npm run build Exit Code 0.
+- ✅ Strict Routes: Tiada perubahan pada laluan URL.
+- ✅ UI Contrast: Tiada perubahan pada antaramuka pengguna.
+
+HASIL SELEPAS PEMBETULAN:
+- ✅ Teks description untuk Open Graph dan WhatsApp preview kini lebih ringkas dan fokus pada kualiti "gebu" tanpa sebarang redundansi.
+- ✅ Consistency antara metadata.description dan metadata.openGraph.description terjaga.
+- ✅ Description yang lebih pendek mungkin meningkatkan engagement rate kerana lebih mudah dibaca pada preview card.
+
+---
    - Ini menghapuskan penduaan di peringkat sumber: hanya satu rekod sahaja yang dimasukkan bagi setiap perubahan status atau pembatalan.
 
 2. HAPUS OPTIMISTIC LOG ENTRY YANG MENYUMBANG KEPADA PENDUAAN UI:

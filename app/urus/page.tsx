@@ -6,11 +6,12 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import type { User } from '@supabase/supabase-js'
-import { LogOut, Package, CheckCircle, Clock, Phone, DollarSign, FileText, BarChart3, Download, Truck, XCircle, Share, Loader2 } from 'lucide-react'
+import { LogOut, Package, CheckCircle, Clock, Phone, DollarSign, FileText, BarChart3, Download, Truck, XCircle, Share, Loader2, Star } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import type { Order, OrderStatus } from '@/types/order'
 import type { AccountingLedgerEntry, JoinedLedgerEntry, FinancialMetrics } from '@/types/accounting'
 import type { UserProfile, OrderLog } from '@/types/rbac'
+import type { CustomerReview } from '@/types/review'
 
 const STATUS_LABELS: Record<OrderStatus, string> = { pending: 'Baru Masuk', accepted: 'Disahkan', preparing: 'Sedang Disediakan', ready_pickup: 'Sedia Diambil', delivering: 'Sedang Dihantar', completed: 'Selesai', cancelled: 'Dibatalkan' }
 const STATUS_COLORS: Record<OrderStatus, string> = { pending: 'bg-yellow-100 text-yellow-800', accepted: 'bg-blue-100 text-blue-800', preparing: 'bg-purple-100 text-purple-800', ready_pickup: 'bg-green-100 text-green-800', delivering: 'bg-indigo-100 text-indigo-800', completed: 'bg-gray-100 text-gray-800', cancelled: 'bg-red-100 text-red-800' }
@@ -26,7 +27,7 @@ type RawLedgerEntry = AccountingLedgerEntry & {
   } | null
 }
 
-type DashboardTab = 'all' | OrderStatus | 'finance' | 'ledger'
+type DashboardTab = 'all' | OrderStatus | 'finance' | 'ledger' | 'reviews'
 
 export default function UrusDashboard() {
   const [orders, setOrders] = useState<Order[]>([])
@@ -48,6 +49,9 @@ const [orderLogsMap, setOrderLogsMap] = useState<Record<string, OrderLog[]>>({})
     exportedCount: 0,
     pendingExportCount: 0,
   })
+const [pendingReviews, setPendingReviews] = useState<CustomerReview[]>([])
+  const [approvedReviews, setApprovedReviews] = useState<CustomerReview[]>([])
+  const [reviewsLoading, setReviewsLoading] = useState(true)
 
   const router = useRouter()
   // STRICT AUTHENTICATION & RBAC ENFORCEMENT
@@ -124,6 +128,11 @@ const [orderLogsMap, setOrderLogsMap] = useState<Record<string, OrderLog[]>>({})
     
     checkAuthAndRole()
   }, [router])
+useEffect(() => {
+    if (activeTab === 'reviews' && reviewsLoading) {
+      fetchReviews()
+    }
+  }, [activeTab])
 
   const fetchOrders = async () => {
     try {
@@ -166,6 +175,27 @@ const fetchLedger = async () => {
       setLedgerLoading(false)
     }
   }
+const fetchReviews = async () => {
+    try {
+      setReviewsLoading(true)
+      const { data, error } = await supabase
+        .from('customer_reviews')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+
+      const pending = data.filter(review => !review.is_approved)
+      const approved = data.filter(review => review.is_approved)
+
+      setPendingReviews(pending)
+      setApprovedReviews(approved)
+    } catch (error) {
+      console.error('Error fetching reviews:', error)
+    } finally {
+      setReviewsLoading(false)
+    }
+  }
 
   const calculateFinancialMetrics = (entries: JoinedLedgerEntry[]) => {
     const totalGrossSales = entries.reduce((sum, e) => sum + e.gross_sales, 0)
@@ -186,6 +216,190 @@ const fetchLedger = async () => {
     })
   }
 
+const handleApproveReview = async (reviewId: string) => {
+    try {
+      const { error } = await supabase
+        .from('customer_reviews')
+        .update({ is_approved: true, updated_at: new Date().toISOString() })
+        .eq('id', reviewId)
+
+      if (error) throw error
+
+      // Update local state
+      setPendingReviews(prev => prev.filter(r => r.id !== reviewId))
+      const review = pendingReviews.find(r => r.id === reviewId)
+      if (review) {
+        setApprovedReviews(prev => [{ ...review, is_approved: true }, ...prev])
+      }
+    } catch (error) {
+      console.error('Error approving review:', error)
+      alert('Ralat meluluskan ulasan.')
+    }
+  }
+
+  const handleUnapproveReview = async (reviewId: string) => {
+    try {
+      const { error } = await supabase
+        .from('customer_reviews')
+        .update({ is_approved: false, updated_at: new Date().toISOString() })
+        .eq('id', reviewId)
+
+      if (error) throw error
+
+      // Update local state
+      setApprovedReviews(prev => prev.filter(r => r.id !== reviewId))
+      const review = approvedReviews.find(r => r.id === reviewId)
+      if (review) {
+        setPendingReviews(prev => [{ ...review, is_approved: false }, ...prev])
+      }
+    } catch (error) {
+      console.error('Error unapproving review:', error)
+      alert('Ralat menarik balik kelulusan ulasan.')
+    }
+  }
+
+  const handleDeleteReview = async (reviewId: string) => {
+    if (!confirm('Adakah anda pasti mahu memadam ulasan ini? Tindakan ini tidak boleh dibatalkan.')) {
+      return
+    }
+
+    try {
+      const { error } = await supabase
+        .from('customer_reviews')
+        .delete()
+        .eq('id', reviewId)
+
+      if (error) throw error
+
+      // Update local state
+      setPendingReviews(prev => prev.filter(r => r.id !== reviewId))
+      setApprovedReviews(prev => prev.filter(r => r.id !== reviewId))
+    } catch (error) {
+      console.error('Error deleting review:', error)
+      alert('Ralat memadam ulasan.')
+    }
+  }
+const renderReviewsSection = () => (
+    <div className="space-y-8">
+      <h2 className="text-2xl font-bold">Moderasi Ulasan Pelanggan</h2>
+      
+      {/* Pending Reviews */}
+      <div className="bg-white rounded-xl shadow border border-gray-300 p-6">
+        <h3 className="text-xl font-semibold mb-4 flex items-center">
+          <Star className="mr-2 h-5 w-5 text-yellow-500" />
+          Menunggu Kelulusan ({pendingReviews.length})
+        </h3>
+        
+        {pendingReviews.length === 0 ? (
+          <p className="text-gray-500">Tiada ulasan yang menunggu kelulusan.</p>
+        ) : (
+          <div className="space-y-6">
+            {pendingReviews.map((review) => (
+              <div key={review.id} className="border border-yellow-200 rounded-lg p-5 bg-yellow-50/30">
+                <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
+                  <div>
+                    <h4 className="font-bold text-slate-900">{review.customer_name}</h4>
+                    <div className="flex items-center mt-1">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`h-5 w-5 ${
+                            i < review.rating
+                              ? 'fill-amber-400 stroke-amber-500'
+                              : 'fill-gray-200 stroke-gray-300'
+                          }`}
+                        />
+                      ))}
+                      <span className="ml-3 text-sm text-gray-500">
+                        {new Date(review.created_at).toLocaleDateString('ms-MY', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                        })}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="mt-4 md:mt-0 flex flex-wrap gap-2">
+                    <button
+                      onClick={() => handleApproveReview(review.id)}
+                      className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg flex items-center"
+                    >
+                      Luluskan
+                    </button>
+                    <button
+                      onClick={() => handleDeleteReview(review.id)}
+                      className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg flex items-center"
+                    >
+                      Padam
+                    </button>
+                  </div>
+                </div>
+                <p className="text-slate-700 whitespace-pre-wrap">{review.review_text}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Approved Reviews */}
+      <div className="bg-white rounded-xl shadow border border-gray-300 p-6">
+        <h3 className="text-xl font-semibold mb-4 flex items-center">
+          <Star className="mr-2 h-5 w-5 text-green-500" />
+          Telah Diluluskan ({approvedReviews.length})
+        </h3>
+        
+        {approvedReviews.length === 0 ? (
+          <p className="text-gray-500">Tiada ulasan yang telah diluluskan.</p>
+        ) : (
+          <div className="space-y-6">
+            {approvedReviews.map((review) => (
+              <div key={review.id} className="border border-green-200 rounded-lg p-5 bg-green-50/30">
+                <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
+                  <div>
+                    <h4 className="font-bold text-slate-900">{review.customer_name}</h4>
+                    <div className="flex items-center mt-1">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`h-5 w-5 ${
+                            i < review.rating
+                              ? 'fill-amber-400 stroke-amber-500'
+                              : 'fill-gray-200 stroke-gray-300'
+                          }`}
+                        />
+                      ))}
+                      <span className="ml-3 text-sm text-gray-500">
+                        {new Date(review.created_at).toLocaleDateString('ms-MY', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                        })}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="mt-4 md:mt-0 flex flex-wrap gap-2">
+                    <button
+                      onClick={() => handleUnapproveReview(review.id)}
+                      className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white font-medium rounded-lg flex items-center"
+                    >
+                      Tarik Balik / Nyah-lulus
+                    </button>
+                    <button
+                      onClick={() => handleDeleteReview(review.id)}
+                      className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg flex items-center"
+                    >
+                      Padam
+                    </button>
+                  </div>
+                </div>
+                <p className="text-slate-700 whitespace-pre-wrap">{review.review_text}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
 const exportCSV = async () => {
     try {
       // Filter entries that are not yet exported (or could be all)
@@ -811,18 +1025,23 @@ const renderLedgerSection = () => (
             <button onClick={() => setActiveTab('ledger')} className={`px-4 py-2 rounded-lg font-medium ${activeTab === 'ledger' ? 'bg-blue-600 text-white' : 'bg-white border border-gray-300 text-slate-900'}`}>
               <FileText className="inline-block h-4 w-4 mr-2" /> Lejar
             </button>
+<button onClick={() => setActiveTab('reviews')} className={`px-4 py-2 rounded-lg font-medium ${activeTab === 'reviews' ? 'bg-blue-600 text-white' : 'bg-white border border-gray-300 text-slate-900'}`}>
+              <Star className="inline-block h-4 w-4 mr-2" /> Ulasan
+            </button>
           </div>
         </div>
-        {(activeTab === 'finance' || activeTab === 'ledger') ? (
-          ledgerLoading ? (
+        {(activeTab === 'finance' || activeTab === 'ledger' || activeTab === 'reviews') ? (
+          (activeTab === 'reviews' ? reviewsLoading : ledgerLoading) ? (
             <div className="text-center py-12">
               <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
-              <p className="mt-4 text-gray-600">Memuatkan data kewangan...</p>
+              <p className="mt-4 text-gray-600">Memuatkan data...</p>
             </div>
           ) : activeTab === 'finance' ? (
             renderFinanceSection()
-          ) : (
+          ) : activeTab === 'ledger' ? (
             renderLedgerSection()
+          ) : (
+            renderReviewsSection()
           )
         ) : loading ? (
           <div className="text-center py-12"><div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div><p className="mt-4 text-gray-600">Memuatkan pesanan...</p></div>

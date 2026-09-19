@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, FormEvent } from 'react'
+import { useState, useEffect, FormEvent, useRef } from 'react'
 import { Star, RefreshCw, Send, Loader2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import type { CustomerReview } from '@/types/review'
@@ -16,16 +16,50 @@ export default function CustomerReviews() {
   const [honeypot, setHoneypot] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitSuccess, setSubmitSuccess] = useState(false)
+const canvasRef = useRef<HTMLCanvasElement>(null)
 
   // State for approved reviews display
   const [approvedReviews, setApprovedReviews] = useState<CustomerReview[]>([])
   const [displayCount, setDisplayCount] = useState(7)
   const [isLoadingReviews, setIsLoadingReviews] = useState(true)
 
-  // Generate random 6-digit verification code
+  // Function to draw verification code on canvas
+  const drawCanvas = (code: string) => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+    // Draw light gray background
+    ctx.fillStyle = '#f3f4f6' // gray-100
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+    // Draw random lines for noise
+    ctx.strokeStyle = '#d1d5db' // gray-300
+    ctx.lineWidth = 1
+    for (let i = 0; i < 5; i++) {
+      ctx.beginPath()
+      ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height)
+      ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height)
+      ctx.stroke()
+    }
+
+    // Draw the code
+    ctx.font = 'bold 20px monospace'
+    ctx.fillStyle = '#1f2937' // slate-900
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillText(code, canvas.width / 2, canvas.height / 2)
+  }
+
+  // Generate random 6-digit verification code and draw on canvas
   const generateVerificationCode = () => {
     const code = Math.floor(100000 + Math.random() * 900000).toString()
     setVerificationCode(code)
+    drawCanvas(code)
     return code
   }
 
@@ -106,7 +140,7 @@ export default function CustomerReviews() {
       setSubmitSuccess(true)
     } catch (error) {
       console.error('Error submitting review:', error)
-      alert('Ralat menghantar ulasan. Sila cuba lagi.')
+      alert(`Ralat menghantar ulasan: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setIsSubmitting(false)
     }
@@ -132,8 +166,8 @@ return (
     <div className="space-y-8">
       {/* Review Submission Form */}
       <div className="bg-white/90 backdrop-blur border border-amber-200/60 shadow-md rounded-2xl p-6">
-        <h2 className="text-2xl font-bold text-slate-900 mb-6 flex items-center">
-          <Star className="mr-3 h-7 w-7 text-amber-500" />
+        <h2 className="text-base font-bold text-slate-900 mb-6 flex items-center whitespace-nowrap">
+          <Star className="mr-3 h-7 w-7 text-amber-500 flex-shrink-0" />
           Berikan Ulasan Anda
         </h2>
         
@@ -167,28 +201,30 @@ return (
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Penarafan Bintang
             </label>
-            <div className="flex items-center space-x-1">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <button
-                  key={star}
-                  type="button"
-                  className="p-1 focus:outline-none"
-                  onClick={() => setRating(star)}
-                  onMouseEnter={() => setHoverRating(star)}
-                  onMouseLeave={() => setHoverRating(0)}
-                >
-                  <Star
-                    className={`h-10 w-10 ${
-                      (hoverRating || rating) >= star
-                        ? 'fill-amber-400 stroke-amber-500'
-                        : 'fill-gray-200 stroke-gray-300'
-                    }`}
-                  />
-                </button>
-              ))}
-              <span className="ml-4 text-lg font-semibold text-slate-700">
-                {rating > 0 ? `${rating} bintang` : 'Klik untuk penarafan'}
-              </span>
+            <div className="flex flex-col items-start">
+              <div className="flex items-center space-x-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    className="p-1 focus:outline-none"
+                    onClick={() => setRating(star)}
+                    onMouseEnter={() => setHoverRating(star)}
+                    onMouseLeave={() => setHoverRating(0)}
+                  >
+                    <Star
+                      className={`h-10 w-10 ${
+                        (hoverRating || rating) >= star
+                          ? 'fill-amber-400 stroke-amber-500'
+                          : 'fill-gray-200 stroke-gray-300'
+                      }`}
+                    />
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-slate-500 mt-1 block">
+                Klik 5 bintang jika anda suka
+              </p>
             </div>
           </div>
 
@@ -206,7 +242,7 @@ return (
               onChange={(e) => setReviewText(e.target.value)}
             />
           </div>
-{/* Verification Code */}
+{/* Verification Code with Canvas Captcha */}
           <div className="bg-gray-50/70 rounded-xl p-5 border border-gray-300">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
               <div>
@@ -218,9 +254,12 @@ return (
                 </p>
               </div>
               <div className="flex items-center gap-3">
-                <div className="text-2xl font-bold tracking-widest bg-gray-100 px-4 py-3 rounded-lg border border-gray-300 text-slate-900">
-                  {verificationCode}
-                </div>
+                <canvas
+                  ref={canvasRef}
+                  width="130"
+                  height="40"
+                  className="border border-gray-300 rounded bg-gray-100"
+                />
                 <button
                   type="button"
                   onClick={() => generateVerificationCode()}
@@ -280,8 +319,8 @@ return (
 
       {/* Approved Reviews Display */}
       <div className="bg-white/90 backdrop-blur border border-slate-200/60 shadow-md rounded-2xl p-6">
-        <h2 className="text-2xl font-bold text-slate-900 mb-6 flex items-center">
-          <Star className="mr-3 h-7 w-7 text-amber-500" />
+        <h2 className="text-base font-bold text-slate-900 mb-6 flex items-center whitespace-nowrap">
+          <Star className="mr-3 h-7 w-7 text-amber-500 flex-shrink-0" />
           Ulasan Pelanggan
         </h2>
 

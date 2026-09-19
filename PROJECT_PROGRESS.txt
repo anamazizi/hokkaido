@@ -1,5 +1,51 @@
 PROJECT PROGRESS LOG
 Date: 19 September 2026 (implementasi UTC+8)
+TASK: Pembaikan Modul Ulasan Pelanggan: Layout, Canvas Captcha, dan Sync Moderasi
+STATUS: ✅ BERHASIL
+
+PERUBAHAN DILAKSANAKAN:
+
+1. PENYESUAIAN TAJUK & TEKS BINTANG (CustomerReviews.tsx):
+   - Tajuk "Berikan Ulasan Anda" dan "Ulasan Pelanggan" dioptimumkan untuk paparan telefon pintar: whitespace-nowrap text-base font-bold.
+   - Teks panduan bintang dipindahkan ke bawah deretan bintang dengan teks "Klik 5 bintang jika anda suka" (text-xs text-slate-500 mt-1 block).
+
+2. CANVAS CAPTCHA ANTI‑BOT (CustomerReviews.tsx):
+   - Paparan kod 6 angka dinaik taraf daripada teks HTML biasa kepada <canvas width="130" height="40">.
+   - Nombor dilukis sebagai imej piksel dengan latar belakang kelabu lembut dan garis rawak sebagai gangguan visual.
+   - Bot pengikis (scraper) tidak dapat membaca nombor dari DOM kerana ia hanya wujud sebagai piksel.
+   - Butang jana semula (refresh) dikekalkan untuk pengguna jika kod tidak jelas.
+
+3. SISTEM ERROR HANDLING & LOGGING:
+   - CustomerReviews.tsx: Paparan mesej ralat spesifik (error.message) jika penghantaran gagal, membantu debug masalah RLS atau skema.
+   - app/urus/page.tsx: Logging ralat dipertingkatkan dalam fetchReviews() untuk memudahkan siasatan jika ulasan tidak muncul di dashboard.
+
+4. MIGRASI SQL IDEMPOTENT (supabase/migrations/fix_customer_reviews_rls.sql):
+   - Fail migrasi baharu yang memastikan jadual customer_reviews dan polisi RLS wujud dengan betul.
+   - Skrip idempotent: selamat dijalankan berulang kali tanpa menyebabkan konflik.
+   - Polisi yang diperbaiki:
+     * Allow public insert for reviews – orang awam boleh menghantar ulasan.
+     * Allow public read approved reviews – hanya ulasan is_approved = true boleh dibaca oleh umum.
+     * Allow staff/admin read all reviews – pentadhir/staf boleh baca semua (termasuk pending).
+     * Allow staff/admin update reviews – pentadhir boleh lulus/tarik balik kelulusan.
+     * Allow staff/admin delete reviews – pentadhir boleh padam ulasan.
+   - Pengguna perlu menjalankan skrip ini di Supabase SQL Editor jika ulasan masih tidak masuk ke pangkalan data.
+
+PEMATUHAN .CLINERULES:
+- ✅ Zero‑Mock: Tiada placeholder, semua fungsi kekal utuh.
+- ✅ Database As Source of Truth: Semua interaksi dengan Supabase dipantau dengan error handling yang baik.
+- ✅ Server‑Side Validation: Canvas captcha adalah client‑side, tetapi kod pengesahan masih disimpan dan diperiksa di sisi pelayan (melalui verification_code).
+- ✅ Build Gate: npm run build Exit Code 0 tanpa ralat TypeScript.
+- ✅ Strict Routes: Tiada perubahan pada laluan URL.
+- ✅ UI Contrast: Semua borang menggunakan kelas kontras tinggi.
+
+HASIL SELEPAS PEMBETULAN:
+- ✅ Tajuk dan panduan bintang lebih kemas dan responsif pada peranti mudah alih.
+- ✅ Perlindungan anti‑bot yang lebih kuat dengan canvas captcha.
+- ✅ Debugging yang lebih mudah dengan mesej ralat spesifik.
+- ✅ Migrasi SQL sedia untuk dilaksanakan jika jadual/polisi belum wujud.
+
+---
+Date: 19 September 2026 (implementasi UTC+8)
 TASK: Penambahan Modul Sistem Ulasan Pelanggan dengan Kod Pengesahan 6 Digit, Paginasi 7+3, dan Modul Moderasi di /urus
 STATUS: ✅ BERHASIL
 

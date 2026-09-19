@@ -696,7 +696,7 @@ const fetchAllOrderLogs = async () => {
       preparing: `Hai ${order.customer_name}, pesanan Hokkaido anda sedang disediakan.\n\nRujukan Order : #${order.id}`,
       ready_pickup: `Hai ${order.customer_name}, pesanan Hokkaido sedia diambil di kedai! 🧁\n\n📍 Alamat Kedai:\nKiosk No 1, Stadium Majlis Perbandaran Manjung, 32040 Seri Manjung, Perak.\n\n🌐 Lokasi Kedai (Google Maps):\nhttps://www.google.com/maps?q=4.1948617,100.6655929\n\nRujukan Order : #${order.id}`,
       delivering: `Hai ${order.customer_name}, rider dalam perjalanan ke lokasi anda.\n\nRujukan Order : #${order.id}`,
-      completed: `Terima kasih ${order.customer_name}! Pesanan Hokkaido selesai.\n\nSelamat menikmati Hokkaido anda! 🧀\n\nBoleh kongsikan maklum balas atau feedback anda di sini ya. 😊\n\nRujukan Order : #${order.id}`,
+      completed: `Terima kasih ${order.customer_name}! Pesanan Hokkaido selesai.\n\nSelamat menikmati Hokkaido anda! 🧀\n\nSudah rasa kelazatannya? Boleh kongsikan ulasan anda di sini ya:\nhttps://hokkaido.manjung.my/#ulasan\n\nRujukan Order : #${order.id}`,
       cancelled: `Hai ${order.customer_name}, Pesanan Hokkaido anda telah dibatalkan.\n\nSebarang pertanyaan lanjut boleh hubungi kami di sini.\n\nRujukan Order : #${order.id}`,
     }
     const template = templates[status]

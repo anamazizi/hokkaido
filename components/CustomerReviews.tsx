@@ -167,7 +167,7 @@ const canvasRef = useRef<HTMLCanvasElement>(null)
 
   // JSX will be added in the next editor call
 return (
-    <div className="space-y-8">
+    <div id="ulasan" className="space-y-8 scroll-mt-6">
       {/* Review Submission Form */}
       <div className="bg-white/90 backdrop-blur border border-amber-200/60 shadow-md rounded-2xl p-6">
         <h2 className="text-base font-bold text-slate-900 mb-6 flex items-center whitespace-nowrap">

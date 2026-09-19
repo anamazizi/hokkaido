@@ -225,7 +225,11 @@ const handleApproveReview = async (reviewId: string) => {
         .update({ is_approved: true, updated_at: new Date().toISOString() })
         .eq('id', reviewId)
 
-      if (error) throw error
+      if (error) {
+        console.error('CRITICAL Ralat Lulus Ulasan:', error)
+        alert('Ralat meluluskan ulasan: ' + (error.message || JSON.stringify(error)))
+        return
+      }
 
       // Update local state
       setPendingReviews(prev => prev.filter(r => r.id !== reviewId))
@@ -235,7 +239,7 @@ const handleApproveReview = async (reviewId: string) => {
       }
     } catch (error) {
       console.error('Error approving review:', error)
-      alert('Ralat meluluskan ulasan.')
+      alert('Ralat meluluskan ulasan: ' + (error instanceof Error ? error.message : 'Unknown error'))
     }
   }
 
@@ -246,7 +250,11 @@ const handleApproveReview = async (reviewId: string) => {
         .update({ is_approved: false, updated_at: new Date().toISOString() })
         .eq('id', reviewId)
 
-      if (error) throw error
+      if (error) {
+        console.error('CRITICAL Ralat Tarik Balik Kelulusan Ulasan:', error)
+        alert('Ralat menarik balik kelulusan ulasan: ' + (error.message || JSON.stringify(error)))
+        return
+      }
 
       // Update local state
       setApprovedReviews(prev => prev.filter(r => r.id !== reviewId))
@@ -256,7 +264,7 @@ const handleApproveReview = async (reviewId: string) => {
       }
     } catch (error) {
       console.error('Error unapproving review:', error)
-      alert('Ralat menarik balik kelulusan ulasan.')
+      alert('Ralat menarik balik kelulusan ulasan: ' + (error instanceof Error ? error.message : 'Unknown error'))
     }
   }
 
@@ -271,14 +279,18 @@ const handleApproveReview = async (reviewId: string) => {
         .delete()
         .eq('id', reviewId)
 
-      if (error) throw error
+      if (error) {
+        console.error('CRITICAL Ralat Padam Ulasan:', error)
+        alert('Ralat memadam ulasan: ' + (error.message || JSON.stringify(error)))
+        return
+      }
 
       // Update local state
       setPendingReviews(prev => prev.filter(r => r.id !== reviewId))
       setApprovedReviews(prev => prev.filter(r => r.id !== reviewId))
     } catch (error) {
       console.error('Error deleting review:', error)
-      alert('Ralat memadam ulasan.')
+      alert('Ralat memadam ulasan: ' + (error instanceof Error ? error.message : 'Unknown error'))
     }
   }
 const renderReviewsSection = () => (

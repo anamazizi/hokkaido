@@ -123,16 +123,20 @@ const canvasRef = useRef<HTMLCanvasElement>(null)
     setIsSubmitting(true)
 
     try {
-      const { error } = await supabase.from('customer_reviews').insert({
+      const { data, error } = await supabase.from('customer_reviews').insert([{
         customer_name: customerName.trim(),
         rating,
         review_text: reviewText.trim(),
         verification_code: verificationCode,
         honeypot: honeypot.trim() || null,
-        is_approved: false,
-      })
+        is_approved: false
+      }])
 
-      if (error) throw error
+      if (error) {
+        console.error('CRITICAL: Ralat simpan ulasan ke Supabase:', error)
+        alert('Gagal menghantar ulasan: ' + error.message)
+        return
+      }
 
       // Success
       resetForm()

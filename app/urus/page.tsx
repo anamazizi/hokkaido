@@ -178,15 +178,17 @@ const fetchLedger = async () => {
 const fetchReviews = async () => {
     try {
       setReviewsLoading(true)
-      const { data, error } = await supabase
+      const { data: reviewsData, error: reviewsErr } = await supabase
         .from('customer_reviews')
         .select('*')
         .order('created_at', { ascending: false })
 
-      if (error) throw error
+      if (reviewsErr) {
+        console.error('CRITICAL: Ralat baca customer_reviews di /urus:', reviewsErr)
+      }
 
-      const pending = data.filter(review => !review.is_approved)
-      const approved = data.filter(review => review.is_approved)
+      const pending = reviewsData?.filter(review => !review.is_approved) || []
+      const approved = reviewsData?.filter(review => review.is_approved) || []
 
       setPendingReviews(pending)
       setApprovedReviews(approved)
